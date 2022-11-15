@@ -11,6 +11,11 @@ use Illuminate\Http\Request;
 
 class AddedUserController extends Controller
 {
+    public function __construct()
+    {
+        $this->authorizeResource(AddedUser::class);
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -52,6 +57,7 @@ class AddedUserController extends Controller
      */
     public function update(StoreAddedUserRequest $request, AddedUser $addedUser)
     {
+
         $addedUser->update($request->validated());
         return new AddedUserResource($addedUser);
     }
@@ -64,6 +70,7 @@ class AddedUserController extends Controller
      */
     public function destroy(AddedUser $addedUser)
     {
+
         $addedUser->delete();
         return response()->noContent();
     }

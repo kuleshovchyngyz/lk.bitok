@@ -10,6 +10,11 @@ use Illuminate\Http\Request;
 
 class UserOperationController extends Controller
 {
+    public function __construct()
+    {
+        $this->authorizeResource(UserOperation::class);
+    }
+
     /**
      * Display a listing of the resource.
      *
