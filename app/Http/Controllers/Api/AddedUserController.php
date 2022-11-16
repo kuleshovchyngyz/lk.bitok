@@ -76,6 +76,7 @@ class AddedUserController extends Controller
 
     public function search(Request $request)
     {
+        //Adil
         return AddedUserResource::collection(
             AddedUser::when($request->has('pass_num_inn'), function ($q) use ($request) {
                 return $q->where('pass_num_inn', 'like', '%' . $request->pass_num_inn . '%');
