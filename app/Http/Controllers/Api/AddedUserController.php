@@ -70,20 +70,21 @@ class AddedUserController extends Controller
      */
     public function destroy(AddedUser $addedUser)
     {
-
         $addedUser->delete();
         return response()->noContent();
     }
 
     public function search(Request $request)
     {
-        return AddedUserResource::collection(AddedUser::when($request->has('pass_num_inn'), function ($q) use ($request) {
-            return $q->where('pass_num_inn', 'like', '%' . $request->pass_num_inn . '%');
-        })->when($request->has('name'), function ($q) use ($request) {
-            return $q->orWhere('last_name', 'like', '%' . $request->name . '%')
-                ->orWhere('first_name', 'like', '%' . $request->name . '%')
-                ->orWhere('middle_name', 'like', '%' . $request->name . '%');
-        })->get());
+        return AddedUserResource::collection(
+            AddedUser::when($request->has('pass_num_inn'), function ($q) use ($request) {
+                return $q->where('pass_num_inn', 'like', '%' . $request->pass_num_inn . '%');
+            })->when($request->has('name'), function ($q) use ($request) {
+                return $q->orWhere('last_name', 'like', '%' . $request->name . '%')
+                    ->orWhere('first_name', 'like', '%' . $request->name . '%')
+                    ->orWhere('middle_name', 'like', '%' . $request->name . '%');
+            })->get()
+        );
     }
 
     public function countries()
