@@ -12,6 +12,16 @@ class AddedUser extends Model
 
     protected $guarded = [];
     protected $dates = ['birth_date'];
+
+    public static function boot()
+    {
+        parent::boot();
+
+        static::deleting(function ($user) {
+            $user->userOperations()->delete();
+        });
+    }
+
     public function setBirthDateAttribute($value)
     {
         $this->attributes['birth_date'] = Carbon::createFromFormat('d/m/Y',$value)->format('Y-m-d');
@@ -19,5 +29,9 @@ class AddedUser extends Model
 
     public function country(){
         return $this->belongsTo(Country::class,'country_id','id');
+    }
+
+    public function userOperations(){
+        return $this->hasMany(UserOperation::class,'user_id','id');
     }
 }

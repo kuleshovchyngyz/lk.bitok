@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreUserOperationRequest;
 use App\Http\Resources\UserOperationResource;
+use App\Models\AddedUser;
 use App\Models\UserOperation;
 use App\Services\Search;
 use Carbon\Carbon;
@@ -25,8 +26,11 @@ class UserOperationController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(AddedUser $addedUser)
     {
+        if (isset($addedUser['id'])) {
+            return UserOperationResource::collection($addedUser->userOperations);
+        }
         return UserOperationResource::collection(UserOperation::with('addedUser')->get());
     }
 
@@ -36,8 +40,12 @@ class UserOperationController extends Controller
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
-    public function store(StoreUserOperationRequest $request)
+    public function store(StoreUserOperationRequest $request, AddedUser $addedUser)
     {
+
+        if (isset($addedUser['id'])) {
+            return new UserOperationResource($addedUser->userOperations()->create($request->validated()));
+        }
         return new UserOperationResource(UserOperation::create($request->validated()));
     }
 

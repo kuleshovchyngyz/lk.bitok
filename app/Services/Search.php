@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Models\Country;
 use Illuminate\Http\Request;
 
 class Search
@@ -21,8 +20,8 @@ class Search
                         ->orWhere('middle_name', 'like', '%' . $name . '%');
                 }
             });
-        })->when($request->get('country_id'), function ($q) use ($request){
-            $q->where('country_id', 'like', '%' . $request->country_id . '%');
+        })->when($request->get('country_id'), function ($q) use ($request) {
+            $q->where('country_id', $request->country_id);
         })->get();
     }
 }

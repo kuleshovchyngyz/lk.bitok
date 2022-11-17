@@ -15,6 +15,7 @@ class UserOperationResource extends JsonResource
     public function toArray($request)
     {
         return [
+            'operation_id'=>$this->id,
             'operation_date' => $this->operation_date->format('d/m/Y H:i'),
             'operation_sum' => number_format($this->operation_sum / 100, 2),
             'operation_direction' => $this->operation_direction,
