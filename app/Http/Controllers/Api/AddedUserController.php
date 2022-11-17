@@ -27,8 +27,11 @@ class AddedUserController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Country $country)
     {
+        if (isset($country['id'])) {
+            return AddedUserResource::collection($country->addedUsers);
+        }
         return AddedUserResource::collection(AddedUser::with('country')->get());
     }
 
