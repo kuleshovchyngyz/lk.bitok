@@ -29,6 +29,9 @@ class UserOperationController extends Controller
     public function index(AddedUser $addedUser)
     {
         if (isset($addedUser['id'])) {
+            if($addedUser->userOperations()->count()==0){
+                abort(404);
+            }
             return UserOperationResource::collection($addedUser->userOperations);
         }
         return UserOperationResource::collection(UserOperation::with('addedUser')->get());
