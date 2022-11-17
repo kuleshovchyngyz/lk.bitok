@@ -25,7 +25,7 @@ class StoreUserOperationRequest extends FormRequest
     {
         return [
             'user_id'=>'required',
-            'operation_date'=>'required',
+            'operation_date'=>'required|date_format:d/m/Y H:i',
             'operation_direction'=>'required',
             'operation_sum'=>'required',
         ];
