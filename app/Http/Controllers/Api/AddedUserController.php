@@ -82,8 +82,8 @@ class AddedUserController extends Controller
 
     public function search(Request $request)
     {
-        $addedUsers = $this->search->searchFromModel('AddedUser',$request);
-        $blackLists =    $this->search->searchFromModel('BlackList',$request);
+        $addedUsers = $this->search->searchFromClients('AddedUser',$request);
+        $blackLists =    $this->search->searchFromClients('BlackList',$request);
         return AddedUserResource::collection($addedUsers)->merge(AddedUserResource::collection($blackLists));
     }
 

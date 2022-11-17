@@ -2,12 +2,13 @@
 
 namespace App\Services;
 
+use App\Models\Country;
 use Illuminate\Http\Request;
 
 class Search
 {
 
-    public function searchFromModel($model, Request $request)
+    public function searchFromClients($model, Request $request)
     {
         $model = 'App\Models\\' . $model;
         return $model::when($request->get('pass_num_inn'), function ($q) use ($request) {
@@ -20,6 +21,8 @@ class Search
                         ->orWhere('middle_name', 'like', '%' . $name . '%');
                 }
             });
+        })->when($request->get('country_id'), function ($q) use ($request){
+            $q->where('country_id', 'like', '%' . $request->country_id . '%');
         })->get();
     }
 }

@@ -80,7 +80,7 @@ class UserOperationController extends Controller
     public function search(Request $request)
     {
 
-        $addedUsers = $this->search->searchFromModel('AddedUser', $request)->pluck('id');
+        $addedUsers = $this->search->searchFromClients('AddedUser', $request)->pluck('id');
 
         $userOperation = UserOperation::whereIn('user_id', $addedUsers)
             ->with('addedUser')
