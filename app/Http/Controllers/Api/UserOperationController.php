@@ -6,13 +6,18 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreUserOperationRequest;
 use App\Http\Resources\UserOperationResource;
 use App\Models\UserOperation;
+use App\Services\Search;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class UserOperationController extends Controller
 {
+    private Search $search;
+
     public function __construct()
     {
         $this->authorizeResource(UserOperation::class);
+        $this->search = new Search();
     }
 
     /**
@@ -28,7 +33,7 @@ class UserOperationController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
     public function store(StoreUserOperationRequest $request)
@@ -39,7 +44,7 @@ class UserOperationController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\UserOperation  $userOperation
+     * @param \App\Models\UserOperation $userOperation
      * @return \Illuminate\Http\Response
      */
     public function show(UserOperation $userOperation)
@@ -50,8 +55,8 @@ class UserOperationController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\UserOperation  $userOperation
+     * @param \Illuminate\Http\Request $request
+     * @param \App\Models\UserOperation $userOperation
      * @return \Illuminate\Http\Response
      */
     public function update(StoreUserOperationRequest $request, UserOperation $userOperation)
@@ -63,12 +68,29 @@ class UserOperationController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\UserOperation  $userOperation
+     * @param \App\Models\UserOperation $userOperation
      * @return \Illuminate\Http\Response
      */
     public function destroy(UserOperation $userOperation)
     {
         $userOperation->delete();
         return response()->noContent();
+    }
+
+    public function search(Request $request)
+    {
+
+        $addedUsers = $this->search->searchFromModel('AddedUser', $request)->pluck('id');
+
+        $userOperation = UserOperation::whereIn('user_id', $addedUsers)
+            ->with('addedUser')
+            ->when($request->get('from') && $request->get('to'), function ($q) use ($request) {
+                $q->whereBetween('operation_date', [
+                    Carbon::createFromFormat('d/m/Y', $request->get('from'))->format('Y-m-d'),
+                    Carbon::createFromFormat('d/m/Y', $request->get('to'))->addDay()->format('Y-m-d')
+                ]);
+            })->get();
+
+        return UserOperationResource::collection($userOperation);
     }
 }

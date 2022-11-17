@@ -27,8 +27,10 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
         JsonResource::withoutWrapping();
+
         Validator::extend('check_in_black_list', function ($attribute, $value, $parameters) {
             return !BlackList::where('pass_num_inn',$value)->count()>0;
         });
+
     }
 }
