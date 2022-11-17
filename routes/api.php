@@ -17,13 +17,13 @@ use \App\Http\Controllers\Api\AuthController;
 
 Route::post('auth/register', [AuthController::class,'register']);
 Route::post('auth/login', [AuthController::class,'login']);
+
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('auth/me', [AuthController::class,'me']);
-
+    Route::get('auth/logout', [AuthController::class,'logout']);
     Route::resource('added-users', \App\Http\Controllers\Api\AddedUserController::class);
     Route::resource('user-operations', \App\Http\Controllers\Api\UserOperationController::class);
 
     Route::post('added-users/search', [\App\Http\Controllers\Api\AddedUserController::class,'search']);
-
     Route::get('countries', [\App\Http\Controllers\Api\AddedUserController::class,'countries']);
 });
