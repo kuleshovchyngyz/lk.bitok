@@ -29,7 +29,7 @@ class StoreAddedUserRequest extends FormRequest
             'middle_name'=>'required',
             'birth_date'=>'required',
             'country_id'=>'required',
-            'pass_num_inn'=>'required',
+            'pass_num_inn'=>'required|unique:added_users',
         ];
     }
 }
