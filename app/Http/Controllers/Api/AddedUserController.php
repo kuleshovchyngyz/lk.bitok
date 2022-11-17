@@ -6,14 +6,20 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreAddedUserRequest;
 use App\Http\Resources\AddedUserResource;
 use App\Models\AddedUser;
+use App\Models\BlackList;
 use App\Models\Country;
+use App\Services\Search;
 use Illuminate\Http\Request;
+use Reliese\Database\Eloquent\Model;
 
 class AddedUserController extends Controller
 {
+    private Search $search;
+
     public function __construct()
     {
         $this->authorizeResource(AddedUser::class);
+        $this->search = new Search();
     }
 
     /**
@@ -76,20 +82,9 @@ class AddedUserController extends Controller
 
     public function search(Request $request)
     {
-
-        return AddedUserResource::collection(
-            AddedUser::when($request->get('pass_num_inn'), function ($q) use ($request) {
-                $q->where('pass_num_inn', 'like', '%' . $request->pass_num_inn . '%');
-            })->when($request->get('name'), function ($q) use ($request) {
-                $q->where(function ($q) use ($request) {
-                    foreach (explode(' ', $request->name) as $name) {
-                        $q->orWhere('last_name', 'like', '%' . $name . '%')
-                            ->orWhere('first_name', 'like', '%' . $name . '%')
-                            ->orWhere('middle_name', 'like', '%' . $name . '%');
-                    }
-                });
-            })->get()
-        );
+        $addedUsers = $this->search->searchFromClients('AddedUser',$request);
+        $blackLists =    $this->search->searchFromClients('BlackList',$request);
+        return AddedUserResource::collection($addedUsers)->merge(AddedUserResource::collection($blackLists));
     }
 
     public function countries()

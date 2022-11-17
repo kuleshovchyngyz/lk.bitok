@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('first_name')->nullable();
             $table->string('middle_name')->nullable();
             $table->timestamp('birth_date')->nullable();
-            $table->string('citizenship')->nullable();
+            $table->foreignId('country_id')->nullable();
             $table->string('pass_num_inn')->nullable();
             $table->timestamps();
         });

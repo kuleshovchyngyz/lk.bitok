@@ -9,13 +9,13 @@ class AddedUserResource extends JsonResource
     /**
      * Transform the resource into an array.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
      * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
      */
     public function toArray($request)
     {
         return [
-            'id'=>$this->id,
+            'id' => class_basename($this->resource) == 'BlackList' ? '999999' . $this->id : $this->id,
             'last_name' => $this->last_name,
             'first_name' => $this->first_name,
             'middle_name' => $this->middle_name,
@@ -24,6 +24,7 @@ class AddedUserResource extends JsonResource
             'country_id' => $this->country_id,
             'country' => $this->country->name,
             'pass_num_inn' => $this->pass_num_inn,
+            'black_list' => class_basename($this->resource) == 'BlackList',
         ];
     }
 }

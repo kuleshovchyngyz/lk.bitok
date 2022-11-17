@@ -25,5 +25,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::resource('user-operations', \App\Http\Controllers\Api\UserOperationController::class);
 
     Route::post('added-users/search', [\App\Http\Controllers\Api\AddedUserController::class,'search']);
+    Route::post('user-operations/search', [\App\Http\Controllers\Api\UserOperationController::class,'search']);
     Route::get('countries', [\App\Http\Controllers\Api\AddedUserController::class,'countries']);
 });
