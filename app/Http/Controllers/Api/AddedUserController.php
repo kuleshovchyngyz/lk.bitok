@@ -78,12 +78,16 @@ class AddedUserController extends Controller
     {
 
         return AddedUserResource::collection(
-            AddedUser::when($request->has('pass_num_inn') && $request->pass_num_inn, function ($q) use ($request) {
-                return $q->where('pass_num_inn', 'like', '%' . $request->pass_num_inn . '%');
-            })->when($request->has('name') && $request->name, function ($q) use ($request) {
-                return $q->orWhere('last_name', 'like', '%' . $request->name . '%')
-                    ->orWhere('first_name', 'like', '%' . $request->name . '%')
-                    ->orWhere('middle_name', 'like', '%' . $request->name . '%');
+            AddedUser::when($request->get('pass_num_inn'), function ($q) use ($request) {
+                $q->where('pass_num_inn', 'like', '%' . $request->pass_num_inn . '%');
+            })->when($request->get('name'), function ($q) use ($request) {
+                $q->where(function ($q) use ($request) {
+                    foreach (explode(' ', $request->name) as $name) {
+                        $q->orWhere('last_name', 'like', '%' . $name . '%')
+                            ->orWhere('first_name', 'like', '%' . $name . '%')
+                            ->orWhere('middle_name', 'like', '%' . $name . '%');
+                    }
+                });
             })->get()
         );
     }
