@@ -20,6 +20,7 @@ class AddedUserResource extends JsonResource
             'first_name' => $this->first_name,
             'middle_name' => $this->middle_name,
             'birth_date' => $this->birth_date->format('d/m/Y'),
+            'registration_date' => $this->created_at->format('d/m/Y H:i'),
             'country_id' => $this->country_id,
             'country' => $this->country->name,
             'pass_num_inn' => $this->pass_num_inn,
