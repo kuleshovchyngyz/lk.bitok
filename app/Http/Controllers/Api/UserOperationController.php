@@ -34,7 +34,7 @@ class UserOperationController extends Controller
             }
             return UserOperationResource::collection($addedUser->userOperations);
         }
-        return UserOperationResource::collection(UserOperation::with('addedUser')->paginate(50));
+        return UserOperationResource::collection(UserOperation::with('addedUser')->get());
     }
 
     /**
