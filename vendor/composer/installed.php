@@ -1,15 +1,24 @@
 <?php return array(
     'root' => array(
-        'pretty_version' => 'dev-master',
-        'version' => 'dev-master',
+        'pretty_version' => 'dev-main',
+        'version' => 'dev-main',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
-        'reference' => '4be1a4c093b3ca3ee1db06370f06f03e5eca9f7b',
+        'reference' => '7aff094b813e5b0b0bba539e7f27babcd3157e85',
         'name' => 'laravel/laravel',
         'dev' => true,
     ),
     'versions' => array(
+        'andreaselia/laravel-api-to-postman' => array(
+            'pretty_version' => 'v1.13.0',
+            'version' => '1.13.0.0',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../andreaselia/laravel-api-to-postman',
+            'aliases' => array(),
+            'reference' => 'ec35f26a8237e53c45d12c2bd0902490f91b1952',
+            'dev_requirement' => false,
+        ),
         'brick/math' => array(
             'pretty_version' => '0.10.2',
             'version' => '0.10.2.0',
@@ -401,12 +410,12 @@
             'dev_requirement' => false,
         ),
         'laravel/laravel' => array(
-            'pretty_version' => 'dev-master',
-            'version' => 'dev-master',
+            'pretty_version' => 'dev-main',
+            'version' => 'dev-main',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
-            'reference' => '4be1a4c093b3ca3ee1db06370f06f03e5eca9f7b',
+            'reference' => '7aff094b813e5b0b0bba539e7f27babcd3157e85',
             'dev_requirement' => false,
         ),
         'laravel/pint' => array(

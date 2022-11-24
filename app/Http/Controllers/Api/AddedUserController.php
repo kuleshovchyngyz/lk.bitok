@@ -32,7 +32,7 @@ class AddedUserController extends Controller
         if (isset($country['id'])) {
             return AddedUserResource::collection($country->addedUsers);
         }
-        return AddedUserResource::collection(AddedUser::with('country')->get());
+        return AddedUserResource::collection(AddedUser::with('country','userOperations')->get());
     }
 
     /**

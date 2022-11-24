@@ -174,6 +174,7 @@ class ComposerStaticInit5dd73560b89afc1cfedd7f40ecb76a53
         'A' => 
         array (
             'App\\' => 4,
+            'AndreasElia\\PostmanGenerator\\' => 29,
         ),
     );
 
@@ -528,6 +529,10 @@ class ComposerStaticInit5dd73560b89afc1cfedd7f40ecb76a53
             0 => __DIR__ . '/../..' . '/app',
             1 => __DIR__ . '/..' . '/laravel/pint/app',
         ),
+        'AndreasElia\\PostmanGenerator\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/andreaselia/laravel-api-to-postman/src',
+        ),
     );
 
     public static $prefixesPsr0 = array (
@@ -541,6 +546,8 @@ class ComposerStaticInit5dd73560b89afc1cfedd7f40ecb76a53
     );
 
     public static $classMap = array (
+        'AndreasElia\\PostmanGenerator\\Commands\\ExportPostmanCommand' => __DIR__ . '/..' . '/andreaselia/laravel-api-to-postman/src/Commands/ExportPostmanCommand.php',
+        'AndreasElia\\PostmanGenerator\\PostmanGeneratorServiceProvider' => __DIR__ . '/..' . '/andreaselia/laravel-api-to-postman/src/PostmanGeneratorServiceProvider.php',
         'App\\Console\\Kernel' => __DIR__ . '/../..' . '/app/Console/Kernel.php',
         'App\\Exceptions\\Handler' => __DIR__ . '/../..' . '/app/Exceptions/Handler.php',
         'App\\Http\\Controllers\\Api\\AddedUserController' => __DIR__ . '/../..' . '/app/Http/Controllers/Api/AddedUserController.php',
@@ -567,11 +574,14 @@ class ComposerStaticInit5dd73560b89afc1cfedd7f40ecb76a53
         'App\\Models\\Country' => __DIR__ . '/../..' . '/app/Models/Country.php',
         'App\\Models\\User' => __DIR__ . '/../..' . '/app/Models/User.php',
         'App\\Models\\UserOperation' => __DIR__ . '/../..' . '/app/Models/UserOperation.php',
+        'App\\Policies\\AddedUserPolicy' => __DIR__ . '/../..' . '/app/Policies/AddedUserPolicy.php',
+        'App\\Policies\\UserOperationPolicy' => __DIR__ . '/../..' . '/app/Policies/UserOperationPolicy.php',
         'App\\Providers\\AppServiceProvider' => __DIR__ . '/../..' . '/app/Providers/AppServiceProvider.php',
         'App\\Providers\\AuthServiceProvider' => __DIR__ . '/../..' . '/app/Providers/AuthServiceProvider.php',
         'App\\Providers\\BroadcastServiceProvider' => __DIR__ . '/../..' . '/app/Providers/BroadcastServiceProvider.php',
         'App\\Providers\\EventServiceProvider' => __DIR__ . '/../..' . '/app/Providers/EventServiceProvider.php',
         'App\\Providers\\RouteServiceProvider' => __DIR__ . '/../..' . '/app/Providers/RouteServiceProvider.php',
+        'App\\Services\\Search' => __DIR__ . '/../..' . '/app/Services/Search.php',
         'Attribute' => __DIR__ . '/..' . '/symfony/polyfill-php80/Resources/stubs/Attribute.php',
         'Brick\\Math\\BigDecimal' => __DIR__ . '/..' . '/brick/math/src/BigDecimal.php',
         'Brick\\Math\\BigInteger' => __DIR__ . '/..' . '/brick/math/src/BigInteger.php',
@@ -678,8 +688,14 @@ class ComposerStaticInit5dd73560b89afc1cfedd7f40ecb76a53
         'Cron\\HoursField' => __DIR__ . '/..' . '/dragonmantank/cron-expression/src/Cron/HoursField.php',
         'Cron\\MinutesField' => __DIR__ . '/..' . '/dragonmantank/cron-expression/src/Cron/MinutesField.php',
         'Cron\\MonthField' => __DIR__ . '/..' . '/dragonmantank/cron-expression/src/Cron/MonthField.php',
+        'Database\\Factories\\AddedUserFactory' => __DIR__ . '/../..' . '/database/factories/AddedUserFactory.php',
+        'Database\\Factories\\BlackListFactory' => __DIR__ . '/../..' . '/database/factories/BlackListFactory.php',
         'Database\\Factories\\UserFactory' => __DIR__ . '/../..' . '/database/factories/UserFactory.php',
+        'Database\\Factories\\UserOperationFactory' => __DIR__ . '/../..' . '/database/factories/UserOperationFactory.php',
+        'Database\\Seeders\\AddedUserSeeder' => __DIR__ . '/../..' . '/database/seeders/AddedUserSeeder.php',
+        'Database\\Seeders\\BlackListSeeder' => __DIR__ . '/../..' . '/database/seeders/BlackListSeeder.php',
         'Database\\Seeders\\DatabaseSeeder' => __DIR__ . '/../..' . '/database/seeders/DatabaseSeeder.php',
+        'Database\\Seeders\\UserOperationSeeder' => __DIR__ . '/../..' . '/database/seeders/UserOperationSeeder.php',
         'DeepCopy\\DeepCopy' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/DeepCopy.php',
         'DeepCopy\\Exception\\CloneException' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/Exception/CloneException.php',
         'DeepCopy\\Exception\\PropertyException' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/Exception/PropertyException.php',

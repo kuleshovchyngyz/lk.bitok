@@ -34,7 +34,7 @@ class UserOperationController extends Controller
             }
             return UserOperationResource::collection($addedUser->userOperations);
         }
-        return UserOperationResource::collection(UserOperation::with('addedUser')->get());
+        return UserOperationResource::collection(UserOperation::with('addedUser')->paginate(50));
     }
 
     /**
@@ -60,7 +60,7 @@ class UserOperationController extends Controller
      */
     public function show(UserOperation $userOperation)
     {
-        return new UserOperationResource($userOperation);
+        return new UserOperationResource($userOperation->loadMissing('addedUser'));
     }
 
     /**
