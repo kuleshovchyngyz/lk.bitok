@@ -15,6 +15,12 @@ use Illuminate\Support\Facades\DB;
 
 class CarController extends Controller
 {
+    public function carId(Request $request)
+    {
+        $type = CarType::where('name', $request->name)->firstOrFail();
+        return $type->id;
+
+    }
     public function carTypes(): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
         return CarResource::collection(CarType::all());

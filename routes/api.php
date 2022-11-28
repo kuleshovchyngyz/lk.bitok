@@ -24,9 +24,12 @@ Route::post('auth/login', [AuthController::class,'login']);
 
 Route::group(['prefix'=>'v1'],function () {
 
+    Route::get('cars',[CarController::class,'carId']);
 
     Route::get('types', [CarController::class, 'carTypes']);
     Route::get('types/{carType}',[CarController::class,'carType']);
+
+
     Route::get('types/{carType}/marks', [CarController::class, 'carMarks']);
     Route::get('marks/{carMark}',[CarController::class,'carMark']);
     Route::get('marks/{carMark}/models', [CarController::class, 'carModels']);
@@ -48,6 +51,8 @@ Route::group(['prefix'=>'v1'],function () {
     Route::post('app', [CarController::class, 'applicationUpdateData']);
     Route::post('title', [CarController::class, 'carTitleData']);
     Route::post('get-cars', [CarController::class, 'getCars']);
+
+
 
 
 
