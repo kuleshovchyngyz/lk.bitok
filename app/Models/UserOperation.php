@@ -14,16 +14,19 @@ class UserOperation extends Model
 
     protected $dates = ['operation_date'];
 
+
     public function addedUser(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
-        return $this->belongsTo(AddedUser::class,'user_id','id');
+        return $this->belongsTo(AddedUser::class, 'user_id', 'id');
     }
+
     public function setOperationSumAttribute($value)
     {
-        $this->attributes['operation_sum'] = $value*100;
+        $this->attributes['operation_sum'] = $value * 100;
     }
+
     public function setOperationDateAttribute($value)
     {
-        $this->attributes['operation_date'] = Carbon::createFromFormat('d/m/Y H:i',$value)->format('Y-m-d H:i');
+        $this->attributes['operation_date'] = Carbon::createFromFormat('d/m/Y H:i', $value)->format('Y-m-d H:i');
     }
 }

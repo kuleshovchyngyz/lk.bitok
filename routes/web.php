@@ -17,5 +17,5 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-
-Route::post('/register', 'AuthController@register');
+//
+//Route::post('/register', 'AuthController@register');

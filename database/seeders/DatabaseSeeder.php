@@ -14,6 +14,10 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
+//        $this->call([AddedUserSeeder::class,
+//        BlackListSeeder::class,
+//        UserOperationSeeder::class]);
+//        $this->call(UserOperationSeeder::class);
         // \App\Models\User::factory(10)->create();
 
         // \App\Models\User::factory()->create([
