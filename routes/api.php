@@ -35,9 +35,11 @@ Route::group(['prefix'=>'v1'],function () {
     Route::get('marks/{carMark}/models', [CarController::class, 'carModels']);
     Route::get('models/{carModel}',[CarController::class,'carModel']);
     Route::get('models/{carModel}/years', [CarController::class, 'years']);
+    Route::get('models/{carModel}/series', [CarController::class, 'getSeriesModel']);
     Route::get('models/{carModel}/years/{year}/generations', [CarController::class, 'generations']);
     Route::get('years/{year}/generations/{carGeneration}',[CarController::class,'generation']);
     Route::get('generations/{carGeneration}/series', [CarController::class, 'series']);
+
     Route::get('series/{carSeries}',[CarController::class,'serie']);
     Route::get('model/{carModel}/series/{carSeries}/{year}', [CarController::class, 'modifications']);
     Route::get('modifications/{carModification}',[CarController::class,'modification']);

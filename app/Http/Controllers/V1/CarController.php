@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\V1;
-use Illuminate\Http\Request;
+
 use App\Http\Controllers\Controller;
 use App\Http\Resources\CarResource;
 use App\Models\CarGeneration;
@@ -10,6 +10,7 @@ use App\Models\CarModel;
 use App\Models\CarModification;
 use App\Models\CarSerie;
 use App\Models\CarType;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 
@@ -21,6 +22,7 @@ class CarController extends Controller
         return $type->id;
 
     }
+
     public function carTypes(): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
         return CarResource::collection(CarType::all());
@@ -57,11 +59,6 @@ class CarController extends Controller
         return $carModel->years();
     }
 
-    public function generations(CarModel $carModel, $year)
-    {
-        return $carModel->getCarGenerationList($year);
-    }
-
     public function generation(CarGeneration $carGeneration)
     {
         return $carGeneration;
@@ -72,14 +69,14 @@ class CarController extends Controller
         return CarResource::collection($carGeneration->carSeries);
     }
 
+    public function getSeriesModel(CarModel $carModel)
+    {
+        return CarResource::collection($carModel->carSeries);
+    }
+
     public function serie(CarSerie $carSeries)
     {
         return new CarResource($carSeries);
-    }
-
-    public function modifications($model, CarSerie $carSeries, $year)
-    {
-        return CarResource::collection($carSeries->getCarModificationList($model, $year));
     }
 
     public function modification(CarModification $carModification)
@@ -87,21 +84,26 @@ class CarController extends Controller
         return CarResource::collection($carModification);
     }
 
-    public function engines(CarModification $carModification)
+    public function carTitleData(Request $request)
     {
-        return $carModification->getCarEngineList();
+        $carTitleData = DB::table('car_types')
+            ->select('car_types.name as car_type', 'car_marks.name as car_mark', 'car_models.name as car_model', 'car_generations.name as car_generation')
+            ->leftJoin('car_marks', 'car_types.id', '=', 'car_marks.car_type_id')
+            ->leftJoin('car_models', 'car_marks.id', '=', 'car_models.car_mark_id')
+            ->leftJoin('car_generations', 'car_models.id', '=', 'car_generations.car_model_id')
+            ->where($request->all())
+            ->first();
+        return $carTitleData;
     }
 
-    public function transmissions(CarModification $carModification)
+    public function getCars(Request $request)
     {
-        return $carModification->getCarTransmissionList();
+        $arr = $request->toArray();
+        $response['types'] = CarType::whereIn('id', $arr['types'])->pluck('name', 'id');
+        $response['marks'] = CarMark::whereIn('id', $arr['marks'])->pluck('name', 'id');
+        $response['models'] = CarModel::whereIn('id', $arr['models'])->pluck('name', 'id');
+        return $response;
     }
-
-    public function gears(CarModification $carModification)
-    {
-        return $carModification->getCarGearList();
-    }
-
 
     protected function applicationUpdateData(Request $request)
     {
@@ -137,7 +139,7 @@ class CarController extends Controller
 //            $carYears = $this->filteredItems($this->getCarYearList($application->car_model_id));
         }
         if ($application->year) {
-            $carGenerations = $this->generations( $carModel, $application->year);
+            $carGenerations = $this->generations($carModel, $application->year);
 //            $carGenerations = $carModels->getCarGenerationList($application->year);
 //            $carGenerations = $this->getCarGenerationList($application->car_model_id, $application->year);
         }
@@ -185,24 +187,30 @@ class CarController extends Controller
             'carGears'
         ));
     }
-    public function carTitleData(Request $request)
+
+    public function generations(CarModel $carModel, $year)
     {
-        $carTitleData = DB::table('car_types')
-            ->select('car_types.name as car_type', 'car_marks.name as car_mark', 'car_models.name as car_model', 'car_generations.name as car_generation')
-            ->leftJoin('car_marks', 'car_types.id', '=', 'car_marks.car_type_id')
-            ->leftJoin('car_models', 'car_marks.id', '=', 'car_models.car_mark_id')
-            ->leftJoin('car_generations', 'car_models.id', '=', 'car_generations.car_model_id')
-            ->where($request->all())
-            ->first();
-        return $carTitleData;
+        return $carModel->getCarGenerationList($year);
     }
 
-    public function getCars(Request $request){
-        $arr = $request->toArray();
-        $response['types'] = CarType::whereIn('id',$arr['types'])->pluck('name','id');
-        $response['marks'] = CarMark::whereIn('id',$arr['marks'])->pluck('name','id');
-        $response['models'] = CarModel::whereIn('id',$arr['models'])->pluck('name','id');
-        return $response;
+    public function modifications($model, CarSerie $carSeries, $year)
+    {
+        return CarResource::collection($carSeries->getCarModificationList($model, $year));
+    }
+
+    public function engines(CarModification $carModification)
+    {
+        return $carModification->getCarEngineList();
+    }
+
+    public function transmissions(CarModification $carModification)
+    {
+        return $carModification->getCarTransmissionList();
+    }
+
+    public function gears(CarModification $carModification)
+    {
+        return $carModification->getCarGearList();
     }
 
 }
