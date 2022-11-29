@@ -98,6 +98,7 @@ class CarModel extends Model
 
     public function getCarSeriesList( $generation_id)
     {
+        return $this->carSeries;
 
             $searchFilter[] = ['car_model_id', $this->attributes['id']];
             if (isset($generation_id) && is_numeric($generation_id) && $generation_id > 0) {
@@ -111,9 +112,6 @@ class CarModel extends Model
             $returnValues = [];
             foreach ($carSeries as $singleSeries) {
                 $returnValues[] = (object)['id' => $singleSeries->id, 'name' => $singleSeries->name, 'body' => $singleSeries->body_name];
-            }
-            if(count($returnValues)==0){
-                return CarResource::collection($this->carSeries);
             }
             return $returnValues;
 

@@ -146,6 +146,8 @@ class CarController extends Controller
         if ($application->car_generation_id) {
             $carSeriess = $carModel->getCarSeriesList($application->car_generation_id);
 //            $carSeriess = $this->getCarSeriesList(CarGeneration::find($application->car_generation_id));
+        } else {
+            $carSeriess = CarResource::collection($carModel->carSeries);
         }
         if ($application->car_series_id) {
             $carModifications = $this->modifications($application->car_model_id, CarSerie::find($application->car_series_id), $application->year);
