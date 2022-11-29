@@ -146,7 +146,7 @@ class CarController extends Controller
         if ($application->car_generation_id) {
             $carSeriess = $carModel->getCarSeriesList($application->car_generation_id);
 //            $carSeriess = $this->getCarSeriesList(CarGeneration::find($application->car_generation_id));
-        } else {
+        } elseif($carModel) {
             $carSeriess = CarResource::collection($carModel->carSeries);
         }
         if ($application->car_series_id) {
@@ -166,12 +166,13 @@ class CarController extends Controller
 //            $carGears = $this->getCarGearList($application->car_modification_id);
         }
 
+
 //        $attachments = $application->attachments()->select('id', 'thumbnail_url', 'url')->get();
         $dataApplication = [
-            'modelId' => $application->car_model_id,
-            'car_mark_id' => $application->car_mark_id,
-            'modificationId' => $application->car_modification_id,
-            'year' => $application->year
+            'modelId' => optional($application)->car_model_id,
+            'car_mark_id' => optional($application)->car_mark_id,
+            'modificationId' => optional($application)->car_modification_id,
+            'year' => optional($application)->year
         ];
 
 
