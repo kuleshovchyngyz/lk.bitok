@@ -98,7 +98,6 @@ class CarModel extends Model
 
     public function getCarSeriesList( $generation_id)
     {
-        return $this->carSeries;
 
             $searchFilter[] = ['car_model_id', $this->attributes['id']];
             if (isset($generation_id) && is_numeric($generation_id) && $generation_id > 0) {
