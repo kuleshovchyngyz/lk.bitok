@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Http\Resources\CarResource;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
@@ -110,6 +111,9 @@ class CarModel extends Model
             $returnValues = [];
             foreach ($carSeries as $singleSeries) {
                 $returnValues[] = (object)['id' => $singleSeries->id, 'name' => $singleSeries->name, 'body' => $singleSeries->body_name];
+            }
+            if(count($returnValues)==0){
+                return CarResource::collection($this->carSeries);
             }
             return $returnValues;
 
