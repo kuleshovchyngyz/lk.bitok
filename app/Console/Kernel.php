@@ -15,7 +15,11 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
+
         // $schedule->command('inspire')->hourly();
+        $schedule->call(function () {
+            Storage::disk('local')->put('example.txt', now()->format('h:i'));
+        })->everyMinute();
     }
 
     /**
