@@ -89,7 +89,7 @@ class CarDatabaseSeeder extends Seeder
             $data[] = $header;
 //                dump($table);
 //            dd($header);
-            if ($i % 3000 == 0) {
+            if ($i % 1000 == 0) {
                 UpdateCarDatabase::dispatch($data, $table);
                 $data = [];
             }
