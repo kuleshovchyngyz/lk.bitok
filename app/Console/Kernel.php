@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use Database\Seeders\CarDatabaseSeeder;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use Illuminate\Support\Facades\Storage;
@@ -19,8 +20,9 @@ class Kernel extends ConsoleKernel
 
         // $schedule->command('inspire')->hourly();
         $schedule->call(function () {
-            Storage::disk('local')->put('example.txt', now()->format('h:i'));
-        })->everyMinute();
+            $carSeeder = new CarDatabaseSeeder();
+            $carSeeder->run();
+        })->timezone('Europe/Moscow')->weekly()->mondays()->at('20:30');
     }
 
     /**
