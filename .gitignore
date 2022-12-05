@@ -1,6 +1,8 @@
 
 /public/build
 /public/hot
+/public/carData
+/public/Moto
 /public/storage
 /storage/*.key
 .env

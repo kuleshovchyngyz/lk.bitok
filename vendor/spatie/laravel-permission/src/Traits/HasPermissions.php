@@ -249,14 +249,13 @@ trait HasPermissions
      * @param string|int|array|\Spatie\Permission\Contracts\Permission|\Illuminate\Support\Collection ...$permissions
      *
      * @return bool
-     * @throws \Exception
      */
     public function hasAllPermissions(...$permissions): bool
     {
         $permissions = collect($permissions)->flatten();
 
         foreach ($permissions as $permission) {
-            if (! $this->hasPermissionTo($permission)) {
+            if (! $this->checkPermissionTo($permission)) {
                 return false;
             }
         }
@@ -310,7 +309,7 @@ trait HasPermissions
         /** @var Collection $permissions */
         $permissions = $this->permissions;
 
-        if ($this->roles) {
+        if (method_exists($this, 'roles')) {
             $permissions = $permissions->merge($this->getPermissionsViaRoles());
         }
 
@@ -486,6 +485,7 @@ trait HasPermissions
 
     /**
      * Check if the model has All of the requested Direct permissions.
+     *
      * @param string|int|array|\Spatie\Permission\Contracts\Permission|\Illuminate\Support\Collection ...$permissions
      * @return bool
      */
@@ -504,6 +504,7 @@ trait HasPermissions
 
     /**
      * Check if the model has Any of the requested Direct permissions.
+     *
      * @param string|int|array|\Spatie\Permission\Contracts\Permission|\Illuminate\Support\Collection ...$permissions
      * @return bool
      */
