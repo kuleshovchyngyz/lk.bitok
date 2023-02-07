@@ -26,7 +26,9 @@ class AddedUserResource extends JsonResource
             'pass_num_inn' => $this->pass_num_inn,
             'black_list' => class_basename($this->resource) == 'BlackList',
             'user_operations' => UserOperationResource::collection( $this->whenLoaded('userOperations')),
-
+            'type' => $this->when(isset($this->type), function () {
+                return $this->type;
+            }),
         ];
     }
 }

@@ -197,6 +197,8 @@ return [
         Spatie\Permission\PermissionServiceProvider::class,
         Reliese\Coders\CodersServiceProvider::class,
 
+        Orchestra\Parser\XmlServiceProvider::class,
+
     ],
 
     /*
@@ -251,6 +253,8 @@ return [
         'URL' => Illuminate\Support\Facades\URL::class,
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
+
+         'XmlParser' => Orchestra\Parser\Xml\Facade::class,
 
     ],
 

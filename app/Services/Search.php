@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class Search
@@ -22,6 +23,9 @@ class Search
             });
         })->when($request->get('country_id'), function ($q) use ($request) {
             $q->where('country_id', $request->country_id);
+        })->when($request->get('birth_date'), function ($q) use ($request) {
+            $date = Carbon::createFromFormat('d/m/Y',$request->birth_date)->format('Y-m-d');
+            $q->where('birth_date', 'like' ,'%'.$date.'%');
         })->get();
     }
 }

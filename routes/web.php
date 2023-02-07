@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Orchestra\Parser\Xml\Facade as XmlParser;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -14,8 +16,10 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
+
     return view('welcome');
 });
 
-//
-//Route::post('/register', 'AuthController@register');
+//Route::get('/pft', [\App\Http\Controllers\HomeController::class,'pft']);
+//Route::get('/lpdp', [\App\Http\Controllers\HomeController::class,'lpdp']);
+//Route::get('/forall', [\App\Http\Controllers\HomeController::class,'forall']);

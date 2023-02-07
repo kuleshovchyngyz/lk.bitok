@@ -22,6 +22,8 @@ Route::post('auth/register', [AuthController::class,'register']);
 Route::post('auth/login', [AuthController::class,'login']);
 
 
+Route::post('upload',[CarController::class,'upload']);
+
 Route::group(['prefix'=>'v1'],function () {
 
     Route::get('cars',[CarController::class,'carId']);
