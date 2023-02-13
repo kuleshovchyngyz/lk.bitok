@@ -31,11 +31,12 @@ class CarSerie extends Model
                 $yearFilter[] = ['year_end', '>=', $year];
             }
             return  $this->carModifications()->where('car_model_id', $model_id)
-                ->where(function ($q) use ($yearFilter) {
-                    $q->where($yearFilter)
-                        ->orWhereNull('year_begin')
-                        ->orWhereNull('year_end');
-                })
+                ->where('id','>',0)
+//                ->where(function ($q) use ($yearFilter) {
+//                    $q->where($yearFilter)
+//                        ->orWhereNull('year_begin')
+//                        ->orWhereNull('year_end');
+//                })
                 ->select('id', 'name')
                 ->get();
         }
