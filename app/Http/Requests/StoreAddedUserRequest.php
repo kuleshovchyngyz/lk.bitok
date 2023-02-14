@@ -30,6 +30,13 @@ class StoreAddedUserRequest extends FormRequest
             'birth_date'=>'required|date_format:d/m/Y',
             'country_id'=>'required',
             'pass_num_inn'=>'required|unique:added_users|check_in_black_list',
+
+            'passport_id'=>'required',
+            'passport_authority'=>'required',
+            'passport_authority_code'=>'required',
+            'passport_issued_at'=>'sometimes|date_format:d/m/Y',
+            'passport_expires_at'=>'sometimes|date_format:d/m/Y',
+
         ];
     }
 }

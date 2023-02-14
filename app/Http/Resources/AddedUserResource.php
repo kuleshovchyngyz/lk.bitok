@@ -25,10 +25,18 @@ class AddedUserResource extends JsonResource
             'country' => $this->country->name,
             'pass_num_inn' => $this->pass_num_inn,
             'black_list' => class_basename($this->resource) == 'BlackList',
-            'user_operations' => UserOperationResource::collection( $this->whenLoaded('userOperations')),
+            'user_operations' => UserOperationResource::collection($this->whenLoaded('userOperations')),
             'type' => $this->when(isset($this->type), function () {
                 return $this->type;
             }),
+            'passport_id' => $this->passport_id,
+
+            'passport_authority' =>
+                 $this->passport_authority,
+            'passport_authority_code' => $this->passport_authority_code,
+            'passport_issued_at' =>$this->passport_issued_at,
+            'passport_expires_at' => $this->passport_expires_at,
         ];
     }
+
 }

@@ -45,7 +45,6 @@ class UserOperationController extends Controller
      */
     public function store(StoreUserOperationRequest $request, AddedUser $addedUser)
     {
-
         if (isset($addedUser['id'])) {
             return new UserOperationResource($addedUser->userOperations()->create($request->validated()));
         }

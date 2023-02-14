@@ -32,3 +32,16 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 //     forceTLS: (import.meta.env.VITE_PUSHER_SCHEME ?? 'https') === 'https',
 //     enabledTransports: ['ws', 'wss'],
 // });
+// {
+//     "last_name":"MAksay",
+//     "first_name":"MAksay",
+//     "middle_name":"MAksay",
+//     "birth_date":"MAksay",
+//     "country_id":"MAksay"
+//     "pass_num_inn":"MAksay"
+//     "passport_id":"MAksay"
+//     "passport_authority":"MAksay"
+//     "passport_authority_code":"MAksay"
+//     "passport_issued_at":"MAksay"
+//     "passport_expires_at":"MAksay"
+// }
