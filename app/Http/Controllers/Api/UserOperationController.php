@@ -10,6 +10,10 @@ use App\Models\UserOperation;
 use App\Services\Search;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use App\Exports\CollectionExport;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\URL;
+use Maatwebsite\Excel\Facades\Excel;
 
 class UserOperationController extends Controller
 {
@@ -49,6 +53,19 @@ class UserOperationController extends Controller
             return new UserOperationResource($addedUser->userOperations()->create($request->validated()));
         }
         return new UserOperationResource(UserOperation::create($request->validated()));
+    }
+    public function range(Request $request)
+    {
+        $date1 = Carbon::createFromFormat('d/m/Y H:i', $request->date1)->format('Y-m-d H:i');
+        $date2 = Carbon::createFromFormat('d/m/Y H:i', $request->date2)->format('Y-m-d H:i');
+        $time1 = Carbon::createFromFormat('d/m/Y H:i', $request->date1)->format('Y-m-d');
+        $time2 = Carbon::createFromFormat('d/m/Y H:i', $request->date2)->format('Y-m-d');
+
+        $records = UserOperationResource::collection(UserOperation::with('addedUser')->whereBetween('operation_date', [$date1, $date2])->get());
+        $path = 'public/exports/'. $time1.'-'.$time2.'.xlsx'; // Set the storage path for the Excel file
+        Excel::store(new CollectionExport($records), $path);
+        $fileUrl = URL::to('/').Storage::url($path);
+        return $fileUrl;
     }
 
     /**

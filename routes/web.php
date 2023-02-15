@@ -4,6 +4,8 @@ use Illuminate\Support\Facades\Route;
 use Orchestra\Parser\Xml\Facade as XmlParser;
 use Illuminate\Support\Facades\Http;
 use GuzzleHttp\Cookie\CookieJar;
+
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -15,33 +17,36 @@ use GuzzleHttp\Cookie\CookieJar;
 |
 */
 
+Route::get('/import2', [\App\Http\Controllers\HomeController::class,'import2']);
+Route::get('/import1', [\App\Http\Controllers\HomeController::class,'import1']);
+Route::get('/import', [\App\Http\Controllers\HomeController::class,'import']);
 Route::get('/', function () {
+//$countries =
 
-
-// Set your login credentials
-    $username = 'bitokkg';
-    $password = '!@bitok2020';
-
-// Log in and get cookies
-    $loginUrl = 'https://fiu.gov.kg/user/login';
-    $cookieJar = new CookieJar();
-    Http::withHeaders([
-        'Referer' => $loginUrl,
-    ])->withOptions([
-        'cookies' => $cookieJar,
-    ])->post($loginUrl, [
-        'login-form[login]' => $username,
-        'login-form[password]' => $password,
-        '_token' => `p97gRLsyUDFaAyN1dUOdeO5xbfWILrU_TZk5jFf-1mjtuJp3011kay5JVSImdeoeq0Rdkcto73ou_2_nJomHOg==`,
-    ]);
-
-// Download the file using the cookies
-    $fileUrl = 'https://fiu.gov.kg/site/private';
-    $fileContents = Http::withCookies($cookieJar->toArray(),false)->get($fileUrl)->body();
-
-// Save the file to disk
-    $filename = 'private_file.html';
-    file_put_contents($filename, $fileContents);
+//// Set your login credentials
+//    $username = 'bitokkg';
+//    $password = '!@bitok2020';
+//
+//// Log in and get cookies
+//    $loginUrl = 'https://fiu.gov.kg/user/login';
+//    $cookieJar = new CookieJar();
+//    Http::withHeaders([
+//        'Referer' => $loginUrl,
+//    ])->withOptions([
+//        'cookies' => $cookieJar,
+//    ])->post($loginUrl, [
+//        'login-form[login]' => $username,
+//        'login-form[password]' => $password,
+//        '_token' => `p97gRLsyUDFaAyN1dUOdeO5xbfWILrU_TZk5jFf-1mjtuJp3011kay5JVSImdeoeq0Rdkcto73ou_2_nJomHOg==`,
+//    ]);
+//
+//// Download the file using the cookies
+//    $fileUrl = 'https://fiu.gov.kg/site/private';
+//    $fileContents = Http::withCookies($cookieJar->toArray(),false)->get($fileUrl)->body();
+//
+//// Save the file to disk
+//    $filename = 'private_file.html';
+//    file_put_contents($filename, $fileContents);
 
     return view('welcome');
 });

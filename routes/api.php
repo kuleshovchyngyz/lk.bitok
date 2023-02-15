@@ -69,6 +69,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('auth/logout', [AuthController::class,'logout']);
     Route::resource('added-users', AddedUserController::class);
     Route::resource('user-operations', UserOperationController::class);
+    Route::post('user-operations/range', [UserOperationController::class,'range']);
 
     Route::apiResource('countries.added-users', AddedUserController::class)->shallow();
     Route::apiResource('added-users.user-operations', UserOperationController::class)->shallow();

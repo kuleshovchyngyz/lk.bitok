@@ -30,9 +30,7 @@ class AddedUserResource extends JsonResource
                 return $this->type;
             }),
             'passport_id' => $this->passport_id,
-
-            'passport_authority' =>
-                 $this->passport_authority,
+            'passport_authority' => $this->passport_authority,
             'passport_authority_code' => $this->passport_authority_code,
             'passport_issued_at' =>$this->passport_issued_at,
             'passport_expires_at' => $this->passport_expires_at,
