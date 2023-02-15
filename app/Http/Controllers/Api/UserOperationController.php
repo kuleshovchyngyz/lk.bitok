@@ -62,10 +62,9 @@ class UserOperationController extends Controller
         $time2 = Carbon::createFromFormat('d/m/Y H:i', $request->date2)->format('Y-m-d');
 
         $records = UserOperationResource::collection(UserOperation::with('addedUser')->whereBetween('operation_date', [$date1, $date2])->get());
-        $path = 'public/exports/'. $time1.'-'.$time2.'.xlsx'; // Set the storage path for the Excel file
+        $path = 'public/exports/'. $time1.'---'.$time2.'.xlsx'; // Set the storage path for the Excel file
         Excel::store(new CollectionExport($records), $path);
-        $fileUrl = URL::to('/').Storage::url($path);
-        return $fileUrl;
+        return URL::to('/').Storage::url($path);
     }
 
     /**
