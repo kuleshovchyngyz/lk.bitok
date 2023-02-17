@@ -92,15 +92,29 @@ class AddedUserController extends Controller
             $item['hash'] = md5($item['last_name'] . $item['first_name'] . $item['middle_name'] . $item['birth_date']);
             return $item;
         });
+        $rfr = $blackLists;
+        $results = $addedUsers->merge($blackLists)->toJson();
+        $results = collect((array)json_decode($results,true));
 
-        $results = $addedUsers->merge($blackLists);
         $counted = $addedUsers->merge($blackLists)->countBy(function ($item) {
             return $item['hash'];
         });
 //        return $counted;
 
+    $mk = [];
+        $r = $results->reject(function ($items) use ($counted,&$mk){
+            return $counted[$items['hash']]>1 && $items['black_list']==false;
+        });
 
-        return $results;
+        $counted->map(function ($key,$item) use ($r,&$mk){
+            $r =  $r->where('hash',$item);
+            $type = implode(',',$r->pluck('type')->toArray());
+            $data = $r->first();
+            $data['type'] = $type;
+            $mk[] = $data;
+        });
+
+        return $mk;
     }
 
     public function countries()
