@@ -97,7 +97,7 @@ class AddedUserController extends Controller
         $counted = $addedUsers->merge($blackLists)->countBy(function ($item) {
             return $item['hash'];
         });
-        return $counted;
+//        return $counted;
 
 
         return $results;
