@@ -28,8 +28,8 @@ class StoreUserOperationRequest extends FormRequest
             'operation_date'=>'required|date_format:d/m/Y H:i',
             'operation_direction'=>'required',
             'operation_sum'=>'required',
-            'wallet_id'=>'sometimes|required',
-            'currency'=>'sometimes|required',
+            'wallet_id'=>'',
+            'currency'=>'',
         ];
     }
 }

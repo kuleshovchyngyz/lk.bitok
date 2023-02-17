@@ -51,6 +51,6 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-//Route::get('/pft', [\App\Http\Controllers\HomeController::class,'pft']);
+Route::get('/pft', [\App\Http\Controllers\HomeController::class,'pft']);
 //Route::get('/lpdp', [\App\Http\Controllers\HomeController::class,'lpdp']);
 //Route::get('/forall', [\App\Http\Controllers\HomeController::class,'forall']);

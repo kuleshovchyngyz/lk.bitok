@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Http;
 
 class HomeController extends Controller
 {
-    use App\Exports\CollectionExport;
+
 
 
     public function exportCollection(Request $request)
@@ -111,7 +111,6 @@ class HomeController extends Controller
             $data[$key]['BasicInclusion'] = $item['BasicInclusion'];
             $data[$key]['type'] = 'pft';
             $data[$key]['country_id'] = 1;
-
         }
 //    dd($data);
 

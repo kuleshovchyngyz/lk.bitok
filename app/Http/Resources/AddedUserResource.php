@@ -29,6 +29,9 @@ class AddedUserResource extends JsonResource
             'type' => $this->when(isset($this->type), function () {
                 return $this->type;
             }),
+            'hash' => $this->when(isset($this->hash), function () {
+                return $this->hash;
+            }),
             'passport_id' => $this->passport_id,
             'passport_authority' => $this->passport_authority,
             'passport_authority_code' => $this->passport_authority_code,

@@ -6,11 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreAddedUserRequest;
 use App\Http\Resources\AddedUserResource;
 use App\Models\AddedUser;
-use App\Models\BlackList;
 use App\Models\Country;
 use App\Services\Search;
 use Illuminate\Http\Request;
-use Reliese\Database\Eloquent\Model;
 
 class AddedUserController extends Controller
 {
@@ -85,9 +83,24 @@ class AddedUserController extends Controller
 
     public function search(Request $request)
     {
-        $addedUsers = $this->search->searchFromClients('AddedUser',$request);
-        $blackLists =    $this->search->searchFromClients('BlackList',$request);
-        return AddedUserResource::collection($addedUsers)->merge(AddedUserResource::collection($blackLists));
+
+        $addedUsers = AddedUserResource::collection($this->search->searchFromClients('AddedUser', $request))->map(function ($item) {
+            $item['hash'] = md5($item['last_name'] . $item['first_name'] . $item['middle_name'] . $item['birth_date']);
+            return $item;
+        });
+        $blackLists = AddedUserResource::collection($this->search->searchFromClients('BlackList', $request))->map(function ($item) {
+            $item['hash'] = md5($item['last_name'] . $item['first_name'] . $item['middle_name'] . $item['birth_date']);
+            return $item;
+        });
+
+        $results = $addedUsers->merge($blackLists);
+        $counted = $addedUsers->merge($blackLists)->countBy(function ($item) {
+            return $item['hash'];
+        });
+        return $counted;
+
+
+        return $results;
     }
 
     public function countries()
