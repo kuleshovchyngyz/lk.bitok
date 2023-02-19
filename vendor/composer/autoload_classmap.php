@@ -10,6 +10,7 @@ return array(
     'AndreasElia\\PostmanGenerator\\PostmanGeneratorServiceProvider' => $vendorDir . '/andreaselia/laravel-api-to-postman/src/PostmanGeneratorServiceProvider.php',
     'App\\Console\\Kernel' => $baseDir . '/app/Console/Kernel.php',
     'App\\Exceptions\\Handler' => $baseDir . '/app/Exceptions/Handler.php',
+    'App\\Exports\\CollectionExport' => $baseDir . '/app/Exports/CollectionExport.php',
     'App\\Http\\Controllers\\Api\\AddedUserController' => $baseDir . '/app/Http/Controllers/Api/AddedUserController.php',
     'App\\Http\\Controllers\\Api\\AuthController' => $baseDir . '/app/Http/Controllers/Api/AuthController.php',
     'App\\Http\\Controllers\\Api\\UserOperationController' => $baseDir . '/app/Http/Controllers/Api/UserOperationController.php',

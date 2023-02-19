@@ -83,32 +83,27 @@ class AddedUserController extends Controller
 
     public function search(Request $request)
     {
-
-        $addedUsers = AddedUserResource::collection($this->search->searchFromClients('AddedUser', $request))->map(function ($item) {
-            $item['hash'] = md5($item['last_name'] . $item['first_name'] . $item['middle_name'] . $item['birth_date']);
-            return $item;
-        });
+        $addedUsers = AddedUserResource::collection($this->search->searchFromClients('AddedUser', $request)->unique('hash')->all());
         $blackLists = AddedUserResource::collection($this->search->searchFromClients('BlackList', $request))->map(function ($item) {
             $item['hash'] = md5($item['last_name'] . $item['first_name'] . $item['middle_name'] . $item['birth_date']);
             return $item;
         });
-        $rfr = $blackLists;
         $results = $addedUsers->merge($blackLists)->toJson();
-        $results = collect((array)json_decode($results,true));
+        $results = collect((array)json_decode($results, true));
 
-        $counted = $addedUsers->merge($blackLists)->countBy(function ($item) {
-            return $item['hash'];
+        $counted = $addedUsers->merge($blackLists)
+            ->countBy(function ($item) {
+                return $item['hash'];
+            });
+
+        $mk = [];
+        $r = $results->reject(function ($items) use ($counted, &$mk) {
+            return $counted[$items['hash']] > 1 && $items['black_list'] == false;
         });
-//        return $counted;
-
-    $mk = [];
-        $r = $results->reject(function ($items) use ($counted,&$mk){
-            return $counted[$items['hash']]>1 && $items['black_list']==false;
-        });
-
-        $counted->map(function ($key,$item) use ($r,&$mk){
-            $r =  $r->where('hash',$item);
-            $type = implode(',',$r->pluck('type')->toArray());
+//        return $results;
+        $counted->map(function ($key, $item) use ($r, &$mk) {
+            $r = $r->where('hash', $item);
+            $type = implode(',', $r->pluck('type')->toArray());
             $data = $r->first();
             $data['type'] = $type;
             $mk[] = $data;
