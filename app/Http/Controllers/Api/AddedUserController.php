@@ -83,6 +83,11 @@ class AddedUserController extends Controller
 
     public function search(Request $request)
     {
+        AddedUser::all()->map(function ($item){
+            $item->hash = md5($item['last_name'] . $item['first_name'] . $item['middle_name'] . $item['birth_date']->format('d/m/Y'));
+            $item->save();
+            \Storage::disk('local')->append('incomes.txt', ($item['last_name'] . $item['first_name'] . $item['middle_name'] . $item['birth_date']->format('d/m/Y')));
+        });
         $addedUsers = AddedUserResource::collection($this->search->searchFromClients('AddedUser', $request)->unique('hash')->all());
         $blackLists = AddedUserResource::collection($this->search->searchFromClients('BlackList', $request))->map(function ($item) {
             $item['hash'] = md5($item['last_name'] . $item['first_name'] . $item['middle_name'] . $item['birth_date']);
