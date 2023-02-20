@@ -24,12 +24,14 @@ class ImportController extends Controller
 
     public function import()
     {
-        return [
+        $logs = BlacklistLogs::orderBy('created_at', 'desc')->get();
+        $values = [
             'pft' => 'Перечень физических лиц...(ПФТ)',
             'plpd' => 'Перечень лиц, групп, организаций...(ПЛПД)',
             'forall' => 'Сводный санкционный перечень Кыргызской Республики',
             'un' => 'Сводный санкционный перечень Совета Безопасности ООН',
         ];
+        return compact('logs','values');
     }
 
     public function pft($file)
