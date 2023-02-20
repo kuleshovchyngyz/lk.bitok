@@ -24,7 +24,7 @@ class ImportController extends Controller
 
     public function import()
     {
-        $logs = BlacklistLogs::orderBy('created_at', 'desc')->get();
+        $logs = ImportLogResource::collection(BlacklistLogs::orderBy('created_at', 'desc')->get());
         $values = [
             'pft' => 'Перечень физических лиц...(ПФТ)',
             'plpd' => 'Перечень лиц, групп, организаций...(ПЛПД)',
