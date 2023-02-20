@@ -26,7 +26,7 @@ class ImportController extends Controller
     {
         return [
             'pft' => 'Перечень физических лиц...(ПФТ)',
-            'pldp' => 'Перечень лиц, групп, организаций...(ПЛПД)',
+            'plpd' => 'Перечень лиц, групп, организаций...(ПЛПД)',
             'forall' => 'Сводный санкционный перечень Кыргызской Республики',
             'un' => 'Сводный санкционный перечень Совета Безопасности ООН',
         ];
@@ -62,6 +62,9 @@ class ImportController extends Controller
                     $data[$key]['BasicInclusion'] = $item['BasicInclusion'];
                     $data[$key]['type'] = 'pft';
                     $data[$key]['country_id'] = 1;
+                    $data[$key]['created_at'] = now();
+                    $data[$key]['updated_at'] = now();
+                    $data[$key]['blacklist_log_id'] = $bl->id;
                 }
                 $size = count($data);
                 $inserted = \App\Models\BlackList::insert($data);
@@ -77,7 +80,7 @@ class ImportController extends Controller
 
     }
 
-    public function pldp($file)
+    public function plpd($file)
     {
 //        $file = public_path('blacklist') . '/63ce72ce20dab.xml';
 
@@ -109,6 +112,9 @@ class ImportController extends Controller
                     $data[$key]['BasicInclusion'] = $item['BasicInclusion'];
                     $data[$key]['type'] = 'plpd';
                     $data[$key]['country_id'] = 1;
+                    $data[$key]['created_at'] = now();
+                    $data[$key]['updated_at'] = now();
+                    $data[$key]['blacklist_log_id'] = $bl->id;
 
                 }
                 $size = count($data);
@@ -186,7 +192,8 @@ class ImportController extends Controller
 
         try {
             $bl = null;
-            DB::transaction(function () use ($phpArray, &$bl, $file) {
+            $data = null;
+            DB::transaction(function () use ($phpArray, &$bl, &$data,$file) {
                 $bl = BlacklistLogs::create([
                     'file_name' => basename($file),
                     'bl_name_code' => 'un',
@@ -217,7 +224,11 @@ class ImportController extends Controller
                     }
                     $data[$key]['birth_date'] = \Carbon\Carbon::parse($dob)->format('Y-m-d');
                     $data[$key]['type'] = 'un';
+                    $data[$key]['created_at'] = now();
+                    $data[$key]['updated_at'] = now();
+                    $data[$key]['blacklist_log_id'] = $bl->id;
                 }
+
                 $size = count($data);
 
                 $inserted = \App\Models\BlackList::insert($data);
@@ -226,6 +237,7 @@ class ImportController extends Controller
                 $bl->save();
                 \App\Models\BlackList::where('type', 'forall')->where('blacklist_log_id', '!=', $bl->id)->delete();
             });
+
             return new ImportLogResource($bl);
         } catch (\Exception $e) {
             return 'Error: ' . $e->getMessage();
