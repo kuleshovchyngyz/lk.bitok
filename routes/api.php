@@ -61,7 +61,12 @@ Route::group(['prefix'=>'v1'],function () {
 
 
 });
-
+Route::get('/import', [\App\Http\Controllers\Api\ImportController::class,'import']);
+Route::post('/import', [\App\Http\Controllers\Api\ImportController::class,'upload']);
+Route::get('/pft', [\App\Http\Controllers\Api\ImportController::class,'pft']);
+Route::get('/pldp', [\App\Http\Controllers\Api\ImportController::class,'pldp']);
+Route::get('/forall', [\App\Http\Controllers\Api\ImportController::class,'forall']);
+Route::get('/un', [\App\Http\Controllers\Api\ImportController::class,'un']);
 
 
 Route::middleware('auth:sanctum')->group(function () {

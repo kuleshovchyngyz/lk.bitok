@@ -36,6 +36,7 @@ return array(
     'App\\Jobs\\UpdateCarDatabase' => $baseDir . '/app/Jobs/UpdateCarDatabase.php',
     'App\\Models\\AddedUser' => $baseDir . '/app/Models/AddedUser.php',
     'App\\Models\\BlackList' => $baseDir . '/app/Models/BlackList.php',
+    'App\\Models\\BlacklistLogs' => $baseDir . '/app/Models/BlacklistLogs.php',
     'App\\Models\\CarCharacteristic' => $baseDir . '/app/Models/CarCharacteristic.php',
     'App\\Models\\CarCharacteristicValue' => $baseDir . '/app/Models/CarCharacteristicValue.php',
     'App\\Models\\CarGeneration' => $baseDir . '/app/Models/CarGeneration.php',

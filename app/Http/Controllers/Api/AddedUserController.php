@@ -8,6 +8,7 @@ use App\Http\Resources\AddedUserResource;
 use App\Models\AddedUser;
 use App\Models\Country;
 use App\Services\Search;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class AddedUserController extends Controller
@@ -83,39 +84,59 @@ class AddedUserController extends Controller
 
     public function search(Request $request)
     {
+        try {
 //        AddedUser::all()->map(function ($item){
 //            $item->hash = md5($item['last_name'] . $item['first_name'] . $item['middle_name'] . $item['birth_date']->format('d/m/Y'));
 //            $item->save();
 //            \Storage::disk('local')->append('incomes.txt', ($item['last_name'] . $item['first_name'] . $item['middle_name'] . $item['birth_date']->format('d/m/Y')));
 //        });
-        $addedUsers = AddedUserResource::collection($this->search->searchFromClients('AddedUser', $request)->unique('hash')->all());
+            $addedUsers = AddedUserResource::collection($this->search->searchFromClients('AddedUser', $request)->unique('hash')->all());
 
-        $blackLists = AddedUserResource::collection($this->search->searchFromClients('BlackList', $request))->map(function ($item) {
-            $item['hash'] = md5($item['last_name'] . $item['first_name'] . $item['middle_name'] . $item['birth_date']->format('d/m/Y'));
-            return $item;
-        });
-        $results = $addedUsers->merge($blackLists)->toJson();
-        $results = collect((array)json_decode($results, true));
+            if ($request->has('date1') && $request->has('date2')) {
+                $startDate = $this->parseDateString($request->date1);
+                $endDate = $this->parseDateString($request->date2);
+                $addedUsers = $addedUsers->filter(function ($item) use ($startDate, $endDate) {
+                    return $item['created_at'] >= $startDate && $item['created_at'] <= $endDate;
+                });
+            }
 
-        $counted = $addedUsers->merge($blackLists)
-            ->countBy(function ($item) {
-                return $item['hash'];
+            $blackLists = AddedUserResource::collection($this->search->searchFromClients('BlackList', $request))->map(function ($item) {
+                $item['hash'] = md5($item['last_name'] . $item['first_name'] . $item['middle_name'] . $item['birth_date']->format('d/m/Y'));
+                return $item;
             });
+            $results = $addedUsers->merge($blackLists)->toJson();
+            $results = collect((array)json_decode($results, true));
 
-        $mk = [];
-        $r = $results->reject(function ($items) use ($counted, &$mk) {
-            return $counted[$items['hash']] > 1 && $items['black_list'] == false;
-        });
+            $counted = $addedUsers->merge($blackLists)
+                ->countBy(function ($item) {
+                    return $item['hash'];
+                });
+
+            $mk = [];
+            $r = $results->reject(function ($items) use ($counted, &$mk) {
+                return $counted[$items['hash']] > 1 && $items['black_list'] == false;
+            });
 //        return $results;
-        $counted->map(function ($key, $item) use ($r, &$mk) {
-            $r = $r->where('hash', $item);
-            $type = implode(',', $r->pluck('type')->toArray());
-            $data = $r->first();
-            $data['type'] = $type;
-            $mk[] = $data;
-        });
-
+            $counted->map(function ($key, $item) use ($r, &$mk) {
+                $r = $r->where('hash', $item);
+                $type = implode(',', $r->pluck('type')->toArray());
+                $data = $r->first();
+                $data['type'] = $type;
+                $mk[] = $data;
+            });
+        } catch (\Exception $e) {
+            return 'Error: ' . $e->getMessage();
+        }
         return $mk;
+    }
+
+    public function parseDateString($date_string)
+    {
+        if (str_contains($date_string, ':')) {
+            return Carbon::createFromFormat('d/m/Y H:i', $date_string)->format('Y-m-d H:i');
+        } else {
+            return Carbon::createFromFormat('d/m/Y', $date_string)->startOfDay()->format('Y-m-d H:i');
+        }
     }
 
     public function countries()
