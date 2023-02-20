@@ -100,7 +100,7 @@ class AddedUserController extends Controller
                     return $item['created_at'] >= $startDate && $item['created_at'] <= $endDate;
                 });
             }
-            $addedUsers = $addedUsers->sortBy('created_at');
+            $addedUsers = $addedUsers->sortByDesc('created_at');
 
             $blackLists = AddedUserResource::collection($this->search->searchFromClients('BlackList', $request))->map(function ($item) {
                 $item['hash'] = md5($item['last_name'] . $item['first_name'] . $item['middle_name'] . (isset($item['birth_date'])) ? $item['birth_date']->format('d/m/Y') : '');
