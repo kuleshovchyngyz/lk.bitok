@@ -20,6 +20,7 @@ class ImportController extends Controller
             $type = $request->get('type');
             return call_user_func_array([$this, $type], [$url]);
         }
+        return 'no file found';
     }
 
     public function import()

@@ -84,7 +84,6 @@ class AddedUserController extends Controller
 
     public function search(Request $request)
     {
-
         try {
 //        AddedUser::all()->map(function ($item){
 //            $item->hash = md5($item['last_name'] . $item['first_name'] . $item['middle_name'] . $item['birth_date']->format('d/m/Y'));
