@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreAddedUserRequest;
 use App\Http\Resources\AddedUserResource;
+use App\Http\Resources\CountryResource;
 use App\Models\AddedUser;
 use App\Models\Country;
 use App\Services\Search;
@@ -143,6 +144,6 @@ class AddedUserController extends Controller
 
     public function countries()
     {
-        return Country::select('id', 'name')->get();
+        return CountryResource::collection(Country::all());
     }
 }

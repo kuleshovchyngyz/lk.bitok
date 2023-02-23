@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Route;
 use \App\Http\Controllers\Api\AuthController;
 use \App\Http\Controllers\Api\UserOperationController;
 use \App\Http\Controllers\Api\AddedUserController;
+use \App\Http\Controllers\Api\SanctionController;
+use \App\Http\Controllers\Api\CountryController;
 use \App\Http\Controllers\V1\CarController;
 /*
 |--------------------------------------------------------------------------
@@ -81,5 +83,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('added-users/search', [AddedUserController::class,'search']);
     Route::post('user-operations/search', [UserOperationController::class,'search']);
-    Route::get('countries', [AddedUserController::class,'countries']);
+//    Route::get('countries', [AddedUserController::class,'countries']);
+//    Route::post('countries', [SanctionController::class,'store']);
+//    Route::put('countries', [SanctionController::class,'update']);
+    Route::resource('countries',CountryController::class);
+    Route::post('countries/bulk',[CountryController::class,'bulkUpdate']);
 });
