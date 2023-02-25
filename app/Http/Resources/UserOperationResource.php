@@ -35,6 +35,7 @@ class UserOperationResource extends JsonResource
             'fullname' => $addedUser ? $addedUser->last_name . ' ' . $addedUser->first_name . ' ' . $addedUser->middle_name : $this->whenLoaded('addedUser'),
             'pass_num_inn' => $addedUser ? $addedUser->pass_num_inn : $this->whenLoaded('addedUser'),
             'birth_date' => $addedUser ? $addedUser->birth_date->format('d/m/Y') : $this->whenLoaded('addedUser'),
+            'attachments' => $this->attachments,
         ];
     }
 }

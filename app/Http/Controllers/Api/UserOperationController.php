@@ -3,16 +3,21 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreAddedUserRequest;
 use App\Http\Requests\StoreUserOperationRequest;
+use App\Http\Resources\AddedUserResource;
 use App\Http\Resources\UserOperationResource;
 use App\Models\AddedUser;
+use App\Models\Attachment;
 use App\Models\UserOperation;
 use App\Services\Search;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Exports\CollectionExport;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
+use Intervention\Image\Facades\Image;
 use Maatwebsite\Excel\Facades\Excel;
 
 class UserOperationController extends Controller
@@ -47,14 +52,47 @@ class UserOperationController extends Controller
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
-    public function store(StoreUserOperationRequest $request, AddedUser $addedUser)
+
+    public function store(StoreUserOperationRequest $request)
     {
-//        return $request->all();
         if (isset($addedUser['id'])) {
-            return new UserOperationResource($addedUser->userOperations()->create($request->validated()));
+            $userOperation = ($addedUser->userOperations()->create(Arr::except($request->validated(), ['wallet_photo'])));
         }
-        return new UserOperationResource(UserOperation::create($request->validated()));
+        $userOperation = (UserOperation::create(Arr::except($request->validated(), ['wallet_photo'])));
+
+        if ($request->has('wallet_photo') && is_array($request['wallet_photo'])) {
+            $wallet_photo = $request->file('wallet_photo');
+            $this->attach($wallet_photo,$userOperation,'wallet');
+        }
+        return  new UserOperationResource($userOperation);
     }
+    public function attach($photos,$user,$type){
+        $thumbnail_url = null;
+        foreach ($photos as $key => $singleFile) {
+
+            $fileName = uniqid()  . $singleFile->getClientOriginalName();
+            Storage::disk('uploads')->put($fileName, file_get_contents($singleFile));
+            if (in_array(strtolower($singleFile->getClientOriginalExtension()), ['jpg', 'jpeg', 'png', 'bmp'])) {
+                Image::make($singleFile->path())->resize(300, null, function ($constraint) {
+                    $constraint->aspectRatio();
+                })->save(public_path('uploads'). '/thumbnails/' . $fileName);
+                $thumbnail_url = Storage::disk('uploads')->url('thumbnails/' . $fileName);
+            }
+
+            $attachments = new Attachment([
+                'type'=>$type,
+                'url' => Storage::disk('uploads')->url($fileName),
+                'thumbnail_url' => $thumbnail_url
+            ]);
+            $user->attachments()->save($attachments);
+        }
+
+    }
+
+
+
+
+
     public function range(Request $request)
     {
         $date1 = Carbon::createFromFormat('d/m/Y H:i', $request->date1)->format('Y-m-d H:i');

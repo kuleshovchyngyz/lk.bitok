@@ -29,4 +29,9 @@ class UserOperation extends Model
     {
         $this->attributes['operation_date'] = Carbon::createFromFormat('d/m/Y H:i', $value)->format('Y-m-d H:i');
     }
+    public function attachments()
+    {
+        return $this->morphMany(Attachment::class, 'attachable');
+    }
 }
+

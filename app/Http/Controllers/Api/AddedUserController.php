@@ -7,10 +7,14 @@ use App\Http\Requests\StoreAddedUserRequest;
 use App\Http\Resources\AddedUserResource;
 use App\Http\Resources\CountryResource;
 use App\Models\AddedUser;
+use App\Models\Attachment;
 use App\Models\Country;
 use App\Services\Search;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Storage;
+use Intervention\Image\Facades\Image;
 
 class AddedUserController extends Controller
 {
@@ -43,8 +47,67 @@ class AddedUserController extends Controller
      */
     public function store(StoreAddedUserRequest $request)
     {
-        return new AddedUserResource(AddedUser::create($request->validated()));
+        $user = AddedUser::create(
+            Arr::except($request->validated(), ['passport_photo', 'cv_photo'])
+        );
+
+
+        if ($request->has('passport_photo') && is_array($request['passport_photo'])) {
+            $passport_photo = $request->file('passport_photo');
+            $this->attach($passport_photo, $user, 'passport');
+        }
+        if ($request->has('cv_photo') && is_array($request['cv_photo'])) {
+            $cv_photo = $request->file('cv_photo');
+            $this->attach($cv_photo, $user, 'cv');
+        }
+
+        return new AddedUserResource($user);
     }
+
+    public function attach($photos, $user, $type)
+    {
+        $thumbnail_url = null;
+        foreach ($photos as $key => $singleFile) {
+
+            $fileName = uniqid() . $singleFile->getClientOriginalName();
+            Storage::disk('uploads')->put($fileName, file_get_contents($singleFile));
+            if (in_array(strtolower($singleFile->getClientOriginalExtension()), ['jpg', 'jpeg', 'png', 'bmp'])) {
+                Image::make($singleFile->path())->resize(300, null, function ($constraint) {
+                    $constraint->aspectRatio();
+                })->save(public_path('uploads') . '/thumbnails/' . $fileName);
+                $thumbnail_url = Storage::disk('uploads')->url('thumbnails/' . $fileName);
+            }
+
+            $attachments = new Attachment([
+                'type' => $type,
+                'url' => Storage::disk('uploads')->url($fileName),
+                'thumbnail_url' => $thumbnail_url
+            ]);
+            $user->attachments()->save($attachments);
+        }
+
+    }
+
+    public function upload(Request $request, AddedUser $addedUser)
+    {
+        $request->validate([
+            'passport_photo.*' => 'image',
+            'cv_photo.*' => 'image',
+        ]);
+
+        if ($request->has('passport_photo') && is_array($request['passport_photo'])) {
+            $passport_photo = $request->file('passport_photo');
+            $this->attach($passport_photo, $addedUser, 'passport');
+        }
+        if ($request->has('cv_photo') && is_array($request['cv_photo'])) {
+            $cv_photo = $request->file('cv_photo');
+            $this->attach($cv_photo, $addedUser, 'cv');
+        }
+
+
+        return new AddedUserResource($addedUser);
+    }
+
 
     /**
      * Display the specified resource.

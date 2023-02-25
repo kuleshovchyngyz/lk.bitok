@@ -82,6 +82,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('added-users.user-operations', UserOperationController::class)->shallow();
 
     Route::post('added-users/search', [AddedUserController::class,'search']);
+    Route::post('added-users/{added_user}/upload', [AddedUserController::class,'upload']);
     Route::post('user-operations/search', [UserOperationController::class,'search']);
 //    Route::get('countries', [AddedUserController::class,'countries']);
 //    Route::post('countries', [SanctionController::class,'store']);

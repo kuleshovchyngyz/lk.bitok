@@ -30,6 +30,7 @@ class StoreUserOperationRequest extends FormRequest
             'operation_sum'=>'required',
             'wallet_id'=>'',
             'currency'=>'',
+            'passport_photo.*' => 'image',
         ];
     }
 }

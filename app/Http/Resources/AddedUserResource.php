@@ -16,11 +16,16 @@ class AddedUserResource extends JsonResource
     {
         return [
             'id' => class_basename($this->resource) == 'BlackList' ? '999999' . $this->id : $this->id,
+            'sanction' => $this->sanction,
+            'verification' => $this->verification,
             'last_name' => $this->last_name,
             'first_name' => $this->first_name,
             'middle_name' => $this->middle_name,
             'birth_date' => $this->birth_date->format('d/m/Y'),
             'registration_date' => $this->created_at->format('d/m/Y H:i'),
+            'verification_date' => $this->when(isset($this->verification_date), function () {
+                return $this->verification_date->format('d/m/Y');
+            }),
             'country_id' => $this->country_id,
             'country' => $this->country->name,
             'pass_num_inn' => $this->pass_num_inn,
@@ -37,6 +42,7 @@ class AddedUserResource extends JsonResource
             'passport_authority_code' => $this->passport_authority_code,
             'passport_issued_at' =>$this->passport_issued_at,
             'passport_expires_at' => $this->passport_expires_at,
+            'attachments' => $this->attachments,
         ];
     }
 

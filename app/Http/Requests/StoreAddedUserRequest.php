@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Country;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreAddedUserRequest extends FormRequest
@@ -37,16 +38,35 @@ class StoreAddedUserRequest extends FormRequest
             'first_name' => 'required',
             'middle_name' => 'required',
             'birth_date' => 'required|date_format:d/m/Y',
+            'verification_date' => 'nullable|date_format:d/m/Y',
             'country_id' => 'required',
             'pass_num_inn' => 'required|unique:added_users|check_in_black_list',
             'hash' => 'sometimes|unique_fio_dob:last_name,first_name,middle_name,birth_date',
+
+            'passport_photo.*' => 'image',
+
+            'cv_photo.*' => 'image',
 
             'passport_id' => 'required_unless:country_id,1',
             'passport_authority' => 'required_unless:country_id,1',
             'passport_authority_code' => 'required_unless:country_id,1',
             'passport_issued_at' => 'required_unless:country_id,1',
             'passport_expires_at' => 'required_unless:country_id,1',
+            'sanction'=> 'integer'
 
         ];
+    }
+    protected function prepareForValidation()
+    {
+        $sanction = $this->input('sanction');
+        $country_id = $this->input('country_id');
+        $country = Country::find($country_id);
+        $value = 0;
+        if($country){
+            $value = $country->sanction;
+        }
+        $this->merge([
+            'sanction' => $sanction ? $sanction : $value,
+        ]);
     }
 }
