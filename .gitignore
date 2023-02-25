@@ -4,6 +4,7 @@
 /public/carData
 /public/Moto
 /public/storage
+/public/uploads
 /storage/*.key
 .env
 .env.backup
