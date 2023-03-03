@@ -18,7 +18,7 @@ class SettingController extends Controller
      */
     public function index()
     {
-        //
+        return new SettingsResource(Setting::first());
     }
 
     /**
