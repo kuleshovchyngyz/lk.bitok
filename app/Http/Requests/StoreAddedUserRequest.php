@@ -38,7 +38,7 @@ class StoreAddedUserRequest extends FormRequest
         return [
             'last_name' => (!$this->route('added_user')) ? 'required' : '',
             'first_name' => (!$this->route('added_user')) ? 'required' : '',
-            'middle_name' => (!$this->route('added_user')) ? 'required' : '',
+            'middle_name' => (!$this->route('added_user')) ? '' : '',
             'birth_date' => (!$this->route('added_user')) ? 'required|date_format:d/m/Y' : '',
             'verification_date' => 'nullable|date_format:d/m/Y',
             'country_id' => (!$this->route('added_user')) ? 'required' : '',
