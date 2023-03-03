@@ -53,6 +53,7 @@ return array(
     'App\\Models\\CarSerie' => $baseDir . '/app/Models/CarSerie.php',
     'App\\Models\\CarType' => $baseDir . '/app/Models/CarType.php',
     'App\\Models\\Country' => $baseDir . '/app/Models/Country.php',
+    'App\\Models\\Setting' => $baseDir . '/app/Models/Setting.php',
     'App\\Models\\User' => $baseDir . '/app/Models/User.php',
     'App\\Models\\UserOperation' => $baseDir . '/app/Models/UserOperation.php',
     'App\\Policies\\AddedUserPolicy' => $baseDir . '/app/Policies/AddedUserPolicy.php',

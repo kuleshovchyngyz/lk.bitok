@@ -126,7 +126,9 @@ class UserOperationController extends Controller
      */
     public function update(StoreUserOperationRequest $request, UserOperation $userOperation)
     {
+
         $userOperation->update($request->validated());
+
         return new UserOperationResource($userOperation);
     }
 

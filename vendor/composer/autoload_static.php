@@ -664,6 +664,7 @@ class ComposerStaticInit5dd73560b89afc1cfedd7f40ecb76a53
         'App\\Models\\CarSerie' => __DIR__ . '/../..' . '/app/Models/CarSerie.php',
         'App\\Models\\CarType' => __DIR__ . '/../..' . '/app/Models/CarType.php',
         'App\\Models\\Country' => __DIR__ . '/../..' . '/app/Models/Country.php',
+        'App\\Models\\Setting' => __DIR__ . '/../..' . '/app/Models/Setting.php',
         'App\\Models\\User' => __DIR__ . '/../..' . '/app/Models/User.php',
         'App\\Models\\UserOperation' => __DIR__ . '/../..' . '/app/Models/UserOperation.php',
         'App\\Policies\\AddedUserPolicy' => __DIR__ . '/../..' . '/app/Policies/AddedUserPolicy.php',

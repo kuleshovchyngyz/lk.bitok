@@ -4,12 +4,12 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreCountryRequest;
-use App\Http\Resources\CountryResource;
-use App\Models\Country;
+use App\Http\Requests\StoreSettingRequest;
+use App\Http\Resources\SettingsResource;
+use App\Models\Setting;
 use Illuminate\Http\Request;
-use function GuzzleHttp\Promise\all;
 
-class CountryController extends Controller
+class SettingController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -18,7 +18,17 @@ class CountryController extends Controller
      */
     public function index()
     {
-        return CountryResource::collection(Country::all());
+        //
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function create()
+    {
+        //
     }
 
     /**
@@ -27,12 +37,16 @@ class CountryController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(StoreCountryRequest $request)
+    public function store(StoreSettingRequest $request)
     {
-        $country = Country::create($request->validated());
-        return response()->json(
-            new CountryResource($country)
-            , 201);
+
+        if(Setting::count()>0){
+            $s = Setting::first();
+            $s->update($request->validated());
+        }else{
+            $s = Setting::create($request->validated());
+        }
+        return new SettingsResource($s);
     }
 
     /**
@@ -43,7 +57,18 @@ class CountryController extends Controller
      */
     public function show($id)
     {
-        return new CountryResource(Country::findOrFail($id));
+        //
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id)
+    {
+        //
     }
 
     /**
@@ -55,7 +80,7 @@ class CountryController extends Controller
      */
     public function update(Request $request, $id)
     {
-
+        //
     }
 
     /**
@@ -66,17 +91,6 @@ class CountryController extends Controller
      */
     public function destroy($id)
     {
-
-    }
-
-    public function bulkUpdate(Request $request){
-         Country::upsert(collect($request->all())->map(function($item) {
-            return [
-                'id'=>$item['id'],
-                'name'=>'',
-                'sanction'=>$item['sanction']
-            ];
-        })->toArray(), ['id'], ['sanction']);
-        return response()->json(['message'=>'обновлено'],200);
+        //
     }
 }

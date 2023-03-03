@@ -76,6 +76,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('auth/logout', [AuthController::class,'logout']);
     Route::resource('added-users', AddedUserController::class);
     Route::resource('user-operations', UserOperationController::class);
+    Route::resource('settings', \App\Http\Controllers\Api\SettingController::class);
     Route::post('user-operations/range', [UserOperationController::class,'range']);
 
     Route::apiResource('countries.added-users', AddedUserController::class)->shallow();
@@ -83,6 +84,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('added-users/search', [AddedUserController::class,'search']);
     Route::post('added-users/{added_user}/upload', [AddedUserController::class,'upload']);
+    Route::delete('attachment/{attachment}/delete', [AddedUserController::class,'delete']);
     Route::post('user-operations/search', [UserOperationController::class,'search']);
 //    Route::get('countries', [AddedUserController::class,'countries']);
 //    Route::post('countries', [SanctionController::class,'store']);

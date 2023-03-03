@@ -88,6 +88,11 @@ class AddedUserController extends Controller
 
     }
 
+    public function delete(Attachment $attachment)
+    {
+        $attachment->delete();
+        return response()->json([], 204);
+    }
     public function upload(Request $request, AddedUser $addedUser)
     {
         $request->validate([
@@ -129,8 +134,17 @@ class AddedUserController extends Controller
      */
     public function update(StoreAddedUserRequest $request, AddedUser $addedUser)
     {
-
-        $addedUser->update($request->validated());
+        $addedUser->update(
+            Arr::except($request->validated(), ['passport_photo', 'cv_photo'])
+        );
+        if ($request->has('passport_photo') && is_array($request['passport_photo'])) {
+            $passport_photo = $request->file('passport_photo');
+            $this->attach($passport_photo, $addedUser, 'passport');
+        }
+        if ($request->has('cv_photo') && is_array($request['cv_photo'])) {
+            $cv_photo = $request->file('cv_photo');
+            $this->attach($cv_photo, $addedUser, 'cv');
+        }
         return new AddedUserResource($addedUser);
     }
 
