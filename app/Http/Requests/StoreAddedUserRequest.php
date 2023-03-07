@@ -42,7 +42,7 @@ class StoreAddedUserRequest extends FormRequest
             'birth_date' => (!$this->route('added_user')) ? 'required|date_format:d/m/Y' : '',
             'verification_date' => 'nullable|date_format:d/m/Y',
             'country_id' => (!$this->route('added_user')) ? 'required' : '',
-            'pass_num_inn' => (!$this->route('added_user')) ? 'unique:added_users|check_in_black_list|numeric|max:14' : '',
+            'pass_num_inn' => (!$this->route('added_user')) ? 'unique:added_users|check_in_black_list|digits_between:1,14' : '',
             'hash' => 'required|sometimes|unique_fio_dob:last_name,first_name,middle_name,birth_date',
 
             'passport_photo.*' => 'image',
