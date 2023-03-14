@@ -138,6 +138,9 @@ class AddedUserController extends Controller
         $addedUser->update(
             Arr::except($request->validated(), ['passport_photo', 'cv_photo'])
         );
+        $hash = md5(($addedUser['last_name'] ?? null) . ($addedUser['first_name'] ?? null) . ($addedUser['middle_name'] ?? null) .  ($addedUser['birth_date'] ?? null));
+        $addedUser->hash = $hash;
+        $addedUser->save();
         if ($request->has('passport_photo') && is_array($request['passport_photo'])) {
             $passport_photo = $request->file('passport_photo');
             $this->attach($passport_photo, $addedUser, 'passport');
