@@ -31,10 +31,13 @@ class AddedUserController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Country $country)
+    public function index(Request $request,Country $country)
     {
         if (isset($country['id'])) {
             return AddedUserResource::collection($country->addedUsers);
+        }
+        if ($request->has('risk')){
+            return AddedUserResource::collection(AddedUser::with('country')->where('sanction',$request->get('risk'))->get());
         }
         return AddedUserResource::collection(AddedUser::with('country')->get());
     }
@@ -47,7 +50,6 @@ class AddedUserController extends Controller
      */
     public function store(StoreAddedUserRequest $request)
     {
-//        return Arr::except($request->validated(), ['passport_photo', 'cv_photo']);
         $user = AddedUser::create(
             Arr::except($request->validated(), ['passport_photo', 'cv_photo'])
         );

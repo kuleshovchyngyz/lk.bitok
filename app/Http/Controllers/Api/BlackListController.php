@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\BlackList;
 use Illuminate\Http\Request;
 
-class \BlackListController extends Controller
+class BlackListController extends Controller
 {
     /**
      * Display a listing of the resource.
