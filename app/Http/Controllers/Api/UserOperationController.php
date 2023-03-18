@@ -43,7 +43,7 @@ class UserOperationController extends Controller
             }
             return UserOperationResource::collection($addedUser->userOperations->orderBy('created_at', 'desc'));
         }
-        return UserOperationResource::collection(UserOperation::with('addedUser')->orderBy('created_at', 'desc')->get());
+        return UserOperationResource::collection(UserOperation::orderBy('created_at', 'desc')->with('addedUser')->get());
     }
 
     /**
