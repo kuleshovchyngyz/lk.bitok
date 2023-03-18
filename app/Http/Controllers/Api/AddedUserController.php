@@ -37,9 +37,9 @@ class AddedUserController extends Controller
             return AddedUserResource::collection($country->addedUsers);
         }
         if ($request->has('risk')){
-            return AddedUserResource::collection(AddedUser::with('country')->where('sanction',$request->get('risk'))->orderBy('updated_at', 'desc')->get());
+            return AddedUserResource::collection(AddedUser::with('country')->where('sanction',$request->get('risk'))->orderBy('created_at', 'desc')->get());
         }
-        return AddedUserResource::collection(AddedUser::with('country')->orderBy('updated_at', 'desc')->get());
+        return AddedUserResource::collection(AddedUser::with('country')->orderBy('created_at', 'desc')->get());
     }
 
     /**
