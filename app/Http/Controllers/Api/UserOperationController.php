@@ -35,13 +35,16 @@ class UserOperationController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(AddedUser $addedUser)
+    public function index(Request $request,AddedUser $addedUser)
     {
         if (isset($addedUser['id'])) {
             if($addedUser->userOperations()->count()==0){
                 abort(404);
             }
             return UserOperationResource::collection($addedUser->userOperations->orderBy('created_at', 'desc'));
+        }
+        if ($request->has('risk')) {
+            return UserOperationResource::collection(UserOperation::where('sanction', $request->get('risk'))->orderBy('created_at', 'desc')->get());
         }
         return UserOperationResource::collection(UserOperation::orderBy('created_at', 'desc')->with('addedUser')->get());
     }
