@@ -28,8 +28,8 @@ class StoreSettingRequest extends FormRequest
             'usd_to_som'=>'required',
             'usdt_to_som'=>'required',
             'rub_to_som'=>'required',
-            'high_risk'=>'required|date_format:d/m/Y',
-            'risk'=>'required|date_format:d/m/Y'
+            'high_risk'=>'',
+            'risk'=>''
         ];
     }
 }
