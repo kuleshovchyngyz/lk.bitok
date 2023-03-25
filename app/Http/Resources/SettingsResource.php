@@ -19,8 +19,8 @@ class SettingsResource extends JsonResource
             "usd_to_som" => $this->usd_to_som,
             "usdt_to_som" => $this->usdt_to_som,
             "rub_to_som" => $this->rub_to_som,
-            "high_risk" => $this->high_risk->format('d/m/Y'),
-            "risk" => $this->risk->format('d/m/Y'),
+            "high_risk" => $this->high_risk,
+            "risk" => $this->risk,
             "id" => $this->id
         ];
     }
