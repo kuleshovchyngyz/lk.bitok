@@ -41,12 +41,12 @@ class UserOperationController extends Controller
             if($addedUser->userOperations()->count()==0){
                 abort(404);
             }
-            return UserOperationResource::collection($addedUser->userOperations->orderBy('created_at', 'desc'));
+            return UserOperationResource::collection($addedUser->userOperations->orderBy('operation_date', 'desc'));
         }
         if ($request->has('risk')) {
-            return UserOperationResource::collection(UserOperation::where('sanction', $request->get('risk'))->orderBy('created_at', 'desc')->get());
+            return UserOperationResource::collection(UserOperation::where('sanction', $request->get('risk'))->orderBy('operation_date', 'desc')->get());
         }
-        return UserOperationResource::collection(UserOperation::orderBy('created_at', 'desc')->with('addedUser')->get());
+        return UserOperationResource::collection(UserOperation::orderBy('operation_date', 'desc')->with('addedUser')->get());
     }
 
     /**
