@@ -102,7 +102,6 @@ class UserOperationController extends Controller
             $addedUser->verification = 0;
             $addedUser->save();
         }
-
     }
 
     public function attach($photos, $user, $type)
