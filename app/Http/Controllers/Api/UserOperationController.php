@@ -57,7 +57,7 @@ class UserOperationController extends Controller
 
     public function store(StoreUserOperationRequest $request)
     {
-        return $this->checkUserForSanction(AddedUser::find($request->user_id)->userOperations()->first());
+
 
         if (isset($addedUser['id'])) {
             $userOperation = ($addedUser->userOperations()->create(Arr::except($request->validated(), ['wallet_photo'])));
@@ -95,10 +95,11 @@ class UserOperationController extends Controller
             }
             $sum += $total->total_sum;
         }
-        return $sum;
+
         $check = $settings['limit'] < number_format($sum / 100, 2);
         if ($addedUser->sanction==0 && $check){
             $addedUser->sanction = 1;
+            $addedUser->verification = 0;
             $addedUser->save();
         }
 
