@@ -93,7 +93,7 @@ class UserOperationController extends Controller
             }
             $sum += $total->total_sum;
         }
-        $check = $settings->limit < number_format($sum / 100, 2);
+        $check = $settings['limit'] < number_format($sum / 100, 2);
         if ($addedUser->sanction==0 && $check){
             $addedUser->sanction = 1;
             $addedUser->save();
