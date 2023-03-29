@@ -2,18 +2,17 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Exports\CollectionExport;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StoreAddedUserRequest;
 use App\Http\Requests\StoreUserOperationRequest;
-use App\Http\Resources\AddedUserResource;
 use App\Http\Resources\UserOperationResource;
 use App\Models\AddedUser;
 use App\Models\Attachment;
+use App\Models\Setting;
 use App\Models\UserOperation;
 use App\Services\Search;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use App\Exports\CollectionExport;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
@@ -35,10 +34,10 @@ class UserOperationController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request,AddedUser $addedUser)
+    public function index(Request $request, AddedUser $addedUser)
     {
         if (isset($addedUser['id'])) {
-            if($addedUser->userOperations()->count()==0){
+            if ($addedUser->userOperations()->count() == 0) {
                 abort(404);
             }
             return UserOperationResource::collection($addedUser->userOperations->orderBy('operation_date', 'desc'));
@@ -60,30 +59,64 @@ class UserOperationController extends Controller
     {
         if (isset($addedUser['id'])) {
             $userOperation = ($addedUser->userOperations()->create(Arr::except($request->validated(), ['wallet_photo'])));
+        } else {
+            $userOperation = (UserOperation::create(Arr::except($request->validated(), ['wallet_photo'])));
         }
-        $userOperation = (UserOperation::create(Arr::except($request->validated(), ['wallet_photo'])));
+        $this->checkUserForSanction($userOperation);
 
         if ($request->has('wallet_photo') && is_array($request['wallet_photo'])) {
             $wallet_photo = $request->file('wallet_photo');
-            $this->attach($wallet_photo,$userOperation,'wallet');
+            $this->attach($wallet_photo, $userOperation, 'wallet');
         }
-        return  new UserOperationResource($userOperation);
+        return new UserOperationResource($userOperation);
     }
-    public function attach($photos,$user,$type){
+
+    /**
+     * @param mixed $userOperation
+     */
+    public function checkUserForSanction(mixed $userOperation)
+    {
+        $settings = Setting::select('usd_to_som as usd', 'usdt_to_som as usdt', 'rub_to_som as rub', 'limit')->first()->toArray();
+        $settings = array_merge($settings, ['som' => 1]);
+        $currentMonth = Carbon::now()->month;
+        $addedUser = $userOperation->addedUser;
+        $totals = $addedUser->userOperations()
+            ->whereMonth('operation_date', $currentMonth)
+            ->groupBy('currency')
+            ->selectRaw('currency, SUM(operation_sum) as total_sum')
+            ->get();
+        $sum = 0;
+        foreach ($totals as $total) {
+            if (in_array($total->currency, $settings)) {
+                $sum += $settings[$total->currency] * $total->total_sum;
+                continue;
+            }
+            $sum += $total->total_sum;
+        }
+        $check = $settings->limit < number_format($sum / 100, 2);
+        if ($addedUser->sanction==0 && $check){
+            $addedUser->sanction = 1;
+            $addedUser->save();
+        }
+
+    }
+
+    public function attach($photos, $user, $type)
+    {
         $thumbnail_url = null;
         foreach ($photos as $key => $singleFile) {
 
-            $fileName = uniqid()  . $singleFile->getClientOriginalName();
+            $fileName = uniqid() . $singleFile->getClientOriginalName();
             Storage::disk('uploads')->put($fileName, file_get_contents($singleFile));
             if (in_array(strtolower($singleFile->getClientOriginalExtension()), ['jpg', 'jpeg', 'png', 'bmp'])) {
                 Image::make($singleFile->path())->resize(300, null, function ($constraint) {
                     $constraint->aspectRatio();
-                })->save(public_path('uploads'). '/thumbnails/' . $fileName);
+                })->save(public_path('uploads') . '/thumbnails/' . $fileName);
                 $thumbnail_url = Storage::disk('uploads')->url('thumbnails/' . $fileName);
             }
 
             $attachments = new Attachment([
-                'type'=>$type,
+                'type' => $type,
                 'url' => Storage::disk('uploads')->url($fileName),
                 'thumbnail_url' => $thumbnail_url
             ]);
@@ -91,10 +124,6 @@ class UserOperationController extends Controller
         }
 
     }
-
-
-
-
 
     public function range(Request $request)
     {
@@ -104,9 +133,9 @@ class UserOperationController extends Controller
         $time2 = Carbon::createFromFormat('d/m/Y H:i', $request->date2)->format('Y-m-d');
 
         $records = UserOperationResource::collection(UserOperation::with('addedUser')->whereBetween('operation_date', [$date1, $date2])->get());
-        $path = 'public/exports/'. $time1.'---'.$time2.'.xlsx'; // Set the storage path for the Excel file
+        $path = 'public/exports/' . $time1 . '---' . $time2 . '.xlsx'; // Set the storage path for the Excel file
         Excel::store(new CollectionExport($records), $path);
-        return URL::to('/').Storage::url($path);
+        return URL::to('/') . Storage::url($path);
     }
 
     /**
