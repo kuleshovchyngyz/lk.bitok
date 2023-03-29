@@ -40,7 +40,7 @@ class UserOperationController extends Controller
             if ($addedUser->userOperations()->count() == 0) {
                 abort(404);
             }
-            return UserOperationResource::collection($addedUser->userOperations->orderBy('operation_date', 'desc'));
+            return UserOperationResource::collection($addedUser->userOperations()->orderBy('operation_date', 'desc')->get());
         }
         if ($request->has('risk')) {
             return UserOperationResource::collection(UserOperation::where('sanction', $request->get('risk'))->orderBy('operation_date', 'desc')->get());
