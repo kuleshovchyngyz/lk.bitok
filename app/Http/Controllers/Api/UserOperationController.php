@@ -87,6 +87,7 @@ class UserOperationController extends Controller
             ->groupBy('currency')
             ->selectRaw('currency, SUM(operation_sum) as total_sum')
             ->get();
+        return $totals;
         $sum = 0;
         foreach ($totals as $total) {
             if (in_array($total->currency, $settings)) {
