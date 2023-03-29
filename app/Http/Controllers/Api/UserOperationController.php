@@ -83,7 +83,7 @@ class UserOperationController extends Controller
         $currentMonth = Carbon::now()->month;
         $addedUser = $userOperation->addedUser;
         $totals = $addedUser->userOperations()
-            ->whereMonth('operation_date', $currentMonth)
+            ->whereMonth('operation_date', 2)
             ->groupBy('currency')
             ->selectRaw('currency, SUM(operation_sum) as total_sum')
             ->get();
