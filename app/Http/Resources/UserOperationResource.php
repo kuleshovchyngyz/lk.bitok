@@ -26,6 +26,7 @@ class UserOperationResource extends JsonResource
 
         return [
             'operation_id' => $this->id,
+            'sanction' => $this->sanction,
             'operation_date' => $this->operation_date->format('d/m/Y H:i'),
             'operation_sum' => number_format($this->operation_sum / 100, 2),
             'operation_direction' => $this->operation_direction,

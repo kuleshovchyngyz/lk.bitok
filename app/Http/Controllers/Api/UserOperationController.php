@@ -64,7 +64,8 @@ class UserOperationController extends Controller
         } else {
             $userOperation = (UserOperation::create(Arr::except($request->validated(), ['wallet_photo'])));
         }
-        $this->checkUserForSanction($userOperation);
+        $userOperation->sanction = $this->checkUserForSanction($userOperation);
+        $userOperation->save();
 
         if ($request->has('wallet_photo') && is_array($request['wallet_photo'])) {
             $wallet_photo = $request->file('wallet_photo');
@@ -96,12 +97,12 @@ class UserOperationController extends Controller
             $sum += $total->total_sum;
         }
 
-        $check = $settings['limit'] < number_format($sum / 100, 2);
-        if ($addedUser->sanction==0 && $check){
-            $addedUser->sanction = 1;
-            $addedUser->verification = 0;
-            $addedUser->save();
-        }
+        return $check = $settings['limit'] < number_format($sum / 100, 2);
+//        if ($addedUser->sanction==0 && $check){
+//            $addedUser->sanction = 1;
+//            $addedUser->verification = 0;
+//            $addedUser->save();
+//        }
     }
 
     public function attach($photos, $user, $type)
