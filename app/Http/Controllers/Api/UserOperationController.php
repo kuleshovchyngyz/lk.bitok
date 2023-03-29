@@ -57,7 +57,7 @@ class UserOperationController extends Controller
 
     public function store(StoreUserOperationRequest $request)
     {
-        return $this->checkUserForSanction(UserOperation::find($request->user_id)->userOperations()->first());
+        return $this->checkUserForSanction(AddedUser::find($request->user_id)->userOperations()->first());
 
         if (isset($addedUser['id'])) {
             $userOperation = ($addedUser->userOperations()->create(Arr::except($request->validated(), ['wallet_photo'])));
