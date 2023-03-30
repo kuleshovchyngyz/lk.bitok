@@ -29,8 +29,11 @@ class AppServiceProvider extends ServiceProvider
     {
         JsonResource::withoutWrapping();
 
-        Validator::extend('check_in_black_list', function ($attribute, $value, $parameters) {
-            return !BlackList::where('pass_num_inn', $value)->count() > 0;
+        Validator::extend('check_in_black_list', function ($attribute, $value, $parameters,$validator) {
+            $input = $validator->getData();
+            $birth_date = $input['birth_date'] ?? null;
+            $hash = md5(trim($input['last_name'] ?? null) . trim($input['first_name'] ?? null) . trim($input['middle_name'] ?? null) . $birth_date);
+            return !BlackList::where('hash', $hash)->whereNotIn('type' ,['pft', 'plpd'])->count() > 0;
         });
         Validator::extend('unique_fio_dob', function ($attribute, $value, $parameters, $validator) {
             $input = $validator->getData();

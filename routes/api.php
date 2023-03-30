@@ -71,6 +71,7 @@ Route::get('/forall', [\App\Http\Controllers\Api\ImportController::class,'forall
 Route::get('/un', [\App\Http\Controllers\Api\ImportController::class,'un']);
 
 
+
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('auth/me', [AuthController::class,'me']);
     Route::get('auth/logout', [AuthController::class,'logout']);

@@ -31,13 +31,13 @@ class AddedUserController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request,Country $country)
+    public function index(Request $request, Country $country)
     {
         if (isset($country['id'])) {
             return AddedUserResource::collection($country->addedUsers);
         }
-        if ($request->has('risk')){
-            return AddedUserResource::collection(AddedUser::with('country')->where('sanction',$request->get('risk'))->orderBy('created_at', 'desc')->get());
+        if ($request->has('risk')) {
+            return AddedUserResource::collection(AddedUser::with('country')->where('sanction', $request->get('risk'))->orderBy('created_at', 'desc')->get());
         }
         return AddedUserResource::collection(AddedUser::with('country')->orderBy('created_at', 'desc')->get());
     }
@@ -53,7 +53,6 @@ class AddedUserController extends Controller
         $user = AddedUser::create(
             Arr::except($request->validated(), ['passport_photo', 'cv_photo'])
         );
-
 
         if ($request->has('passport_photo') && is_array($request['passport_photo'])) {
             $passport_photo = $request->file('passport_photo');
@@ -96,6 +95,7 @@ class AddedUserController extends Controller
         $attachment->delete();
         return response()->json([], 204);
     }
+
     public function upload(Request $request, AddedUser $addedUser)
     {
         $request->validate([
@@ -140,7 +140,7 @@ class AddedUserController extends Controller
         $addedUser->update(
             Arr::except($request->validated(), ['passport_photo', 'cv_photo'])
         );
-        $hash = md5(($addedUser['last_name'] ?? null) . ($addedUser['first_name'] ?? null) . ($addedUser['middle_name'] ?? null) .  ($addedUser['birth_date'] ?? null));
+        $hash = md5(($addedUser['last_name'] ?? null) . ($addedUser['first_name'] ?? null) . ($addedUser['middle_name'] ?? null) . ($addedUser['birth_date'] ?? null));
         $addedUser->hash = $hash;
         $addedUser->save();
         if ($request->has('passport_photo') && is_array($request['passport_photo'])) {
@@ -169,11 +169,6 @@ class AddedUserController extends Controller
     public function search(Request $request)
     {
         try {
-//        AddedUser::all()->map(function ($item){
-//            $item->hash = md5($item['last_name'] . $item['first_name'] . $item['middle_name'] . $item['birth_date']->format('d/m/Y'));
-//            $item->save();
-
-//        });
             $addedUsers = AddedUserResource::collection($this->search->searchFromClients('AddedUser', $request)->unique('hash')->all());
 
             if ($request->has('date1') && $request->has('date2')) {

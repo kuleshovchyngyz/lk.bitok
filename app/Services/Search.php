@@ -26,6 +26,8 @@ class Search
         })->when($request->get('birth_date'), function ($q) use ($request) {
             $date = Carbon::createFromFormat('d/m/Y',$request->birth_date)->format('Y-m-d');
             $q->where('birth_date', 'like' ,'%'.$date.'%');
+        })->when($request->get('risk'), function ($q) use ($request) {
+            $q->where('sanction', $request->get('risk'));
         })->get();
     }
 }

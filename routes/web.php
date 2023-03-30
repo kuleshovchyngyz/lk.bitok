@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\BlackList;
 use Illuminate\Support\Facades\Route;
 use Orchestra\Parser\Xml\Facade as XmlParser;
 use Illuminate\Support\Facades\Http;
@@ -21,6 +22,13 @@ Route::get('/import2', [\App\Http\Controllers\HomeController::class,'import2']);
 Route::get('/import1', [\App\Http\Controllers\HomeController::class,'import1']);
 Route::get('/import', [\App\Http\Controllers\HomeController::class,'import']);
 Route::get('/', function () {
+
+        $addedUsers = BlackList::all();
+        foreach ($addedUsers as $addedUser){
+            $addedUser->hash = md5(trim($addedUser['last_name'] ?? null) . trim($addedUser['first_name'] ?? null) . trim($addedUser['middle_name'] ?? null) .  trim($addedUser->birth_date->format('d/m/Y') ?? null));
+            $addedUser->save();
+        }
+
 //$countries =
 
 //// Set your login credentials

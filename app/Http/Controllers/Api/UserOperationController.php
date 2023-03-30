@@ -8,6 +8,7 @@ use App\Http\Requests\StoreUserOperationRequest;
 use App\Http\Resources\UserOperationResource;
 use App\Models\AddedUser;
 use App\Models\Attachment;
+use App\Models\BlackList;
 use App\Models\Setting;
 use App\Models\UserOperation;
 use App\Services\Search;
@@ -58,14 +59,12 @@ class UserOperationController extends Controller
     public function store(StoreUserOperationRequest $request)
     {
 
-
         if (isset($addedUser['id'])) {
             $userOperation = ($addedUser->userOperations()->create(Arr::except($request->validated(), ['wallet_photo'])));
         } else {
             $userOperation = (UserOperation::create(Arr::except($request->validated(), ['wallet_photo'])));
         }
-        $userOperation->sanction = $this->checkUserForSanction($userOperation);
-        $userOperation->save();
+        $this->checkUserForSanction($userOperation);
 
         if ($request->has('wallet_photo') && is_array($request['wallet_photo'])) {
             $wallet_photo = $request->file('wallet_photo');
@@ -80,29 +79,48 @@ class UserOperationController extends Controller
     public function checkUserForSanction(mixed $userOperation)
     {
         $settings = Setting::select('usd_to_som as usd', 'usdt_to_som as usdt', 'rub_to_som as rub', 'limit')->first()->toArray();
-        $settings = array_merge($settings, ['som' => 1]);
-        $currentMonth = Carbon::now()->month;
+//        $settings = array_merge($settings, ['som' => 1]);
+//        $currentMonth = Carbon::now()->month;
+//        $addedUser = $userOperation->addedUser;
+//        $totals = $addedUser->userOperations()
+//            ->whereMonth('operation_date', $currentMonth)
+//            ->groupBy('currency')
+//            ->selectRaw('currency, SUM(operation_sum) as total_sum')
+//            ->get();
+//        $sum = 0;
+//        foreach ($totals as $total) {
+//            if (in_array($total->currency, $settings)) {
+//                $sum += $settings[$total->currency] * $total->total_sum;
+//                continue;
+//            }
+//            $sum += $total->total_sum;
+//        }
+//
+//        return $check = $settings['limit'] < number_format($sum / 100, 2);
+
         $addedUser = $userOperation->addedUser;
-        $totals = $addedUser->userOperations()
-            ->whereMonth('operation_date', $currentMonth)
-            ->groupBy('currency')
-            ->selectRaw('currency, SUM(operation_sum) as total_sum')
-            ->get();
-        $sum = 0;
-        foreach ($totals as $total) {
-            if (in_array($total->currency, $settings)) {
-                $sum += $settings[$total->currency] * $total->total_sum;
-                continue;
-            }
-            $sum += $total->total_sum;
+        $country = $userOperation->addedUser;
+        $sanction = $country->sanction;
+        $addedUser->sanction = $sanction;
+        $userOperation->sanction = $sanction;
+
+        if ($sanction < 1) {
+            $userOperation->sanction = $settings['limit'] < number_format($userOperation->operation_sum / 100, 2);
+        }
+        $inBlackList = BlackList::whereIn('type', ['pft', 'plpd'])->where('hash', $addedUser->hash)->count();
+
+        if ($inBlackList > 0) {
+            $addedUser->sanction = 1;
+            $userOperation->sanction = 1;
         }
 
-        return $check = $settings['limit'] < number_format($sum / 100, 2);
-//        if ($addedUser->sanction==0 && $check){
-//            $addedUser->sanction = 1;
-//            $addedUser->verification = 0;
-//            $addedUser->save();
-//        }
+        if ($country->sanction==2){
+            $userOperation->sanction = 2;
+            $addedUser->sanction = 2;
+        }
+        $userOperation->save();
+        $addedUser->save();
+
     }
 
     public function attach($photos, $user, $type)

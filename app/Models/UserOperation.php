@@ -25,6 +25,9 @@ class UserOperation extends Model
         $this->attributes['operation_sum'] = $value * 100;
     }
 
+
+
+
     public function setOperationDateAttribute($value)
     {
         $this->attributes['operation_date'] = Carbon::createFromFormat('d/m/Y H:i', $value)->format('Y-m-d H:i');

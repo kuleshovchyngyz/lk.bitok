@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\BlackList;
 use App\Models\Country;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -12,7 +13,7 @@ class StoreAddedUserRequest extends FormRequest
     {
         $data = parent::all($keys);
         if(!$this->route('added_user')){
-            $hash = md5(($data['last_name'] ?? '') . ($data['first_name'] ?? '') . ($data['middle_name'] ?? '') . ($data['birth_date'] ?? ''));
+            $hash = md5(trim($data['last_name'] ?? '') . trim($data['first_name'] ?? '') . trim($data['middle_name'] ?? '') . trim($data['birth_date'] ?? ''));
             $data['hash'] = $hash;
         }
         return $data;
@@ -42,8 +43,8 @@ class StoreAddedUserRequest extends FormRequest
             'birth_date' => (!$this->route('added_user')) ? 'required|date_format:d/m/Y' : '',
             'verification_date' => 'nullable|date_format:d/m/Y',
             'country_id' => (!$this->route('added_user')) ? 'required' : '',
-            'pass_num_inn' => (!$this->route('added_user')) ? 'unique:added_users|check_in_black_list|digits_between:6,14' : '',
-            'hash' => 'required|sometimes|unique_fio_dob:last_name,first_name,middle_name,birth_date',
+            'pass_num_inn' => (!$this->route('added_user')) ? 'unique:added_users|digits_between:6,14' : '',
+            'hash' => 'required|sometimes|unique_fio_dob:last_name,first_name,middle_name,birth_date|check_in_black_list:last_name,first_name,middle_name,birth_date',
 
             'passport_photo.*' => 'image',
 
@@ -73,8 +74,10 @@ class StoreAddedUserRequest extends FormRequest
         if($country){
             $value = $country->sanction;
         }
+
         $this->merge([
             'sanction' => $sanction ? $sanction : $value,
         ]);
+
     }
 }

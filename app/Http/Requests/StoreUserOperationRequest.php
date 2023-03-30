@@ -31,6 +31,8 @@ class StoreUserOperationRequest extends FormRequest
             'wallet_id'=>'',
             'currency'=>'',
             'passport_photo.*' => 'image',
+            'sanction'=>''
+            
         ];
     }
 }

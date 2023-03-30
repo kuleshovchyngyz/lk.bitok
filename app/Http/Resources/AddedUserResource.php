@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\BlackList;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class AddedUserResource extends JsonResource
@@ -29,7 +30,7 @@ class AddedUserResource extends JsonResource
             'country_id' => $this->country_id,
             'country' => $this->country->name,
             'pass_num_inn' => $this->pass_num_inn,
-            'black_list' => class_basename($this->resource) == 'BlackList',
+            'black_list' => class_basename($this->resource) == 'BlackList' || BlackList::where('hash', $this->hash)->whereIn('type' ,['pft', 'plpd'])->count() > 0,
             'user_operations' => UserOperationResource::collection($this->whenLoaded('userOperations')),
             'type' => $this->when(isset($this->type), function () {
                 return $this->type;
