@@ -76,6 +76,11 @@ class ImportController extends Controller
                 $bl->status = "Успешно обработан {$size} записей";
                 $bl->save();
                 \App\Models\BlackList::where('type', 'pft')->where('blacklist_log_id', '!=', $bl->id)->delete();
+                $addedUsers = BlackList::all();
+                foreach ($addedUsers as $addedUser){
+                    $addedUser->hash = md5(trim($addedUser['last_name'] ?? null) . trim($addedUser['first_name'] ?? null) . trim($addedUser['middle_name'] ?? null) .  trim($addedUser->birth_date->format('d/m/Y') ?? null));
+                    $addedUser->save();
+                }
             });
             return new ImportLogResource($bl);
         } catch (\Exception $e) {
@@ -127,6 +132,11 @@ class ImportController extends Controller
                 $bl->status = "Успешно обработан {$size} записей";
                 $bl->save();
                 \App\Models\BlackList::where('type', 'pldp')->where('blacklist_log_id', '!=', $bl->id)->delete();
+                $addedUsers = BlackList::all();
+                foreach ($addedUsers as $addedUser){
+                    $addedUser->hash = md5(trim($addedUser['last_name'] ?? null) . trim($addedUser['first_name'] ?? null) . trim($addedUser['middle_name'] ?? null) .  trim($addedUser->birth_date->format('d/m/Y') ?? null));
+                    $addedUser->save();
+                }
             });
             return new ImportLogResource($bl);
         } catch (\Exception $e) {
@@ -168,12 +178,18 @@ class ImportController extends Controller
                     $data[$key]['updated_at'] = now();
                     $data[$key]['blacklist_log_id'] = $bl->id;
                 }
+
                 $size = count($data);
                 $inserted = \App\Models\BlackList::insert($data);
 
                 $bl->status = "Успешно обработан {$size} записей";
                 $bl->save();
                 \App\Models\BlackList::where('type', 'forall')->where('blacklist_log_id', '!=', $bl->id)->delete();
+                $addedUsers = BlackList::all();
+                foreach ($addedUsers as $addedUser){
+                    $addedUser->hash = md5(trim($addedUser['last_name'] ?? null) . trim($addedUser['first_name'] ?? null) . trim($addedUser['middle_name'] ?? null) .  trim($addedUser->birth_date->format('d/m/Y') ?? null));
+                    $addedUser->save();
+                }
             });
             return new ImportLogResource($bl);
         } catch (\Exception $e) {
@@ -241,6 +257,11 @@ class ImportController extends Controller
                 $bl->status = "Успешно обработан {$size} записей";
                 $bl->save();
                 \App\Models\BlackList::where('type', 'forall')->where('blacklist_log_id', '!=', $bl->id)->delete();
+                $addedUsers = BlackList::all();
+                foreach ($addedUsers as $addedUser){
+                    $addedUser->hash = md5(trim($addedUser['last_name'] ?? null) . trim($addedUser['first_name'] ?? null) . trim($addedUser['middle_name'] ?? null) .  trim($addedUser->birth_date->format('d/m/Y') ?? null));
+                    $addedUser->save();
+                }
             });
 
             return new ImportLogResource($bl);
