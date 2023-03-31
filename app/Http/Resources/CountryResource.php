@@ -17,7 +17,7 @@ class CountryResource extends JsonResource
         return [
             'id'=>$this->id,
             'name'=>$this->name,
-            'sanction'=> '№ '.str_replace(',', ' и ', $this->sanction)
+            'sanction'=> str_replace(',', ' и ', $this->sanction)
         ];
     }
 }
