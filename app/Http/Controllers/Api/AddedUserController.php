@@ -171,6 +171,10 @@ class AddedUserController extends Controller
         try {
             $addedUsers = AddedUserResource::collection($this->search->searchFromClients('AddedUser', $request)->unique('hash')->all());
 
+            if($request->get('name')==null&&$request->get('birth_date')==null){
+                return $addedUsers;
+            }
+
             if ($request->has('date1') && $request->has('date2')) {
                 $startDate = $this->parseDateString($request->date1);
                 $endDate = $this->parseDateString($request->date2);
@@ -206,7 +210,9 @@ class AddedUserController extends Controller
                 $mk[] = $data;
             });
         } catch (\Exception $e) {
-            return 'Error: ' . $e->getMessage();
+            return response()->json([
+                'error' => $e->getMessage()
+            ], 500); // HTTP status code 500 for Internal Server Error
         }
         return $mk;
     }

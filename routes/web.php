@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Route;
 use Orchestra\Parser\Xml\Facade as XmlParser;
 use Illuminate\Support\Facades\Http;
 use GuzzleHttp\Cookie\CookieJar;
-
+use GuzzleHttp\Client;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,12 +22,25 @@ Route::get('/import2', [\App\Http\Controllers\HomeController::class,'import2']);
 Route::get('/import1', [\App\Http\Controllers\HomeController::class,'import1']);
 Route::get('/import', [\App\Http\Controllers\HomeController::class,'import']);
 Route::get('/', function () {
+//dd(1);
+//    $response = Http::withHeaders([
+//        'Authorization' => 'Bearer ' . `p97gRLsyUDFaAyN1dUOdeO5xbfWILrU_TZk5jFf-1mjtuJp3011kay5JVSImdeoeq0Rdkcto73ou_2_nJomHOg==`,
+//        'Accept' => 'application/json',
+//    ])->post('http://127.0.0.1:8001/api/added-users/search', [
+//        'name' => 'ss',
+//
+//
+//    ]);
 
-        $addedUsers = BlackList::all();
-        foreach ($addedUsers as $addedUser){
-            $addedUser->hash = md5(trim($addedUser['last_name'] ?? null) . trim($addedUser['first_name'] ?? null) . trim($addedUser['middle_name'] ?? null) .  trim($addedUser->birth_date->format('d/m/Y') ?? null));
-            $addedUser->save();
-        }
+
+
+
+
+//        $addedUsers = BlackList::all();
+//        foreach ($addedUsers as $addedUser){
+//            $addedUser->hash = md5(trim($addedUser['last_name'] ?? null) . trim($addedUser['first_name'] ?? null) . trim($addedUser['middle_name'] ?? null) .  trim($addedUser->birth_date->format('d/m/Y') ?? null));
+//            $addedUser->save();
+//        }
 
 //$countries =
 

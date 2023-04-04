@@ -28,7 +28,9 @@ class AddedUserResource extends JsonResource
                 return $this->verification_date->format('d/m/Y');
             }),
             'country_id' => $this->country_id,
-            'country' => $this->country->name,
+            'country' => $this->when(isset($this->country), function () {
+                return $this->country->name;
+            }),
             'pass_num_inn' => $this->pass_num_inn,
             'black_list' => class_basename($this->resource) == 'BlackList' || BlackList::where('hash', $this->hash)->whereIn('type' ,['pft', 'plpd'])->count() > 0,
             'user_operations' => UserOperationResource::collection($this->whenLoaded('userOperations')),
