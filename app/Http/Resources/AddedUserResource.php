@@ -33,7 +33,9 @@ class AddedUserResource extends JsonResource
             }),
             'pass_num_inn' => $this->pass_num_inn,
             'black_list' => class_basename($this->resource) == 'BlackList' || BlackList::where('hash', $this->hash)->whereIn('type' ,['pft', 'plpd'])->count() > 0,
-            'user_operations' => UserOperationWalletResource::collection($this->whenLoaded('userOperations')),
+            'user_operations' => UserOperationWalletResource::collection($this->whenLoaded('userOperations', function () {
+                return $this->userOperations->unique('wallet_id');
+            })),
             'type' => $this->when(isset($this->type), function () {
                 return $this->type;
             }),
