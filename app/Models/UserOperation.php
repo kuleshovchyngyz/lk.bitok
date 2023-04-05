@@ -22,6 +22,7 @@ class UserOperation extends Model
 
     public function setOperationSumAttribute($value)
     {
+        $value = intval(str_replace(',', '', trim($value)));
         $this->attributes['operation_sum'] = $value * 100;
     }
 

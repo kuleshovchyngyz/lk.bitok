@@ -24,15 +24,16 @@ class StoreUserOperationRequest extends FormRequest
     public function rules()
     {
         return [
-            'user_id'=>'required',
-            'operation_date'=>'required|date_format:d/m/Y H:i',
-            'operation_direction'=>'required',
-            'operation_sum'=>'required',
+            'user_id'=>(!$this->route('user_operation')) ? 'required' : '',
+            'operation_date'=>(!$this->route('user_operation')) ? 'required|date_format:d/m/Y H:i' : '',
+            'operation_direction'=>(!$this->route('user_operation')) ? 'required' : '',
+            'operation_sum'=>(!$this->route('user_operation')) ? 'required' : '',
             'wallet_id'=>'',
             'currency'=>'',
             'passport_photo.*' => 'image',
-            'sanction'=>''
-            
+            'sanction'=>'',
+            'checked'=>'boolean'
+
         ];
     }
 }
