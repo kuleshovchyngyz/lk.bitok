@@ -33,7 +33,6 @@ class StoreUserOperationRequest extends FormRequest
             'passport_photo.*' => 'image',
             'sanction'=>'',
             'checked'=>'boolean'
-
         ];
     }
 }

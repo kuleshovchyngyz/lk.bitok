@@ -50,7 +50,6 @@ class AddedUserController extends Controller
      */
     public function store(StoreAddedUserRequest $request)
     {
-        return $request->validated();
         $user = AddedUser::create(
             Arr::except($request->validated(), ['passport_photo', 'cv_photo'])
         );
