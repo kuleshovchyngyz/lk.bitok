@@ -16,9 +16,11 @@ class Search
         })->when($request->get('name')!=null, function ($q) use ($request) {
             $q->where(function ($q) use ($request) {
                 foreach (explode(' ', $request->name) as $name) {
-                    $q->orWhere('last_name', 'like', '%' . $name . '%')
-                        ->orWhere('first_name', 'like', '%' . $name . '%')
-                        ->orWhere('middle_name', 'like', '%' . $name . '%');
+                    $q->where(function($query) use ($name) {
+                        $query->orWhere('last_name', 'like', '%' . $name . '%')
+                            ->orWhere('first_name', 'like', '%' . $name . '%')
+                            ->orWhere('middle_name', 'like', '%' . $name . '%');
+                    });
                 }
             });
         })->when($request->get('country_id'), function ($q) use ($request) {
