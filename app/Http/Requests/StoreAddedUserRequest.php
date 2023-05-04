@@ -50,15 +50,15 @@ class StoreAddedUserRequest extends FormRequest
 
             'cv_photo.*' => 'image',
 
-            'passport_id' => (!($this->route('added_user')) || ($this->route('added_user')) && $this->input('country_id'))  ?
+            'passport_id' => (!($this->route('added_user')) && $this->input('country_id'))  ?
                 'required_unless:country_id,1|unique:added_users' : '',
-            'passport_authority' => (!($this->route('added_user')) || ($this->route('added_user')) && $this->input('country_id'))  ?
+            'passport_authority' => (!($this->route('added_user')) && $this->input('country_id'))  ?
                 'required_unless:country_id,1' : '',
-            'passport_authority_code' => (!($this->route('added_user')) || ($this->route('added_user')) && $this->input('country_id'))  ?
+            'passport_authority_code' => (!($this->route('added_user')) && $this->input('country_id'))  ?
                 'required_unless:country_id,1' : '',
-            'passport_issued_at' => (!($this->route('added_user')) || ($this->route('added_user')) && $this->input('country_id'))  ?
+            'passport_issued_at' => (!($this->route('added_user')) && $this->input('country_id'))  ?
                 'required_unless:country_id,1' : '',
-            'passport_expires_at' => (!($this->route('added_user')) || ($this->route('added_user')) && $this->input('country_id'))  ?
+            'passport_expires_at' => (!($this->route('added_user')) && $this->input('country_id'))  ?
                 'required_unless:country_id,1|' : '',
             'sanction'=> 'integer',
             'verification'=> 'boolean'

@@ -171,7 +171,7 @@ class AddedUserController extends Controller
         try {
             $addedUsers = AddedUserResource::collection($this->search->searchFromClients('AddedUser', $request)->unique('hash')->all());
 
-            if($request->get('name')==null&&$request->get('birth_date')==null){
+            if ($request->get('name') == null && $request->get('birth_date') == null) {
                 return $addedUsers;
             }
 
