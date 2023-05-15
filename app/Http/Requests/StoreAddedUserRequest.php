@@ -48,7 +48,10 @@ class StoreAddedUserRequest extends FormRequest
 
             'passport_photo.*' => 'image',
 
-            'cv_photo.*' => 'image',
+            'cv_photo.*' => 'nullable|sometimes|mimes:doc,docx,xls,xlsx,pdf,csv,jpg,jpeg,png,bmp|max:20000',
+
+
+//            'cv_photo.*' => 'file|mimes:jpg, jpeg, bmp,png,pdf,doc,docx',
 
             'passport_id' => (!($this->route('added_user')) && $this->input('country_id'))  ?
                 'required_unless:country_id,1|unique:added_users' : '',

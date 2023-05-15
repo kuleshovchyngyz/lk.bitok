@@ -68,7 +68,7 @@ class AddedUserController extends Controller
 
     public function attach($photos, $user, $type)
     {
-        $thumbnail_url = null;
+        $thumbnail_url = url('/').'/default.jpg';
         foreach ($photos as $key => $singleFile) {
 
             $fileName = uniqid() . $singleFile->getClientOriginalName();
