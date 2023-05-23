@@ -58,13 +58,39 @@ class UserOperationController extends Controller
 
     public function store(StoreUserOperationRequest $request)
     {
+//        $userOperation = UserOperation::find(13244);
+//        $addedUser = $userOperation->addedUser;
+//        $country = $addedUser->country;
+//        $sanction = $country->sanction;
+//        return $sanction;
+//        $settings = Setting::select('usd_to_som as usd', 'usdt_to_som as usdt', 'rub_to_som as rub', 'limit')->first()->toArray();
+//
+//        $settings = array_merge($settings, ['som' => 1]);
+//        $currentMonth = Carbon::now()->month;
+//        $addedUser = $userOperation->addedUser;
+//        $totals = $addedUser->userOperations()
+//            ->whereMonth('operation_date', $currentMonth)
+//            ->groupBy('currency')
+//            ->selectRaw('currency, SUM(operation_sum) as total_sum')
+//            ->get();
+//        $sum = 0;
+//        foreach ($totals as $total) {
+//            if (in_array($total->currency, $settings)) {
+//                $sum += $settings[$total->currency] * $total->total_sum;
+//                continue;
+//            }
+//            $sum += $total->total_sum;
+//        }
+//
+//        return $check = $settings['limit'] < number_format($sum / 100, 2);
+
 
         if (isset($addedUser['id'])) {
             $userOperation = ($addedUser->userOperations()->create(Arr::except($request->validated(), ['wallet_photo'])));
         } else {
             $userOperation = (UserOperation::create(Arr::except($request->validated(), ['wallet_photo'])));
         }
-        $this->checkUserForSanction($userOperation);
+        $this->checkUserForSanction($userOperation,$request);
 
         if ($request->has('wallet_photo') && is_array($request['wallet_photo'])) {
             $wallet_photo = $request->file('wallet_photo');
@@ -76,7 +102,7 @@ class UserOperationController extends Controller
     /**
      * @param mixed $userOperation
      */
-    public function checkUserForSanction(mixed $userOperation)
+    public function checkUserForSanction(mixed $userOperation,$request)
     {
         $settings = Setting::select('usd_to_som as usd', 'usdt_to_som as usdt', 'rub_to_som as rub', 'limit')->first()->toArray();
 //        $settings = array_merge($settings, ['som' => 1]);
@@ -97,15 +123,19 @@ class UserOperationController extends Controller
 //        }
 //
 //        return $check = $settings['limit'] < number_format($sum / 100, 2);
+        $currencyRate = 1;
+        if($request->has('currency')){
+            $currencyRate = $settings[$request->get('currency')] ?? 1;
+        }
 
         $addedUser = $userOperation->addedUser;
-        $country = $userOperation->addedUser;
+        $country = $addedUser->country;
         $sanction = $country->sanction;
-        $addedUser->sanction = $sanction;
-        $userOperation->sanction = $sanction;
+        $addedUser->sanction = (int)$sanction;
+        $userOperation->sanction = (int)$sanction;
 
         if ($sanction < 1) {
-            $userOperation->sanction = $settings['limit'] < number_format($userOperation->operation_sum / 100, 2);
+            $userOperation->sanction = ((int)100*$settings['limit'] > (int)$userOperation->operation_sum * $currencyRate) ? 0 :1 ;
         }
         $inBlackList = BlackList::whereIn('type', ['pft', 'plpd'])->where('hash', $addedUser->hash)->count();
 

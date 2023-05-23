@@ -12,15 +12,16 @@ use App\Models\Country;
 use App\Services\Search;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Facades\Image;
 
 class AddedUserController extends Controller
 {
-    private Search $search;
 
-    public function __construct()
+    public function __construct(private Search $search)
     {
         $this->authorizeResource(AddedUser::class);
         $this->search = new Search();
@@ -29,7 +30,7 @@ class AddedUserController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return AnonymousResourceCollection
      */
     public function index(Request $request, Country $country)
     {
@@ -169,51 +170,23 @@ class AddedUserController extends Controller
     public function search(Request $request)
     {
         try {
-            $addedUsers = AddedUserResource::collection($this->search->searchFromClients('AddedUser', $request)->unique('hash')->all());
+
+            $whiteListUsers = AddedUserResource::collection($this->search->searchFromClients('AddedUser', $request)->unique('hash')->all());
             if ($request->get('name') == null && $request->get('birth_date') == null) {
-                return $addedUsers;
+                return $whiteListUsers;
             }
 
-            if ($request->has('date1') && $request->has('date2')) {
-                $startDate = $this->parseDateString($request->date1);
-                $endDate = $this->parseDateString($request->date2);
-                $addedUsers = $addedUsers->filter(function ($item) use ($startDate, $endDate) {
-                    return $item['created_at'] >= $startDate && $item['created_at'] <= $endDate;
-                });
-            }
-            $addedUsers = $addedUsers->sortByDesc('created_at');
+            $whiteListUsers = $this->filterByDates($request, $whiteListUsers);
 
-            $blackLists = AddedUserResource::collection($this->search->searchFromClients('BlackList', $request))->map(function ($item) {
-                $item['hash'] = md5($item['last_name'] . $item['first_name'] . $item['middle_name'] . ((isset($item['birth_date'])) ? $item['birth_date']->format('d/m/Y') : ''));
-//                \Storage::disk('local')->append('incomess.txt', ($item['last_name'] . $item['first_name'] . $item['middle_name'] . ((isset($item['birth_date'])) ? $item['birth_date']->format('d/m/Y') : '')));
-                return $item;
-            });
-            $results = $addedUsers->merge($blackLists)->toJson();
-            $results = collect((array)json_decode($results, true));
+            list($blackLists, $results) = $this->getBlackedListUsers($request, $whiteListUsers);
 
-            $counted = $addedUsers->merge($blackLists)
-                ->countBy(function ($item) {
-                    return $item['hash'];
-                });
+            return $this->mergeBothUsers($whiteListUsers, $blackLists, $results);
 
-            $mk = [];
-            $r = $results->reject(function ($items) use ($counted, &$mk) {
-                return $counted[$items['hash']] > 1 && $items['black_list'] == false;
-            });
-//        return $results;
-            $counted->map(function ($key, $item) use ($r, &$mk) {
-                $r = $r->where('hash', $item);
-                $type = implode(',', $r->pluck('type')->toArray());
-                $data = $r->first();
-                $data['type'] = $type;
-                $mk[] = $data;
-            });
         } catch (\Exception $e) {
             return response()->json([
                 'error' => $e->getMessage()
             ], 500); // HTTP status code 500 for Internal Server Error
         }
-        return $mk;
     }
 
     public function parseDateString($date_string)
@@ -228,5 +201,57 @@ class AddedUserController extends Controller
     public function countries()
     {
         return CountryResource::collection(Country::all());
+    }
+
+    public function filterByDates(Request $request, AnonymousResourceCollection $addedUsers): array|AnonymousResourceCollection
+    {
+        if ($request->has('date1') && $request->has('date2')) {
+            $startDate = $this->parseDateString($request->date1);
+            $endDate = $this->parseDateString($request->date2);
+            $addedUsers = $addedUsers->filter(function ($item) use ($startDate, $endDate) {
+                return $item['created_at'] >= $startDate && $item['created_at'] <= $endDate;
+            });
+        }
+        return $addedUsers->sortByDesc('created_at');
+    }
+
+    public function getBlackedListUsers(Request $request, $addedUsers): array
+    {
+        $blackLists = AddedUserResource::collection($this->search->searchFromClients('BlackList', $request))->map(function ($item) {
+            $item['hash'] = md5($item['last_name'] . $item['first_name'] . $item['middle_name'] . ((isset($item['birth_date'])) ? $item['birth_date']->format('d/m/Y') : ''));
+//                \Storage::disk('local')->append('incomess.txt', ($item['last_name'] . $item['first_name'] . $item['middle_name'] . ((isset($item['birth_date'])) ? $item['birth_date']->format('d/m/Y') : '')));
+            return $item;
+        });
+        $results = $addedUsers->merge($blackLists)->toJson();
+        $results = collect((array)json_decode($results, true));
+        return array($blackLists, $results);
+    }
+
+    /**
+     * @param $whiteListUsers
+     * @param mixed $blackLists
+     * @param mixed $results
+     * @return array
+     */
+    public function mergeBothUsers($whiteListUsers, mixed $blackLists, mixed $results): array
+    {
+        $counted = $whiteListUsers->merge($blackLists)
+            ->countBy(function ($item) {
+                return $item['hash'];
+            });
+
+        $mk = [];
+        $r = $results->reject(function ($items) use ($counted, &$mk) {
+            return $counted[$items['hash']] > 1 && $items['black_list'] == false;
+        });
+
+        $counted->map(function ($key, $item) use ($r, &$mk) {
+            $r = $r->where('hash', $item);
+            $type = implode(',', $r->pluck('type')->toArray());
+            $data = $r->first();
+            $data['type'] = $type;
+            $mk[] = $data;
+        });
+        return $mk;
     }
 }
