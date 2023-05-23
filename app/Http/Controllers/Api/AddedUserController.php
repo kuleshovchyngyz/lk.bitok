@@ -203,7 +203,7 @@ class AddedUserController extends Controller
         return CountryResource::collection(Country::all());
     }
 
-    public function filterByDates(Request $request, AnonymousResourceCollection $addedUsers): array|AnonymousResourceCollection
+    public function filterByDates(Request $request, AnonymousResourceCollection $addedUsers)
     {
         if ($request->has('date1') && $request->has('date2')) {
             $startDate = $this->parseDateString($request->date1);
