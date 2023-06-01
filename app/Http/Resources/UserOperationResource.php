@@ -16,12 +16,13 @@ class UserOperationResource extends JsonResource
     public function toArray($request)
     {
 
-
-        $operation = [];
-
         $addedUser = null;
         if (class_basename($this->whenLoaded('addedUser')) != 'MissingValue') {
             $addedUser = $this->addedUser;
+        }
+        $legalEntity = null;
+        if (class_basename($this->whenLoaded('legalEntity')) != 'MissingValue') {
+            $legalEntity = $this->legalEntity;
         }
 
         return [
@@ -35,9 +36,13 @@ class UserOperationResource extends JsonResource
             'wallet_id' => $this->wallet_id,
             'currency' => $this->currency,
             'fullname' => $addedUser ? $addedUser->last_name . ' ' . $addedUser->first_name . ' ' . $addedUser->middle_name : $this->whenLoaded('addedUser'),
+            'director_full_name' => $legalEntity ? $legalEntity->director_full_name: $this->whenLoaded('legalEntity'),
+            'address' => $legalEntity ? $legalEntity->address: $this->whenLoaded('legalEntity'),
+            'country' => $legalEntity ? $legalEntity->country->name: $this->whenLoaded('legalEntity'),
             'pass_num_inn' => $addedUser ? $addedUser->pass_num_inn : $this->whenLoaded('addedUser'),
             'birth_date' => $addedUser ? $addedUser->birth_date->format('d/m/Y') : $this->whenLoaded('addedUser'),
             'attachments' => $this->attachments,
+            'type'=> request()->get('type') ?? 'all'
         ];
     }
 }

@@ -69,6 +69,7 @@ Route::get('/', function () {
 //    $filename = 'private_file.html';
 //    file_put_contents($filename, $fileContents);
 
+    phpinfo();
     return view('welcome');
 });
 

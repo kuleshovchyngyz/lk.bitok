@@ -76,6 +76,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('auth/me', [AuthController::class,'me']);
     Route::get('auth/logout', [AuthController::class,'logout']);
     Route::resource('added-users', AddedUserController::class);
+    Route::resource('legal-entities', \App\Http\Controllers\Api\LegalEntityController::class);
     Route::resource('user-operations', UserOperationController::class);
     Route::resource('settings', \App\Http\Controllers\Api\SettingController::class);
     Route::post('user-operations/range', [UserOperationController::class,'range']);

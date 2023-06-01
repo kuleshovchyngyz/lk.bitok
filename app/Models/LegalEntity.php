@@ -6,7 +6,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class AddedUser extends Model
+class LegalEntity extends Model
 {
     use HasFactory;
 
@@ -43,7 +43,7 @@ class AddedUser extends Model
     }
 
     public function userOperations(){
-        return $this->hasMany(UserOperation::class,'user_id','id');
+        return $this->hasMany(UserOperation::class,'legal_id','id');
     }
 
     public function attachments()

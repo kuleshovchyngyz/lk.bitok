@@ -24,7 +24,6 @@ class StoreUserOperationRequest extends FormRequest
     public function rules()
     {
         return [
-            'user_id'=>(!$this->route('user_operation')) ? 'required' : '',
             'operation_date'=>(!$this->route('user_operation')) ? 'required|date_format:d/m/Y H:i' : '',
             'operation_direction'=>(!$this->route('user_operation')) ? 'required' : '',
             'operation_sum'=>(!$this->route('user_operation')) ? 'required' : '',
@@ -32,7 +31,9 @@ class StoreUserOperationRequest extends FormRequest
             'currency'=>'',
             'passport_photo.*' => 'image',
             'sanction'=>'',
-            'checked'=>'boolean'
+            'checked'=>'boolean',
+            'user_id' => (!$this->route('user_operation'))?'required_without:legal_id|user_or_legal_id':'',
+            'legal_id' => (!$this->route('user_operation'))?'required_without:user_id|user_or_legal_id':''
         ];
     }
 }

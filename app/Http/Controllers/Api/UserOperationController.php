@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Exports\CollectionExport;
+use App\Factories\UserOperationStrategyFactory;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreUserOperationRequest;
 use App\Http\Resources\UserOperationResource;
@@ -15,6 +16,7 @@ use App\Services\Search;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
 use Intervention\Image\Facades\Image;
@@ -35,18 +37,16 @@ class UserOperationController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request, AddedUser $addedUser)
+    public function index(Request $request, $id=null)
     {
-        if (isset($addedUser['id'])) {
-            if ($addedUser->userOperations()->count() == 0) {
-                abort(404);
-            }
-            return UserOperationResource::collection($addedUser->userOperations()->orderBy('operation_date', 'desc')->get());
-        }
-        if ($request->has('risk')) {
-            return UserOperationResource::collection(UserOperation::where('sanction', $request->get('risk'))->orderBy('operation_date', 'desc')->get());
-        }
-        return UserOperationResource::collection(UserOperation::orderBy('operation_date', 'desc')->with('addedUser')->get());
+        $type = $request->input('type');
+
+        $strategy = UserOperationStrategyFactory::createStrategy($type, $id);
+
+        return $strategy->getUserOperations();
+
+
+
     }
 
     /**
@@ -58,45 +58,19 @@ class UserOperationController extends Controller
 
     public function store(StoreUserOperationRequest $request)
     {
-//        $userOperation = UserOperation::find(13244);
-//        $addedUser = $userOperation->addedUser;
-//        $country = $addedUser->country;
-//        $sanction = $country->sanction;
-//        return $sanction;
-//        $settings = Setting::select('usd_to_som as usd', 'usdt_to_som as usdt', 'rub_to_som as rub', 'limit')->first()->toArray();
-//
-//        $settings = array_merge($settings, ['som' => 1]);
-//        $currentMonth = Carbon::now()->month;
-//        $addedUser = $userOperation->addedUser;
-//        $totals = $addedUser->userOperations()
-//            ->whereMonth('operation_date', $currentMonth)
-//            ->groupBy('currency')
-//            ->selectRaw('currency, SUM(operation_sum) as total_sum')
-//            ->get();
-//        $sum = 0;
-//        foreach ($totals as $total) {
-//            if (in_array($total->currency, $settings)) {
-//                $sum += $settings[$total->currency] * $total->total_sum;
-//                continue;
-//            }
-//            $sum += $total->total_sum;
-//        }
-//
-//        return $check = $settings['limit'] < number_format($sum / 100, 2);
+        return DB::transaction(function () use ($request) {
+            $userOperation = UserOperation::create(Arr::except($request->validated(), ['wallet_photo']));
 
+            $this->checkUserForSanction($userOperation, $request);
 
-        if (isset($addedUser['id'])) {
-            $userOperation = ($addedUser->userOperations()->create(Arr::except($request->validated(), ['wallet_photo'])));
-        } else {
-            $userOperation = (UserOperation::create(Arr::except($request->validated(), ['wallet_photo'])));
-        }
-        $this->checkUserForSanction($userOperation,$request);
+            if ($request->has('wallet_photo') && is_array($request['wallet_photo'])) {
+                $wallet_photo = $request->file('wallet_photo');
+                $this->attach($wallet_photo, $userOperation, 'wallet');
+            }
 
-        if ($request->has('wallet_photo') && is_array($request['wallet_photo'])) {
-            $wallet_photo = $request->file('wallet_photo');
-            $this->attach($wallet_photo, $userOperation, 'wallet');
-        }
-        return new UserOperationResource($userOperation);
+            return new UserOperationResource($userOperation);
+        });
+
     }
 
     /**
@@ -105,30 +79,17 @@ class UserOperationController extends Controller
     public function checkUserForSanction(mixed $userOperation,$request)
     {
         $settings = Setting::select('usd_to_som as usd', 'usdt_to_som as usdt', 'rub_to_som as rub', 'limit')->first()->toArray();
-//        $settings = array_merge($settings, ['som' => 1]);
-//        $currentMonth = Carbon::now()->month;
-//        $addedUser = $userOperation->addedUser;
-//        $totals = $addedUser->userOperations()
-//            ->whereMonth('operation_date', $currentMonth)
-//            ->groupBy('currency')
-//            ->selectRaw('currency, SUM(operation_sum) as total_sum')
-//            ->get();
-//        $sum = 0;
-//        foreach ($totals as $total) {
-//            if (in_array($total->currency, $settings)) {
-//                $sum += $settings[$total->currency] * $total->total_sum;
-//                continue;
-//            }
-//            $sum += $total->total_sum;
-//        }
-//
-//        return $check = $settings['limit'] < number_format($sum / 100, 2);
         $currencyRate = 1;
         if($request->has('currency')){
             $currencyRate = $settings[$request->get('currency')] ?? 1;
         }
+        if ($request->has('legal_id')){
+            $addedUser = $userOperation->legalEntity;
+        }else{
+            $addedUser = $userOperation->addedUser;
+        }
 
-        $addedUser = $userOperation->addedUser;
+
         $country = $addedUser->country;
         $sanction = $country->sanction;
         $addedUser->sanction = (int)$sanction;
@@ -198,7 +159,7 @@ class UserOperationController extends Controller
      */
     public function show(UserOperation $userOperation)
     {
-        return new UserOperationResource($userOperation->loadMissing('addedUser'));
+        return new UserOperationResource($userOperation->loadMissing(['addedUser','legalEntity']));
     }
 
     /**
@@ -210,8 +171,6 @@ class UserOperationController extends Controller
      */
     public function update(StoreUserOperationRequest $request, UserOperation $userOperation)
     {
-
-
         $userOperation->update($request->validated());
 
         return new UserOperationResource($userOperation);

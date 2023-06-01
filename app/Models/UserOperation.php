@@ -20,6 +20,12 @@ class UserOperation extends Model
         return $this->belongsTo(AddedUser::class, 'user_id', 'id');
     }
 
+
+    public function legalEntity(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(LegalEntity::class, 'legal_id', 'id');
+    }
+
     public function setOperationSumAttribute($value)
     {
         $value = intval(str_replace(',', '', trim($value)));

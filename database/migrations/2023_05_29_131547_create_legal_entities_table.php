@@ -13,14 +13,16 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('added_users', function (Blueprint $table) {
+        Schema::create('legal_entities', function (Blueprint $table) {
             $table->id();
-            $table->string('last_name')->nullable();
-            $table->string('first_name')->nullable();
-            $table->string('middle_name')->nullable();
+            $table->string('name')->nullable();
+            $table->integer('country_id')->default(1);
+            $table->string('address')->nullable();
+            $table->string('director_full_name')->nullable();
             $table->dateTime('birth_date')->nullable();
-            $table->foreignId('country_id')->nullable();
-            $table->string('pass_num_inn')->nullable();
+            $table->timestamp('verification_date')->nullable();
+            $table->integer('sanction')->default(0);
+            $table->string('hash')->nullable();
             $table->timestamps();
         });
     }
@@ -32,6 +34,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('added_users');
+        Schema::dropIfExists('legal_entities');
     }
 };

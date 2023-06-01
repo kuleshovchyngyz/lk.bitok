@@ -13,4 +13,8 @@ class Country extends Model
     {
         return $this->hasMany(AddedUser::class);
     }
+    public function legalEntities()
+    {
+        return $this->hasMany(LegalEntity::class);
+    }
 }
