@@ -6,9 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\ImportLogResource;
 use App\Models\BlackList;
 use App\Models\BlacklistLogs;
+use App\Models\BlackListsLegalEntity;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-
+use Illuminate\Support\Facades\File;
+use SimpleXMLElement;
 class ImportController extends Controller
 {
     public function upload(Request $request)
@@ -267,6 +269,31 @@ class ImportController extends Controller
             return new ImportLogResource($bl);
         } catch (\Exception $e) {
             return 'Error: ' . $e->getMessage();
+        }
+    }
+
+    public function Legals($file){
+        $xmlData = File::get($file);
+        $xml = new SimpleXMLElement($xmlData);
+
+        foreach ($xml->children() as $item) {
+            $name = '';
+            $country = 'Kyrgyzstan';
+
+            if ($item->getName() === 'legalizationData') {
+                $name = (string) $item->name;
+            } elseif ($item->getName() === 'KyrgyzLegalPerson') {
+                $name = (string) $item->name;
+            } elseif ($item->getName() === 'ENTITY') {
+                $name = (string) $item->first_name;
+                $country = (string) $item->country;
+            }
+            $hash = md5(trim($name ?? ''));
+            $blackList = new BlackListsLegalEntity();
+            $blackList->name = $name;
+            $blackList->country = $country;
+            $blackList->hash = $hash;
+            $blackList->save();
         }
     }
 }

@@ -2,9 +2,11 @@
 
 namespace App\Models;
 
+use App\Http\Resources\AddedUserResource;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Request;
 
 class LegalEntity extends Model
 {
@@ -50,4 +52,5 @@ class LegalEntity extends Model
     {
         return $this->morphMany(Attachment::class, 'attachable');
     }
+
 }

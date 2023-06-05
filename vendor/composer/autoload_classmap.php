@@ -53,6 +53,7 @@ return array(
     'App\\Models\\AddedUser' => $baseDir . '/app/Models/AddedUser.php',
     'App\\Models\\Attachment' => $baseDir . '/app/Models/Attachment.php',
     'App\\Models\\BlackList' => $baseDir . '/app/Models/BlackList.php',
+    'App\\Models\\BlackListsLegalEntity' => $baseDir . '/app/Models/BlackListsLegalEntity.php',
     'App\\Models\\BlacklistLogs' => $baseDir . '/app/Models/BlacklistLogs.php',
     'App\\Models\\CarCharacteristic' => $baseDir . '/app/Models/CarCharacteristic.php',
     'App\\Models\\CarCharacteristicValue' => $baseDir . '/app/Models/CarCharacteristicValue.php',

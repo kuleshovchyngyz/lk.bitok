@@ -7,7 +7,6 @@ use App\Factories\UserOperationStrategyFactory;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreUserOperationRequest;
 use App\Http\Resources\UserOperationResource;
-use App\Models\AddedUser;
 use App\Models\Attachment;
 use App\Models\BlackList;
 use App\Models\Setting;
@@ -37,14 +36,13 @@ class UserOperationController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request, $id=null)
+    public function index(Request $request, $id = null)
     {
         $type = $request->input('type');
 
         $strategy = UserOperationStrategyFactory::createStrategy($type, $id);
 
         return $strategy->getUserOperations();
-
 
 
     }
@@ -76,16 +74,16 @@ class UserOperationController extends Controller
     /**
      * @param mixed $userOperation
      */
-    public function checkUserForSanction(mixed $userOperation,$request)
+    public function checkUserForSanction(mixed $userOperation, $request)
     {
         $settings = Setting::select('usd_to_som as usd', 'usdt_to_som as usdt', 'rub_to_som as rub', 'limit')->first()->toArray();
         $currencyRate = 1;
-        if($request->has('currency')){
+        if ($request->has('currency')) {
             $currencyRate = $settings[$request->get('currency')] ?? 1;
         }
-        if ($request->has('legal_id')){
+        if ($request->has('legal_id')) {
             $addedUser = $userOperation->legalEntity;
-        }else{
+        } else {
             $addedUser = $userOperation->addedUser;
         }
 
@@ -96,7 +94,7 @@ class UserOperationController extends Controller
         $userOperation->sanction = (int)$sanction;
 
         if ($sanction < 1) {
-            $userOperation->sanction = ((int)100*$settings['limit'] > (int)$userOperation->operation_sum * $currencyRate) ? 0 :1 ;
+            $userOperation->sanction = ((int)100 * $settings['limit'] > (int)$userOperation->operation_sum * $currencyRate) ? 0 : 1;
         }
         $inBlackList = BlackList::whereIn('type', ['pft', 'plpd'])->where('hash', $addedUser->hash)->count();
 
@@ -105,7 +103,7 @@ class UserOperationController extends Controller
             $userOperation->sanction = 1;
         }
 
-        if ($country->sanction==2){
+        if ($country->sanction == 2) {
             $userOperation->sanction = 2;
             $addedUser->sanction = 2;
         }
@@ -159,7 +157,7 @@ class UserOperationController extends Controller
      */
     public function show(UserOperation $userOperation)
     {
-        return new UserOperationResource($userOperation->loadMissing(['addedUser','legalEntity']));
+        return new UserOperationResource($userOperation->loadMissing(['addedUser', 'legalEntity']));
     }
 
     /**
@@ -190,17 +188,33 @@ class UserOperationController extends Controller
 
     public function search(Request $request)
     {
-
-        $addedUsers = $this->search->searchFromClients('AddedUser', $request)->pluck('id');
-
-        $userOperation = UserOperation::whereIn('user_id', $addedUsers)
-            ->with('addedUser')
+        return  $userOperation = UserOperation::with(['addedUser', 'legalEntity'])
+            ->when($request->get('type') == 'user' || $request->get('type') == null, function ($q) use ($request) {
+                $addedUsers = $this->search->searchFromClients('AddedUser', $request)->pluck('id');
+                $q->whereIn('user_id', $addedUsers);
+            })
+            ->when($request->get('type') == 'legal', function ($q) use ($request) {
+                $addedUsers = $this->search->searchFromClients('LegalEntity', $request)->pluck('id');
+                $q->whereIn('legal_id', $addedUsers);
+            })
             ->when($request->get('from') && $request->get('to'), function ($q) use ($request) {
                 $q->whereBetween('operation_date', [
                     Carbon::createFromFormat('d/m/Y', $request->get('from'))->format('Y-m-d'),
                     Carbon::createFromFormat('d/m/Y', $request->get('to'))->addDay()->format('Y-m-d')
                 ]);
-            })->get();
+            })
+            ->get()
+            ->filter(function ($item) {
+                if ($item->user_id !== null && $item->addedUser==null){
+                    return false;
+                }
+                if ($item->legal_id !== null && $item->legalEntity==null){
+                    return false;
+                }
+                return true;
+
+            })
+            ;
 
         return UserOperationResource::collection($userOperation);
     }

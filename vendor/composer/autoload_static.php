@@ -664,6 +664,7 @@ class ComposerStaticInit5dd73560b89afc1cfedd7f40ecb76a53
         'App\\Models\\AddedUser' => __DIR__ . '/../..' . '/app/Models/AddedUser.php',
         'App\\Models\\Attachment' => __DIR__ . '/../..' . '/app/Models/Attachment.php',
         'App\\Models\\BlackList' => __DIR__ . '/../..' . '/app/Models/BlackList.php',
+        'App\\Models\\BlackListsLegalEntity' => __DIR__ . '/../..' . '/app/Models/BlackListsLegalEntity.php',
         'App\\Models\\BlacklistLogs' => __DIR__ . '/../..' . '/app/Models/BlacklistLogs.php',
         'App\\Models\\CarCharacteristic' => __DIR__ . '/../..' . '/app/Models/CarCharacteristic.php',
         'App\\Models\\CarCharacteristicValue' => __DIR__ . '/../..' . '/app/Models/CarCharacteristicValue.php',

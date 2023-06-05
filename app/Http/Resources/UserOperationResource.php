@@ -42,7 +42,7 @@ class UserOperationResource extends JsonResource
             'pass_num_inn' => $addedUser ? $addedUser->pass_num_inn : $this->whenLoaded('addedUser'),
             'birth_date' => $addedUser ? $addedUser->birth_date->format('d/m/Y') : $this->whenLoaded('addedUser'),
             'attachments' => $this->attachments,
-            'type'=> request()->get('type') ?? 'all'
+//            'type'=> request()->get('type') ?? 'all'
         ];
     }
 }

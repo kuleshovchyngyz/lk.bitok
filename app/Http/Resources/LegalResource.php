@@ -9,15 +9,16 @@ class LegalResource extends JsonResource
     /**
      * Transform the resource into an array.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
      * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
      */
     public function toArray($request)
     {
         return [
-            'id' =>$this->id,
+            'id' => $this->id,
             'sanction' => $this->sanction,
             'name' => $this->name,
+            'director_full_name' => $this->director_full_name,
             'birth_date' => $this->birth_date->format('d/m/Y'),
             'registration_date' => $this->created_at->format('d/m/Y H:i'),
             'verification_date' => $this->when(isset($this->verification_date), function () {
