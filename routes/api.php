@@ -69,6 +69,9 @@ Route::get('/pft', [\App\Http\Controllers\Api\ImportController::class,'pft']);
 Route::get('/plpd', [\App\Http\Controllers\Api\ImportController::class,'plpd']);
 Route::get('/forall', [\App\Http\Controllers\Api\ImportController::class,'forall']);
 Route::get('/un', [\App\Http\Controllers\Api\ImportController::class,'un']);
+Route::get('/un-legals', [\App\Http\Controllers\Api\ImportController::class,'unLegals']);
+Route::get('/forall-legals', [\App\Http\Controllers\Api\ImportController::class,'forallLegals']);
+Route::get('/plpd-legals', [\App\Http\Controllers\Api\ImportController::class,'plpdLegals']);
 
 
 

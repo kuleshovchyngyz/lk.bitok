@@ -33,6 +33,7 @@ class UserOperationResource extends JsonResource
             'operation_sum' => number_format($this->operation_sum / 100, 2),
             'operation_direction' => $this->operation_direction,
             'user_id' => $this->user_id,
+            'legal_id' => $this->legal_id,
             'wallet_id' => $this->wallet_id,
             'currency' => $this->currency,
             'fullname' => $addedUser ? $addedUser->last_name . ' ' . $addedUser->first_name . ' ' . $addedUser->middle_name : $this->whenLoaded('addedUser'),

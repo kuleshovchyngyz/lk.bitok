@@ -34,6 +34,7 @@ class ImportController extends Controller
             'plpd' => 'Перечень лиц, групп, организаций...(ПЛПД)',
             'forall' => 'Сводный санкционный перечень Кыргызской Республики',
             'un' => 'Сводный санкционный перечень Совета Безопасности ООН',
+            'plpdLegal' => 'Перечень Юридические лица...(ПЛПД)',
         ];
         return compact('logs','values');
     }
@@ -57,7 +58,7 @@ class ImportController extends Controller
                     'bl_name' => 'Перечень физических лиц...(ПФТ)',
                     'status' => 'Ошибка в обработке',
                 ]);
-
+                $this->Legals($file,'pftLegals','');
                 $data = [];
                 foreach ($phpArray['PersonServedSentence'] as $key => $item) {
                     $data[$key]['first_name'] = $item['Name'];
@@ -272,9 +273,22 @@ class ImportController extends Controller
         }
     }
 
-    public function Legals($file){
-        $xmlData = File::get($file);
+    public function unLegals(){
+
+    }
+
+    public function Legals($file,$type){
+//        $xmlData = File::get($file);
+        $xmlData = file_get_contents($file);
         $xml = new SimpleXMLElement($xmlData);
+
+
+        $bl = BlacklistLogs::create([
+            'file_name' => basename($file),
+            'bl_name_code' => 'un',
+            'bl_name' => 'Сводный санкционный перечень для ю.л Совета Безопасности ООН',
+            'status' => 'Ошибка в обработке',
+        ]);
 
         foreach ($xml->children() as $item) {
             $name = '';
