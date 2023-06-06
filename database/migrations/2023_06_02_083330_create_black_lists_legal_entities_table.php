@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('hash')->nullable();
             $table->string('country_id')->default(1);
             $table->string('country')->nullable();
+            $table->string('type')->nullable();
             $table->timestamps();
         });
     }

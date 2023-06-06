@@ -9,8 +9,8 @@ use App\Models\BlacklistLogs;
 use App\Models\BlackListsLegalEntity;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\File;
 use SimpleXMLElement;
+
 class ImportController extends Controller
 {
     public function upload(Request $request)
@@ -19,7 +19,7 @@ class ImportController extends Controller
             $file = $request->file('file');
             $filename = $file->getClientOriginalName();
             $file->move(public_path('blacklist'), $filename);
-            $url = public_path('blacklist').'/'.$filename;
+            $url = public_path('blacklist') . '/' . $filename;
             $type = $request->get('type');
             return call_user_func_array([$this, $type], [$url]);
         }
@@ -34,9 +34,9 @@ class ImportController extends Controller
             'plpd' => 'Перечень лиц, групп, организаций...(ПЛПД)',
             'forall' => 'Сводный санкционный перечень Кыргызской Республики',
             'un' => 'Сводный санкционный перечень Совета Безопасности ООН',
-            'plpdLegal' => 'Перечень Юридические лица...(ПЛПД)',
+            'plpdLegal' => 'Перечень юридических лиц...(ПЛПД)',
         ];
-        return compact('logs','values');
+        return compact('logs', 'values');
     }
 
     public function pft($file)
@@ -51,14 +51,13 @@ class ImportController extends Controller
         $phpArray = json_decode($json, true);
         try {
             $bl = null;
-            DB::transaction(function () use ($phpArray, &$bl, $file) {
+            DB::transaction(function () use ($phpArray, &$bl, $file,) {
                 $bl = BlacklistLogs::create([
                     'file_name' => basename($file),
                     'bl_name_code' => 'pft',
                     'bl_name' => 'Перечень физических лиц...(ПФТ)',
                     'status' => 'Ошибка в обработке',
                 ]);
-                $this->Legals($file,'pftLegals','');
                 $data = [];
                 foreach ($phpArray['PersonServedSentence'] as $key => $item) {
                     $data[$key]['first_name'] = $item['Name'];
@@ -80,8 +79,8 @@ class ImportController extends Controller
                 $bl->save();
                 \App\Models\BlackList::where('type', 'pft')->where('blacklist_log_id', '!=', $bl->id)->delete();
                 $addedUsers = BlackList::all();
-                foreach ($addedUsers as $addedUser){
-                    $addedUser->hash = md5(trim($addedUser['last_name'] ?? null) . trim($addedUser['first_name'] ?? null) . trim($addedUser['middle_name'] ?? null) .  trim($addedUser->birth_date->format('d/m/Y') ?? null));
+                foreach ($addedUsers as $addedUser) {
+                    $addedUser->hash = md5(trim($addedUser['last_name'] ?? null) . trim($addedUser['first_name'] ?? null) . trim($addedUser['middle_name'] ?? null) . trim($addedUser->birth_date->format('d/m/Y') ?? null));
                     $addedUser->save();
                 }
             });
@@ -90,6 +89,11 @@ class ImportController extends Controller
             return 'Error: ' . $e->getMessage();
         }
 
+    }
+
+    public function plpdLegal($file)
+    {
+        return $this->Legals($file, 'forallLegals', 'Перечень юридических лиц...(ПЛПД)');
     }
 
     public function plpd($file)
@@ -136,8 +140,8 @@ class ImportController extends Controller
                 $bl->save();
                 \App\Models\BlackList::where('type', 'pldp')->where('blacklist_log_id', '!=', $bl->id)->delete();
                 $addedUsers = BlackList::all();
-                foreach ($addedUsers as $addedUser){
-                    $addedUser->hash = md5(trim($addedUser['last_name'] ?? null) . trim($addedUser['first_name'] ?? null) . trim($addedUser['middle_name'] ?? null) .  trim($addedUser->birth_date->format('d/m/Y') ?? null));
+                foreach ($addedUsers as $addedUser) {
+                    $addedUser->hash = md5(trim($addedUser['last_name'] ?? null) . trim($addedUser['first_name'] ?? null) . trim($addedUser['middle_name'] ?? null) . trim($addedUser->birth_date->format('d/m/Y') ?? null));
                     $addedUser->save();
                 }
             });
@@ -147,7 +151,7 @@ class ImportController extends Controller
         }
     }
 
-    public function forall( $file)
+    public function forall($file)
     {
 //        $file = public_path('blacklist') . '/63c915bc95a68.xml';
 
@@ -160,13 +164,15 @@ class ImportController extends Controller
         $phpArray = json_decode($json, true);
         try {
             $bl = null;
-            DB::transaction(function () use ($phpArray, &$bl, $file) {
+            $collection = [];
+            DB::transaction(function () use ($phpArray, &$bl, $file, &$collection) {
                 $bl = BlacklistLogs::create([
                     'file_name' => basename($file),
                     'bl_name_code' => 'forall',
                     'bl_name' => 'Сводный санкционный перечень Кыргызской Республики',
                     'status' => 'Ошибка в обработке',
                 ]);
+                $collection = $this->Legals($file, 'pftLegals', 'Сводный санкционный перечень юридических лиц Кыргызской Республики');
                 $data = [];
                 foreach ($phpArray['physicPersons']['KyrgyzPhysicPerson'] as $key => $item) {
                     $data[$key]['first_name'] = $item['Name'] ?: '';
@@ -189,19 +195,18 @@ class ImportController extends Controller
                 $bl->save();
                 \App\Models\BlackList::where('type', 'forall')->where('blacklist_log_id', '!=', $bl->id)->delete();
                 $addedUsers = BlackList::all();
-                foreach ($addedUsers as $addedUser){
-                    $addedUser->hash = md5(trim($addedUser['last_name'] ?? null) . trim($addedUser['first_name'] ?? null) . trim($addedUser['middle_name'] ?? null) .  trim($addedUser->birth_date->format('d/m/Y') ?? null));
+                foreach ($addedUsers as $addedUser) {
+                    $addedUser->hash = md5(trim($addedUser['last_name'] ?? null) . trim($addedUser['first_name'] ?? null) . trim($addedUser['middle_name'] ?? null) . trim($addedUser->birth_date->format('d/m/Y') ?? null));
                     $addedUser->save();
                 }
             });
-            return new ImportLogResource($bl);
+            return [new ImportLogResource($bl), $collection];
         } catch (\Exception $e) {
             return 'Error: ' . $e->getMessage();
         }
     }
 
-
-    public function un( $file)
+    public function un($file)
     {
 //        $file = public_path('blacklist') . '/consolidated.xml';
 
@@ -217,13 +222,15 @@ class ImportController extends Controller
         try {
             $bl = null;
             $data = null;
-            DB::transaction(function () use ($phpArray, &$bl, &$data,$file) {
+            $collection = [];
+            DB::transaction(function () use ($phpArray, &$bl, &$data, $file, &$collection) {
                 $bl = BlacklistLogs::create([
                     'file_name' => basename($file),
                     'bl_name_code' => 'un',
                     'bl_name' => 'Сводный санкционный перечень Совета Безопасности ООН',
                     'status' => 'Ошибка в обработке',
                 ]);
+                $collection = $this->Legals($file, 'unLegals', 'Сводный санкционный перечень юридических лиц Совета Безопасности ООН');
                 $data = [];
                 foreach ($phpArray['INDIVIDUALS']['INDIVIDUAL'] as $key => $item) {
                     $data[$key]['first_name'] = (isset($item['FIRST_NAME']) && ($item['FIRST_NAME'])) ? $item['FIRST_NAME'] : '';
@@ -261,53 +268,91 @@ class ImportController extends Controller
                 $bl->save();
                 \App\Models\BlackList::where('type', 'forall')->where('blacklist_log_id', '!=', $bl->id)->delete();
                 $addedUsers = BlackList::all();
-                foreach ($addedUsers as $addedUser){
-                    $addedUser->hash = md5(trim($addedUser['last_name'] ?? null) . trim($addedUser['first_name'] ?? null) . trim($addedUser['middle_name'] ?? null) .  trim($addedUser->birth_date->format('d/m/Y') ?? null));
+                foreach ($addedUsers as $addedUser) {
+                    $addedUser->hash = md5(trim($addedUser['last_name'] ?? null) . trim($addedUser['first_name'] ?? null) . trim($addedUser['middle_name'] ?? null) . trim($addedUser->birth_date->format('d/m/Y') ?? null));
                     $addedUser->save();
                 }
             });
 
-            return new ImportLogResource($bl);
+            return [new ImportLogResource($bl), $collection];
         } catch (\Exception $e) {
             return 'Error: ' . $e->getMessage();
         }
     }
 
-    public function unLegals(){
+    public function Legals($file, $type, $text)
+    {
+        return DB::transaction(function () use ($file, $type, $text) {
+            $xmlData = file_get_contents($file);
+            $xml = new SimpleXMLElement($xmlData);
 
-    }
+            $bl = BlacklistLogs::create([
+                'file_name' => basename($file),
+                'bl_name_code' => $type,
+                'bl_name' => $text,
+                'status' => 'Ошибка в обработке',
+            ]);
 
-    public function Legals($file,$type){
-//        $xmlData = File::get($file);
-        $xmlData = file_get_contents($file);
-        $xml = new SimpleXMLElement($xmlData);
+            $count = 0;
 
+            if ($xml->getName() === 'CONSOLIDATED_LIST') {
+                foreach ($xml->ENTITIES->ENTITY as $entity) {
+                    $name = (string) $entity->FIRST_NAME;
 
-        $bl = BlacklistLogs::create([
-            'file_name' => basename($file),
-            'bl_name_code' => 'un',
-            'bl_name' => 'Сводный санкционный перечень для ю.л Совета Безопасности ООН',
-            'status' => 'Ошибка в обработке',
-        ]);
+                    if (!empty($name)) {
+                        $count++;
+                        $hash = md5(trim($name));
+                        $blackList = new BlackListsLegalEntity();
+                        $blackList->name = $name;
+                        $blackList->type = $type;
+                        $blackList->hash = $hash;
+                        $blackList->blacklist_log_id = $bl->id;
+                        $blackList->save();
+                    }
+                }
+            } elseif ($xml->getName() === 'SanctionList') {
+                foreach ($xml->legalPersons->KyrgyzLegalPerson as $person) {
+                    $name = (string) $person->Name;
 
-        foreach ($xml->children() as $item) {
-            $name = '';
-            $country = 'Kyrgyzstan';
+                    if (!empty($name)) {
+                        $count++;
+                        $hash = md5(trim($name));
+                        $blackList = new BlackListsLegalEntity();
+                        $blackList->name = $name;
+                        $blackList->type = $type;
+                        $blackList->hash = $hash;
+                        $blackList->blacklist_log_id = $bl->id;
+                        $blackList->save();
+                    }
+                }
+            } elseif ($xml->getName() === 'ArrayOfLegalization') {
+                foreach ($xml->Legalization as $legalization) {
+                    $name = (string) $legalization->Name;
 
-            if ($item->getName() === 'legalizationData') {
-                $name = (string) $item->name;
-            } elseif ($item->getName() === 'KyrgyzLegalPerson') {
-                $name = (string) $item->name;
-            } elseif ($item->getName() === 'ENTITY') {
-                $name = (string) $item->first_name;
-                $country = (string) $item->country;
+                    if (!empty($name)) {
+                        $count++;
+                        $hash = md5(trim($name));
+                        $blackList = new BlackListsLegalEntity();
+                        $blackList->name = $name;
+                        $blackList->type = $type;
+                        $blackList->hash = $hash;
+                        $blackList->blacklist_log_id = $bl->id;
+                        $blackList->save();
+                    }
+                }
             }
-            $hash = md5(trim($name ?? ''));
-            $blackList = new BlackListsLegalEntity();
-            $blackList->name = $name;
-            $blackList->country = $country;
-            $blackList->hash = $hash;
-            $blackList->save();
-        }
+
+            BlackListsLegalEntity::where('type', $type)
+                ->where('blacklist_log_id', '!=', $bl->id)
+                ->delete();
+
+            $bl->status = "Успешно обработано {$count} записей";
+            $bl->save();
+
+            return new ImportLogResource($bl);
+        });
     }
+
+
+
 }
