@@ -19,6 +19,7 @@ class LegalResource extends JsonResource
             'sanction' => $this->sanction,
             'name' => $this->name,
             'director_full_name' => $this->director_full_name,
+            'address' => $this->address,
             'birth_date' => $this->birth_date->format('d/m/Y'),
             'registration_date' => $this->created_at->format('d/m/Y H:i'),
             'verification_date' => $this->when(isset($this->verification_date), function () {
