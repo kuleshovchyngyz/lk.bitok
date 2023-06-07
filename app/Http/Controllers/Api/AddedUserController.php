@@ -141,7 +141,6 @@ class AddedUserController extends Controller
             }
 
             $whiteListUsers = $this->filterByDates($request, $whiteListUsers);
-
             list($blackLists, $results) = $this->getBlackedListUsers($request, $whiteListUsers);
 
             return $this->mergeBothUsers($whiteListUsers, $blackLists, $results);
@@ -179,7 +178,7 @@ class AddedUserController extends Controller
         return $addedUsers->sortByDesc('created_at');
     }
 
-    public function getBlackedListUsers(Request $request, $addedUsers): array
+    public function getBlackedListUsers(Request $request, $addedUsers)
     {
         $blackLists = AddedUserResource::collection($this->search->searchFromClients('BlackList', $request))->map(function ($item) {
             $item['hash'] = md5($item['last_name'] . $item['first_name'] . $item['middle_name'] . ((isset($item['birth_date'])) ? $item['birth_date']->format('d/m/Y') : ''));
