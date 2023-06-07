@@ -98,7 +98,6 @@ class ImportController extends Controller
 
     public function plpd($file)
     {
-//        $file = public_path('blacklist') . '/63ce72ce20dab.xml';
 
         $xmlString = file_get_contents($file);
 
@@ -153,7 +152,6 @@ class ImportController extends Controller
 
     public function forall($file)
     {
-//        $file = public_path('blacklist') . '/63c915bc95a68.xml';
 
         $xmlString = file_get_contents($file);
 
@@ -164,15 +162,14 @@ class ImportController extends Controller
         $phpArray = json_decode($json, true);
         try {
             $bl = null;
-            $collection = [];
-            DB::transaction(function () use ($phpArray, &$bl, $file, &$collection) {
+            DB::transaction(function () use ($phpArray, &$bl, $file) {
                 $bl = BlacklistLogs::create([
                     'file_name' => basename($file),
                     'bl_name_code' => 'forall',
-                    'bl_name' => 'Сводный санкционный перечень Кыргызской Республики',
+                    'bl_name' => 'Сводный санкционный перечень Кыргызской Республики и Сводный санкционный перечень юридических лиц Кыргызской Республики',
                     'status' => 'Ошибка в обработке',
                 ]);
-                $collection = $this->Legals($file, 'pftLegals', 'Сводный санкционный перечень юридических лиц Кыргызской Республики');
+                $this->Legals($file, 'pftLegals', 'Сводный санкционный перечень юридических лиц Кыргызской Республики');
                 $data = [];
                 foreach ($phpArray['physicPersons']['KyrgyzPhysicPerson'] as $key => $item) {
                     $data[$key]['first_name'] = $item['Name'] ?: '';
@@ -200,7 +197,7 @@ class ImportController extends Controller
                     $addedUser->save();
                 }
             });
-            return [new ImportLogResource($bl), $collection];
+            return new ImportLogResource($bl);
         } catch (\Exception $e) {
             return 'Error: ' . $e->getMessage();
         }
@@ -208,8 +205,6 @@ class ImportController extends Controller
 
     public function un($file)
     {
-//        $file = public_path('blacklist') . '/consolidated.xml';
-
         $xmlString = file_get_contents($file);
 
         $xmlObject = simplexml_load_string($xmlString);
@@ -222,15 +217,14 @@ class ImportController extends Controller
         try {
             $bl = null;
             $data = null;
-            $collection = [];
-            DB::transaction(function () use ($phpArray, &$bl, &$data, $file, &$collection) {
+            DB::transaction(function () use ($phpArray, &$bl, &$data, $file) {
                 $bl = BlacklistLogs::create([
                     'file_name' => basename($file),
                     'bl_name_code' => 'un',
-                    'bl_name' => 'Сводный санкционный перечень Совета Безопасности ООН',
+                    'bl_name' => 'Сводный санкционный перечень Совета Безопасности ООН и Сводный санкционный перечень юридических лиц Совета Безопасности ООН',
                     'status' => 'Ошибка в обработке',
                 ]);
-                $collection = $this->Legals($file, 'unLegals', 'Сводный санкционный перечень юридических лиц Совета Безопасности ООН');
+                $this->Legals($file, 'unLegals', 'Сводный санкционный перечень юридических лиц Совета Безопасности ООН');
                 $data = [];
                 foreach ($phpArray['INDIVIDUALS']['INDIVIDUAL'] as $key => $item) {
                     $data[$key]['first_name'] = (isset($item['FIRST_NAME']) && ($item['FIRST_NAME'])) ? $item['FIRST_NAME'] : '';
@@ -274,7 +268,7 @@ class ImportController extends Controller
                 }
             });
 
-            return [new ImportLogResource($bl), $collection];
+            return new ImportLogResource($bl);
         } catch (\Exception $e) {
             return 'Error: ' . $e->getMessage();
         }
