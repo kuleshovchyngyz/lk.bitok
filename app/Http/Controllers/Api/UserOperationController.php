@@ -26,15 +26,21 @@ class UserOperationController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(AddedUser $addedUser)
+    public function index(AddedUser $addedUser, Request $request)
     {
+        $pageLimit = 200; // Set the limit per page
+        
         if (isset($addedUser['id'])) {
-            if($addedUser->userOperations()->count()==0){
+            if ($addedUser->userOperations()->count() == 0) {
                 abort(404);
             }
-            return UserOperationResource::collection($addedUser->userOperations);
+            
+            $results = $addedUser->userOperations()->paginate($pageLimit);
+            return UserOperationResource::collection($results);
         }
-        return UserOperationResource::collection(UserOperation::with('addedUser')->get());
+        
+        $results = UserOperation::with('addedUser')->paginate($pageLimit);
+        return UserOperationResource::collection($results);
     }
 
     /**
