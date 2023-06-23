@@ -29,10 +29,15 @@ class AddedUserController extends Controller
      */
     public function index(Country $country)
     {
+        $query = AddedUser::with('country');
+    
         if (isset($country['id'])) {
-            return AddedUserResource::collection($country->addedUsers);
+            $query->where('country_id', $country['id']);
         }
-        return AddedUserResource::collection(AddedUser::with('country')->get());
+        
+        $users = $query->paginate(100);
+
+        return AddedUserResource::collection($users);
     }
 
     /**

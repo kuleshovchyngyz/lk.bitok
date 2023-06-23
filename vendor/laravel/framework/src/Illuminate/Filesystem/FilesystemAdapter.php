@@ -562,7 +562,7 @@ class FilesystemAdapter implements CloudFilesystemContract
      *
      * @throws UnableToProvideChecksum
      */
-    public function checksum(string $path, array $options = []): string|false
+    public function checksum(string $path, array $options = [])
     {
         try {
             return $this->driver->checksum($path, $options);
@@ -731,6 +731,25 @@ class FilesystemAdapter implements CloudFilesystemContract
         }
 
         throw new RuntimeException('This driver does not support creating temporary URLs.');
+    }
+
+    /**
+     * Get a temporary upload URL for the file at the given path.
+     *
+     * @param  string  $path
+     * @param  \DateTimeInterface  $expiration
+     * @param  array  $options
+     * @return array
+     *
+     * @throws \RuntimeException
+     */
+    public function temporaryUploadUrl($path, $expiration, array $options = [])
+    {
+        if (method_exists($this->adapter, 'temporaryUploadUrl')) {
+            return $this->adapter->temporaryUploadUrl($path, $expiration, $options);
+        }
+
+        throw new RuntimeException('This driver does not support creating temporary upload URLs.');
     }
 
     /**
