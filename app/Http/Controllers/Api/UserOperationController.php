@@ -28,19 +28,20 @@ class UserOperationController extends Controller
      */
     public function index(AddedUser $addedUser, Request $request)
     {
-        $pageLimit = 200; // Set the limit per page
-        
         if (isset($addedUser['id'])) {
             if ($addedUser->userOperations()->count() == 0) {
                 abort(404);
             }
             
-            $results = $addedUser->userOperations()->paginate($pageLimit);
+            $results = $addedUser->userOperations()->paginate(200);
             return UserOperationResource::collection($results);
         }
         
-        $results = UserOperation::with('addedUser')->paginate($pageLimit);
-        return UserOperationResource::collection($results);
+        $results = UserOperation::with('addedUser')->paginate(200);
+
+        $page = UserOperationResource::collection($results);
+
+        return [$page->items(), $page->previousPageUrl(), $page->nextPageUrl()];
     }
 
     /**

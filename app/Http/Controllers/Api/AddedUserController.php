@@ -37,7 +37,10 @@ class AddedUserController extends Controller
         
         $users = $query->paginate(100);
 
-        return AddedUserResource::collection($users);
+        $page = AddedUserResource::collection($users);
+
+        return [$page->items(), $page->previousPageUrl(), $page->nextPageUrl()];
+
     }
 
     /**
