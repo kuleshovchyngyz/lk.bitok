@@ -30,11 +30,9 @@ class LegalResource extends JsonResource
             'country' => $this->when(isset($this->country), function () {
                 return $this->country->name;
             }),
-
             'user_operations' => UserOperationWalletResource::collection($this->whenLoaded('userOperations', function () {
                 return $this->userOperations->unique('wallet_id');
             })),
-
             'attachments' => $this->attachments,
         ];
     }

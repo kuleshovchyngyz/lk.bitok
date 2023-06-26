@@ -32,6 +32,7 @@ class AddedUserController extends Controller
      */
     public function index(Request $request, Country $country)
     {
+
         if (isset($country['id'])) {
             return AddedUserResource::collection($country->addedUsers);
         }

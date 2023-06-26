@@ -13,6 +13,7 @@ return array(
     'App\\Exports\\CollectionExport' => $baseDir . '/app/Exports/CollectionExport.php',
     'App\\Factories\\UserOperationStrategyFactory' => $baseDir . '/app/Factories/UserOperationStrategyFactory.php',
     'App\\Http\\Controllers\\Api\\AddedUserController' => $baseDir . '/app/Http/Controllers/Api/AddedUserController.php',
+    'App\\Http\\Controllers\\Api\\AttachmentController' => $baseDir . '/app/Http/Controllers/Api/AttachmentController.php',
     'App\\Http\\Controllers\\Api\\AuthController' => $baseDir . '/app/Http/Controllers/Api/AuthController.php',
     'App\\Http\\Controllers\\Api\\BlackListController' => $baseDir . '/app/Http/Controllers/Api/BlackListController.php',
     'App\\Http\\Controllers\\Api\\CountryController' => $baseDir . '/app/Http/Controllers/Api/CountryController.php',

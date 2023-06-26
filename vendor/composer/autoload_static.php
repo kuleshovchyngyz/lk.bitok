@@ -624,6 +624,7 @@ class ComposerStaticInit5dd73560b89afc1cfedd7f40ecb76a53
         'App\\Exports\\CollectionExport' => __DIR__ . '/../..' . '/app/Exports/CollectionExport.php',
         'App\\Factories\\UserOperationStrategyFactory' => __DIR__ . '/../..' . '/app/Factories/UserOperationStrategyFactory.php',
         'App\\Http\\Controllers\\Api\\AddedUserController' => __DIR__ . '/../..' . '/app/Http/Controllers/Api/AddedUserController.php',
+        'App\\Http\\Controllers\\Api\\AttachmentController' => __DIR__ . '/../..' . '/app/Http/Controllers/Api/AttachmentController.php',
         'App\\Http\\Controllers\\Api\\AuthController' => __DIR__ . '/../..' . '/app/Http/Controllers/Api/AuthController.php',
         'App\\Http\\Controllers\\Api\\BlackListController' => __DIR__ . '/../..' . '/app/Http/Controllers/Api/BlackListController.php',
         'App\\Http\\Controllers\\Api\\CountryController' => __DIR__ . '/../..' . '/app/Http/Controllers/Api/CountryController.php',

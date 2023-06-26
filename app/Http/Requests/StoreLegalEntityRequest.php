@@ -50,7 +50,7 @@ class StoreLegalEntityRequest extends FormRequest
             'permit_photo.*' => 'nullable|sometimes|mimes:doc,docx,xls,xlsx,pdf,csv,jpg,jpeg,png,bmp',
             'passport_photo.*' => 'nullable|sometimes|mimes:doc,docx,xls,xlsx,pdf,csv,jpg,jpeg,png,bmp',
 
-            'sanction'=> 'integer',
+            'sanction'=> 'sometimes|integer',
 
         ];
     }

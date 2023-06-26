@@ -58,11 +58,10 @@ Route::group(['prefix'=>'v1'],function () {
     Route::post('title', [CarController::class, 'carTitleData']);
     Route::post('get-cars', [CarController::class, 'getCars']);
 
-
-
-
-
 });
+
+
+
 Route::get('/import', [\App\Http\Controllers\Api\ImportController::class,'import']);
 Route::post('/import', [\App\Http\Controllers\Api\ImportController::class,'upload']);
 Route::get('/pft', [\App\Http\Controllers\Api\ImportController::class,'pft']);
@@ -92,7 +91,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('added-users/search', [AddedUserController::class,'search']);
     Route::post('legal-entities/search', [\App\Http\Controllers\Api\LegalEntityController::class,'search']);
     Route::post('added-users/{added_user}/upload', [AddedUserController::class,'upload']);
+
+    Route::post('legal-entities/{legal_entity}/upload', [\App\Http\Controllers\Api\LegalEntityController::class,'upload']);
     Route::delete('attachment/{attachment}/delete', [AddedUserController::class,'delete']);
+    Route::post('activate-attachment', [\App\Http\Controllers\Api\AttachmentController::class,'activate']);
+    Route::post('deactivate-attachment', [\App\Http\Controllers\Api\AttachmentController::class,'deactivate']);
     Route::post('user-operations/search', [UserOperationController::class,'search']);
 //    Route::get('countries', [AddedUserController::class,'countries']);
 //    Route::post('countries', [SanctionController::class,'store']);

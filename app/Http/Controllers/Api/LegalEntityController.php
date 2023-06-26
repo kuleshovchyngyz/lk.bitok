@@ -80,6 +80,7 @@ class LegalEntityController extends Controller
         $this->attachPhotos($request, $legalEntity);
         return new LegalResource($legalEntity);
     }
+
     public function search(Request $request)
     {
 

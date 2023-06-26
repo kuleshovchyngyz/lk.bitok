@@ -12,7 +12,6 @@ class AllUserOperationStrategy implements UserOperationStrategy
     public function getUserOperations()
     {
         $query = UserOperation::orderBy('operation_date', 'desc')->take(1000);
-
         if (request()->has('risk')) {
             $query->where('sanction', request()->get('risk'));
         }
@@ -22,7 +21,6 @@ class AllUserOperationStrategy implements UserOperationStrategy
         if (request()->has('type') && request()->get('type') == 'user') {
             $query->where('user_id', '!=' ,null)->where('legal_id',null);
         }
-
         return UserOperationResource::collection( $query->with(['addedUser','legalEntity'])->get());
     }
 }
