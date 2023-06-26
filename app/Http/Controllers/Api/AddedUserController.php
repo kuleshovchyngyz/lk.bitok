@@ -30,16 +30,45 @@ class AddedUserController extends Controller
      *
      * @return AnonymousResourceCollection
      */
+    // public function index(Request $request, Country $country)
+    // {
+    //     if (isset($country['id'])) {
+    //         return AddedUserResource::collection($country->addedUsers);
+    //     }
+    //     if ($request->has('risk')) {
+    //         return AddedUserResource::collection(AddedUser::with(['country'])->where('sanction', $request->get('risk'))->orderBy('created_at', 'desc')->get());
+    //     }
+    //     return AddedUserResource::collection(AddedUser::with(['country'])->orderBy('created_at', 'desc')->get());
+    // }
+
     public function index(Request $request, Country $country)
     {
+        $limit = 100; // Pagination limit
+    
         if (isset($country['id'])) {
-            return AddedUserResource::collection($country->addedUsers);
+            $addedUsers = $country->addedUsers()->paginate($limit);
+        } elseif ($request->has('risk')) {
+            $addedUsers = AddedUser::with(['country'])
+                ->where('sanction', $request->get('risk'))
+                ->orderBy('created_at', 'desc')
+                ->paginate($limit);
+        } else {
+            $addedUsers = AddedUser::with(['country'])
+                ->orderBy('created_at', 'desc')
+                ->paginate($limit);
         }
-        if ($request->has('risk')) {
-            return AddedUserResource::collection(AddedUser::with(['country'])->where('sanction', $request->get('risk'))->orderBy('created_at', 'desc')->get());
-        }
-        return AddedUserResource::collection(AddedUser::with(['country'])->orderBy('created_at', 'desc')->get());
+        
+        $page = AddedUserResource::collection($addedUsers);
+        
+        return response()->json([
+            $page->items(),
+            ['previousPageUrl' => $page->previousPageUrl(),
+            'nextPageUrl' => $page->nextPageUrl(),
+            'totalPages' => $page->lastPage(),]
+        ]);
     }
+    
+
 
     /**
      * Store a newly created resource in storage.

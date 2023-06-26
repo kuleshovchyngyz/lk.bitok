@@ -20,6 +20,8 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
 use Intervention\Image\Facades\Image;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 
 class UserOperationController extends Controller
 {
@@ -36,16 +38,41 @@ class UserOperationController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+    // public function index(Request $request, $id = null)
+    // {
+    //     $type = $request->input('type');
+
+    //     $strategy = UserOperationStrategyFactory::createStrategy($type, $id);
+
+    //     return $strategy->getUserOperations();
+    // }
+
+    
+
     public function index(Request $request, $id = null)
     {
         $type = $request->input('type');
-
         $strategy = UserOperationStrategyFactory::createStrategy($type, $id);
 
-        return $strategy->getUserOperations();
+        $data = $strategy->getUserOperations();
 
+        // Get the pagination limit from the request, default to 10 if not provided
+        $perPage = 200;
 
+        // Manually create a LengthAwarePaginator instance
+        $currentPage = LengthAwarePaginator::resolveCurrentPage();
+        $slicedData = $data->slice(($currentPage - 1) * $perPage, $perPage);
+        $paginator = new LengthAwarePaginator($slicedData, $data->count(), $perPage, $currentPage);
+
+        // return $paginator;
+        return [
+            $paginator->items(),
+            ['previousPageUrl' => $paginator->previousPageUrl(),
+            'nextPageUrl' => $paginator->nextPageUrl(),
+            'totalPages' => $paginator->lastPage(),]
+        ];
     }
+
 
     /**
      * Store a newly created resource in storage.
