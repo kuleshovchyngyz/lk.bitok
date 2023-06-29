@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
@@ -15,7 +16,7 @@ class UserController extends Controller
      */
     public function index()
     {
-        //
+        return User::all();
     }
 
     /**
@@ -38,14 +39,16 @@ class UserController extends Controller
     {
         $this->authorize('create', User::class);
 
-        $user = $request->validate([
+        $form = $request->validate([
             'name' => 'required',
             'email' => 'required|email',
-            'password' => 'required|confirmed|min:4'
+            'password' => 'required'
         ]);
-
-        $user['password'] = bcrypt($user['password']);
-
+        
+        $form['password'] = bcrypt($form['password']);
+        
+        $user = User::create($form);
+        
         return new UserResource($user);
     }
 
