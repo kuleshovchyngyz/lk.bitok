@@ -19,8 +19,8 @@ class AddedUserTest extends TestCase
     {
         parent::setUp();
 
-        // Create and authenticate a user
-        $user = User::factory()->create();
+        // Authenticate a user
+        $user = User::where('name','Manager') -> first();
         $this->actingAs($user);
     }
 
