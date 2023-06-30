@@ -25,17 +25,33 @@ class LegalEntityController extends Controller
     {
         $this->search = new Search();
     }
+
     public function index(Request $request, Country $country)
     {
+        $limit = 100;
+    
         if (isset($country['id'])) {
-            return LegalResource::collection($country->legalEntities);
+            $legalEntities = $country->addedUsers()->paginate($limit);
+        } elseif ($request->has('risk')) {
+            $legalEntities = LegalEntity::with(['country'])
+                ->where('sanction', $request->get('risk'))
+                ->orderBy('created_at', 'desc')
+                ->paginate($limit);
+        } else {
+            $legalEntities = LegalEntity::with(['country'])
+                ->orderBy('created_at', 'desc')
+                ->paginate($limit);
         }
-        if ($request->has('risk')) {
-            return LegalResource::collection(LegalEntity::with(['country'])->where('sanction', $request->get('risk'))->orderBy('created_at', 'desc')->get());
-        }
-        return LegalResource::collection(LegalEntity::with(['country'])->orderBy('created_at', 'desc')->get());
+        
+        $page = LegalResource::collection($legalEntities);
+        
+        return response()->json([
+            $page->items(),
+            ['previousPageUrl' => $page->previousPageUrl(),
+            'nextPageUrl' => $page->nextPageUrl(),
+            'totalPages' => $page->lastPage(),]
+        ]);
     }
-
 
     public function store(StoreLegalEntityRequest $request)
     {

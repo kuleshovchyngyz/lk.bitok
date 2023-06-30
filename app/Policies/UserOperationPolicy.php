@@ -53,7 +53,7 @@ class UserOperationPolicy
      */
     public function update(User $user, UserOperation $userOperation)
     {
-        return $user->hasRole('Admin');
+        return $user->hasAnyRole(['Admin','Manager']);
     }
 
     /**
@@ -65,7 +65,7 @@ class UserOperationPolicy
      */
     public function delete(User $user, UserOperation $userOperation)
     {
-        return $user->hasRole('Admin');
+        return $user->hasAnyRole(['Admin','Manager']);
     }
 
     /**
