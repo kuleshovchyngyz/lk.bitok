@@ -18,7 +18,7 @@ class UserOperationPolicy
      */
     public function viewAny(User $user)
     {
-        return true;
+        return $user->hasAnyRole(['Manager', 'Admin', 'Operator']);
     }
 
     /**
@@ -30,7 +30,7 @@ class UserOperationPolicy
      */
     public function view(User $user, UserOperation $userOperation)
     {
-        return true;
+        return $user->hasAnyRole(['Manager', 'Admin', 'Operator']);
     }
 
     /**
@@ -41,7 +41,7 @@ class UserOperationPolicy
      */
     public function create(User $user)
     {
-        return true;
+        return $user->hasAnyRole(['Manager', 'Admin', 'Operator']);
     }
 
     /**
@@ -53,7 +53,7 @@ class UserOperationPolicy
      */
     public function update(User $user, UserOperation $userOperation)
     {
-        return $user->hasRole('Admin');
+        return $user->hasAnyRole(['Manager', 'Admin']);
     }
 
     /**
@@ -65,7 +65,7 @@ class UserOperationPolicy
      */
     public function delete(User $user, UserOperation $userOperation)
     {
-        return $user->hasRole('Admin');
+        return $user->hasAnyRole(['Manager', 'Admin']);
     }
 
     /**

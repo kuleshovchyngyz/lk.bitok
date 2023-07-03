@@ -2,24 +2,25 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Exports\CollectionExport;
-use App\Factories\UserOperationStrategyFactory;
-use App\Http\Controllers\Controller;
-use App\Http\Requests\StoreUserOperationRequest;
-use App\Http\Resources\UserOperationResource;
-use App\Models\Attachment;
-use App\Models\BlackList;
-use App\Models\Setting;
-use App\Models\UserOperation;
-use App\Services\Search;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
+use App\Models\Setting;
+use App\Services\Search;
+use App\Models\BlackList;
+use App\Models\Attachment;
 use Illuminate\Support\Arr;
+use Illuminate\Http\Request;
+use App\Models\UserOperation;
+use App\Exports\CollectionExport;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
-use Intervention\Image\Facades\Image;
+use App\Http\Controllers\Controller;
 use Maatwebsite\Excel\Facades\Excel;
+use Intervention\Image\Facades\Image;
+use Illuminate\Support\Facades\Storage;
+use App\Http\Resources\UserOperationResource;
+use App\Factories\UserOperationStrategyFactory;
+use Illuminate\Pagination\LengthAwarePaginator;
+use App\Http\Requests\StoreUserOperationRequest;
 
 class UserOperationController extends Controller
 {
@@ -27,7 +28,7 @@ class UserOperationController extends Controller
 
     public function __construct()
     {
-        $this->authorizeResource(UserOperation::class);
+        // $this->authorizeResource(UserOperation::class);
         $this->search = new Search();
     }
 
@@ -38,11 +39,28 @@ class UserOperationController extends Controller
      */
     public function index(Request $request, $id = null)
     {
-        $type = $request->input('type');
+        $this->authorize('viewAny', UserOperation::class);
 
+        $type = $request->input('type');
         $strategy = UserOperationStrategyFactory::createStrategy($type, $id);
 
-        return $strategy->getUserOperations();
+        $data = $strategy->getUserOperations();
+
+        // Get the pagination limit from the request, default to 10 if not provided
+        $perPage = 200;
+
+        // Manually create a LengthAwarePaginator instance
+        $currentPage = LengthAwarePaginator::resolveCurrentPage();
+        $slicedData = $data->slice(($currentPage - 1) * $perPage, $perPage);
+        $paginator = new LengthAwarePaginator($slicedData, $data->count(), $perPage, $currentPage);
+
+        // return $paginator;
+        return [
+            $paginator->items(),
+            ['previousPageUrl' => $paginator->previousPageUrl(),
+            'nextPageUrl' => $paginator->nextPageUrl(),
+            'totalPages' => $paginator->lastPage(),]
+        ];
 
 
     }
@@ -56,6 +74,8 @@ class UserOperationController extends Controller
 
     public function store(StoreUserOperationRequest $request)
     {
+        $this->authorize('create', UserOperation::class);
+
         return DB::transaction(function () use ($request) {
             $userOperation = UserOperation::create(Arr::except($request->validated(), ['wallet_photo']));
 
@@ -76,6 +96,8 @@ class UserOperationController extends Controller
      */
     public function checkUserForSanction(mixed $userOperation, $request)
     {
+        $this->authorize('viewAny', UserOperation::class);
+
         $settings = Setting::select('usd_to_som as usd', 'usdt_to_som as usdt', 'rub_to_som as rub', 'limit')->first()->toArray();
         $currencyRate = 1;
         if ($request->has('currency')) {
@@ -114,6 +136,8 @@ class UserOperationController extends Controller
 
     public function attach($photos, $user, $type)
     {
+        $this->authorize('create', UserOperation::class);
+
         $thumbnail_url = null;
         foreach ($photos as $key => $singleFile) {
 
@@ -138,6 +162,8 @@ class UserOperationController extends Controller
 
     public function range(Request $request)
     {
+        $this->authorize('create', UserOperation::class);
+
         $date1 = Carbon::createFromFormat('d/m/Y H:i', $request->date1)->format('Y-m-d H:i');
         $date2 = Carbon::createFromFormat('d/m/Y H:i', $request->date2)->format('Y-m-d H:i');
         $time1 = Carbon::createFromFormat('d/m/Y H:i', $request->date1)->format('Y-m-d');
@@ -157,6 +183,8 @@ class UserOperationController extends Controller
      */
     public function show(UserOperation $userOperation)
     {
+        $this->authorize('viewAny', $userOperation);
+
         return new UserOperationResource($userOperation->loadMissing(['addedUser', 'legalEntity']));
     }
 
@@ -169,6 +197,8 @@ class UserOperationController extends Controller
      */
     public function update(StoreUserOperationRequest $request, UserOperation $userOperation)
     {
+        $this->authorize('update', $userOperation);
+
         $userOperation->update($request->validated());
 
         return new UserOperationResource($userOperation);
@@ -182,12 +212,16 @@ class UserOperationController extends Controller
      */
     public function destroy(UserOperation $userOperation)
     {
+        $this->authorize('delete', $userOperation);
+
         $userOperation->delete();
         return response()->noContent();
     }
 
     public function search(Request $request)
     {
+        $this->authorize('viewAny', UserOperation::class);
+
         return  $userOperation = UserOperation::with(['addedUser', 'legalEntity'])
             ->when($request->get('type') == 'user' || $request->get('type') == null, function ($q) use ($request) {
                 $addedUsers = $this->search->searchFromClients('AddedUser', $request)->pluck('id');

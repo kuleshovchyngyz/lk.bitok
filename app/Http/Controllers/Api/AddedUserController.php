@@ -87,6 +87,7 @@ class AddedUserController extends Controller
     public function delete(Attachment $attachment)
     {
         $this->authorize('delete',AddedUser::class);
+
         $attachment->delete();
         return response()->json([], 204);
     }
@@ -94,6 +95,7 @@ class AddedUserController extends Controller
     public function upload(Request $request, AddedUser $addedUser)
     {
         $this->authorize('create',$addedUser);
+
         $request->validate([
             'passport_photo.*' => 'image',
             'cv_photo.*' => 'image',
@@ -122,6 +124,7 @@ class AddedUserController extends Controller
     public function show(AddedUser $addedUser)
     {
         $this->authorize('view',AddedUser::class);
+
         return new AddedUserResource($addedUser->loadMissing('userOperations'));
     }
 
@@ -135,6 +138,7 @@ class AddedUserController extends Controller
     public function update(StoreAddedUserRequest $request, AddedUser $addedUser)
     {
         $this->authorize('update',$addedUser);
+
         $addedUser->update(
             Arr::except($request->validated(), ['passport_photo', 'cv_photo'])
         );
@@ -154,12 +158,15 @@ class AddedUserController extends Controller
     public function destroy(AddedUser $addedUser)
     {
         $this->authorize('delete',$addedUser);
+
         $addedUser->delete();
         return response()->noContent();
     }
 
     public function search(Request $request)
     {
+        $this->authorize('viewAny', AddedUser::class);
+
         try {
 
             $whiteListUsers = AddedUserResource::collection($this->search->searchFromClients('AddedUser', $request)->unique('hash')->all());
@@ -181,6 +188,8 @@ class AddedUserController extends Controller
 
     public function parseDateString($date_string)
     {
+        $this->authorize('create', AddedUser::class);
+
         if (str_contains($date_string, ':')) {
             return Carbon::createFromFormat('d/m/Y H:i', $date_string)->format('Y-m-d H:i');
         } else {
@@ -190,11 +199,15 @@ class AddedUserController extends Controller
 
     public function countries()
     {
+        $this->authorize('viewAny', AddedUser::class);
+
         return CountryResource::collection(Country::all());
     }
 
     public function filterByDates(Request $request, AnonymousResourceCollection $addedUsers)
     {
+        $this->authorize('viewAny', AddedUser::class);
+
         if ($request->has('date1') && $request->has('date2')) {
             $startDate = $this->parseDateString($request->date1);
             $endDate = $this->parseDateString($request->date2);
@@ -207,6 +220,8 @@ class AddedUserController extends Controller
 
     public function getBlackedListUsers(Request $request, $addedUsers)
     {
+        $this->authorize('viewAny', AddedUser::class);
+
         $blackLists = AddedUserResource::collection($this->search->searchFromClients('BlackList', $request))->map(function ($item) {
             $item['hash'] = md5($item['last_name'] . $item['first_name'] . $item['middle_name'] . ((isset($item['birth_date'])) ? $item['birth_date']->format('d/m/Y') : ''));
 //                \Storage::disk('local')->append('incomess.txt', ($item['last_name'] . $item['first_name'] . $item['middle_name'] . ((isset($item['birth_date'])) ? $item['birth_date']->format('d/m/Y') : '')));
@@ -225,6 +240,8 @@ class AddedUserController extends Controller
      */
     public function mergeBothUsers($whiteListUsers, mixed $blackLists, mixed $results): array
     {
+        $this->authorize('create', AddedUser::class);
+
         $counted = $whiteListUsers->merge($blackLists)
             ->countBy(function ($item) {
                 return $item['hash'];
