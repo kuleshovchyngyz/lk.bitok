@@ -4,11 +4,17 @@ namespace App\Http\Controllers\Api;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Spatie\Permission\Models\Role;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
+    // public function __construct()
+    // {
+    //     $this->authorizeResource(User::class, 'users');
+    // }
     /**
      * Display a listing of the resource.
      *
@@ -16,6 +22,8 @@ class UserController extends Controller
      */
     public function index()
     {
+        $this->authorize('viewAny', User::class);
+        
         return User::all();
     }
 
@@ -26,7 +34,7 @@ class UserController extends Controller
      */
     public function create()
     {
-        $this->authorize('create', User::class);
+        $this->authorize('create',User::class);
     }
 
     /**
@@ -37,7 +45,8 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        $this->authorize('create', User::class);
+
+        $this->authorize('create',User::class);
 
         $form = $request->validate([
             'name' => 'required',
@@ -49,6 +58,8 @@ class UserController extends Controller
         
         $user = User::create($form);
         
+        $user->assignRole($request->role);
+        
         return new UserResource($user);
     }
 
@@ -58,9 +69,10 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(User $user)
     {
-        //
+        $this->authorize('view',$user);
+        return $user;
     }
 
     /**
@@ -69,9 +81,9 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(User $user)
     {
-        $this->authorize('create', User::class);
+        $this->authorize('update',$user);
     }
 
     /**
@@ -81,9 +93,20 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, User $user)
     {
-        $this->authorize('create', User::class);
+        $this->authorize('update', $user);
+
+        $form = $request->validate([
+            'name' => '',
+            'email' => 'email',
+            'password' => ''
+        ]);
+        $form['password'] = bcrypt($form['password']);
+        $user->update($form);
+        $user->syncRoles([$request->role]);
+
+        return new UserResource($user);
     }
 
     /**
@@ -92,8 +115,10 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(User $user)
     {
-        $this->authorize('create', User::class);
+        $this->authorize('delete', $user);
+        $user->delete();
+        return response()->noContent();
     }
 }

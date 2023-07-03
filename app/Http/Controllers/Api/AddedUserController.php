@@ -2,26 +2,28 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
-use App\Http\Requests\StoreAddedUserRequest;
-use App\Http\Resources\AddedUserResource;
-use App\Http\Resources\CountryResource;
-use App\Models\AddedUser;
-use App\Models\Attachment;
+use Carbon\Carbon;
 use App\Models\Country;
 use App\Services\Search;
-use App\Traits\AttachPhotosTrait;
-use Carbon\Carbon;
-use Illuminate\Http\Request;
-use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use App\Models\AddedUser;
+use App\Models\Attachment;
 use Illuminate\Support\Arr;
+use Illuminate\Http\Request;
+use App\Traits\AttachPhotosTrait;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+use App\Http\Resources\CountryResource;
+use App\Http\Resources\AddedUserResource;
+use App\Http\Requests\StoreAddedUserRequest;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+
 class AddedUserController extends Controller
 {
     use AttachPhotosTrait;
     public function __construct(private Search $search)
     {
-        $this->authorizeResource(AddedUser::class);
+        // $this->authorizeResource(AddedUser::class);
         $this->search = new Search();
     }
 
@@ -43,7 +45,9 @@ class AddedUserController extends Controller
 
     public function index(Request $request, Country $country)
     {
-        $limit = 100; // Pagination limit
+        $this->authorize('viewAny', AddedUser::class);
+        
+        $limit = 100;
     
         if (isset($country['id'])) {
             $addedUsers = $country->addedUsers()->paginate($limit);
@@ -56,7 +60,26 @@ class AddedUserController extends Controller
             $addedUsers = AddedUser::with(['country'])
                 ->orderBy('created_at', 'desc')
                 ->paginate($limit);
+            $addedUsers = $country->addedUsers()->paginate($limit);
+        } elseif ($request->has('risk')) {
+            $addedUsers = AddedUser::with(['country'])
+                ->where('sanction', $request->get('risk'))
+                ->orderBy('created_at', 'desc')
+                ->paginate($limit);
+        } else {
+            $addedUsers = AddedUser::with(['country'])
+                ->orderBy('created_at', 'desc')
+                ->paginate($limit);
         }
+        
+        $page = AddedUserResource::collection($addedUsers);
+        
+        return response()->json([
+            $page->items(),
+            ['previousPageUrl' => $page->previousPageUrl(),
+            'nextPageUrl' => $page->nextPageUrl(),
+            'totalPages' => $page->lastPage(),]
+        ]);
         
         $page = AddedUserResource::collection($addedUsers);
         
@@ -78,27 +101,33 @@ class AddedUserController extends Controller
      */
     public function store(StoreAddedUserRequest $request)
     {
-            $user = DB::transaction(function () use ($request) {
-                $user = AddedUser::create(
-                    Arr::except($request->validated(), ['passport_photo', 'cv_photo'])
-                );
-                $this->attachPhotos($request, $user);
-                return $user;
-            });
+        $this->authorize('create',AddedUser::class);
 
-            return new AddedUserResource($user);
+        $user = DB::transaction(function () use ($request) {
+            $user = AddedUser::create(
+                Arr::except($request->validated(), ['passport_photo', 'cv_photo'])
+            );
+            $this->attachPhotos($request, $user);
+            return $user;
+        });
+
+        return new AddedUserResource($user);
     }
 
 
 
     public function delete(Attachment $attachment)
     {
+        $this->authorize('delete',AddedUser::class);
+
         $attachment->delete();
         return response()->json([], 204);
     }
 
     public function upload(Request $request, AddedUser $addedUser)
     {
+        $this->authorize('create',$addedUser);
+
         $request->validate([
             'passport_photo.*' => 'image',
             'cv_photo.*' => 'image',
@@ -126,6 +155,8 @@ class AddedUserController extends Controller
      */
     public function show(AddedUser $addedUser)
     {
+        $this->authorize('view',AddedUser::class);
+
         return new AddedUserResource($addedUser->loadMissing('userOperations'));
     }
 
@@ -138,6 +169,8 @@ class AddedUserController extends Controller
      */
     public function update(StoreAddedUserRequest $request, AddedUser $addedUser)
     {
+        $this->authorize('update',$addedUser);
+
         $addedUser->update(
             Arr::except($request->validated(), ['passport_photo', 'cv_photo'])
         );
@@ -156,12 +189,16 @@ class AddedUserController extends Controller
      */
     public function destroy(AddedUser $addedUser)
     {
+        $this->authorize('delete',$addedUser);
+
         $addedUser->delete();
         return response()->noContent();
     }
 
     public function search(Request $request)
     {
+        $this->authorize('viewAny', AddedUser::class);
+
         try {
 
             $whiteListUsers = AddedUserResource::collection($this->search->searchFromClients('AddedUser', $request)->unique('hash')->all());
@@ -183,6 +220,8 @@ class AddedUserController extends Controller
 
     public function parseDateString($date_string)
     {
+        $this->authorize('create', AddedUser::class);
+
         if (str_contains($date_string, ':')) {
             return Carbon::createFromFormat('d/m/Y H:i', $date_string)->format('Y-m-d H:i');
         } else {
@@ -192,11 +231,15 @@ class AddedUserController extends Controller
 
     public function countries()
     {
+        $this->authorize('viewAny', AddedUser::class);
+
         return CountryResource::collection(Country::all());
     }
 
     public function filterByDates(Request $request, AnonymousResourceCollection $addedUsers)
     {
+        $this->authorize('viewAny', AddedUser::class);
+
         if ($request->has('date1') && $request->has('date2')) {
             $startDate = $this->parseDateString($request->date1);
             $endDate = $this->parseDateString($request->date2);
@@ -209,6 +252,8 @@ class AddedUserController extends Controller
 
     public function getBlackedListUsers(Request $request, $addedUsers)
     {
+        $this->authorize('viewAny', AddedUser::class);
+
         $blackLists = AddedUserResource::collection($this->search->searchFromClients('BlackList', $request))->map(function ($item) {
             $item['hash'] = md5($item['last_name'] . $item['first_name'] . $item['middle_name'] . ((isset($item['birth_date'])) ? $item['birth_date']->format('d/m/Y') : ''));
 //                \Storage::disk('local')->append('incomess.txt', ($item['last_name'] . $item['first_name'] . $item['middle_name'] . ((isset($item['birth_date'])) ? $item['birth_date']->format('d/m/Y') : '')));
@@ -227,6 +272,8 @@ class AddedUserController extends Controller
      */
     public function mergeBothUsers($whiteListUsers, mixed $blackLists, mixed $results): array
     {
+        $this->authorize('create', AddedUser::class);
+
         $counted = $whiteListUsers->merge($blackLists)
             ->countBy(function ($item) {
                 return $item['hash'];

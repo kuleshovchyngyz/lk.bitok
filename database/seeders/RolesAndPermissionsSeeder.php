@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\User;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
@@ -57,6 +58,14 @@ class RolesAndPermissionsSeeder extends Seeder
                                     $readOperationsPermission);
 
         $operatorRole->givePermissionTo($readAddedUsersPermission,
-                                    $readOperationsPermission);
+                                    $readOperationsPermission,
+                                    $createAddedUsersPermission,
+                                    $createOperationsPermission);
+
+
+        $role = Role::where('name', 'Admin')->first();
+        $user = User::where('email', 'admin@gmail.com')->first();
+
+        $user->assignRole($role);
     }
 }

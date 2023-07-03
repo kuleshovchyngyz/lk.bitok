@@ -2,9 +2,9 @@
 
 namespace Tests\Feature;
 
-use App\Models\AddedUser;
 use Tests\TestCase;
 use App\Models\User;
+use App\Models\AddedUser;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -85,5 +85,4 @@ class AddedUserTest extends TestCase
         $lastInsertedUser->delete();
 
     }
-
 }

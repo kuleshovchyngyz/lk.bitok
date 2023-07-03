@@ -19,7 +19,7 @@ class AddedUserPolicy
     
     public function viewAny(User $user)
     {
-        return true;
+        return $user->hasAnyRole(['Manager', 'Admin', 'Operator']);
     }
 
     /**
@@ -31,7 +31,7 @@ class AddedUserPolicy
      */
     public function view(User $user, AddedUser $addedUser)
     {
-        return true;
+        return $user->hasAnyRole(['Manager', 'Admin', 'Operator']);
     }
 
     /**
@@ -42,7 +42,7 @@ class AddedUserPolicy
      */
     public function create(User $user)
     {
-        return true;
+        return $user->hasAnyRole(['Manager', 'Admin', 'Operator']);
     }
 
     /**
@@ -54,7 +54,7 @@ class AddedUserPolicy
      */
     public function update(User $user, AddedUser $addedUser)
     {
-        return $user->hasAnyRole(['Admin','Manager']);
+        return $user->hasAnyRole(['Manager', 'Admin']);
     }
 
     /**
@@ -66,7 +66,7 @@ class AddedUserPolicy
      */
     public function delete(User $user, AddedUser $addedUser)
     {
-        return $user->hasAnyRole(['Admin','Manager']);
+        return $user->hasAnyRole(['Manager', 'Admin']);
     }
 
     /**
@@ -78,7 +78,7 @@ class AddedUserPolicy
      */
     public function restore(User $user, AddedUser $addedUser)
     {
-        //
+        return $user->hasAnyRole(['Manager', 'Admin']);
     }
 
     /**
@@ -90,6 +90,6 @@ class AddedUserPolicy
      */
     public function forceDelete(User $user, AddedUser $addedUser)
     {
-        //
+        return $user->hasRole('Admin');
     }
 }
