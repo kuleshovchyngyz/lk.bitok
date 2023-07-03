@@ -25,6 +25,7 @@ class LegalEntityController extends Controller
     {
         $this->search = new Search();
     }
+
     public function index(Request $request, Country $country)
     {
         $limit = 100;
@@ -51,7 +52,6 @@ class LegalEntityController extends Controller
             'totalPages' => $page->lastPage(),]
         ]);
     }
-
 
     public function store(StoreLegalEntityRequest $request)
     {

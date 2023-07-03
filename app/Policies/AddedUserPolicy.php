@@ -16,6 +16,7 @@ class AddedUserPolicy
      * @param \App\Models\User $user
      * @return \Illuminate\Auth\Access\Response|bool
      */
+    
     public function viewAny(User $user)
     {
         return $user->hasAnyRole(['Manager', 'Admin', 'Operator']);
