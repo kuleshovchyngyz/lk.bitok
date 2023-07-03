@@ -60,26 +60,7 @@ class AddedUserController extends Controller
             $addedUsers = AddedUser::with(['country'])
                 ->orderBy('created_at', 'desc')
                 ->paginate($limit);
-            $addedUsers = $country->addedUsers()->paginate($limit);
-        } elseif ($request->has('risk')) {
-            $addedUsers = AddedUser::with(['country'])
-                ->where('sanction', $request->get('risk'))
-                ->orderBy('created_at', 'desc')
-                ->paginate($limit);
-        } else {
-            $addedUsers = AddedUser::with(['country'])
-                ->orderBy('created_at', 'desc')
-                ->paginate($limit);
         }
-        
-        $page = AddedUserResource::collection($addedUsers);
-        
-        return response()->json([
-            $page->items(),
-            ['previousPageUrl' => $page->previousPageUrl(),
-            'nextPageUrl' => $page->nextPageUrl(),
-            'totalPages' => $page->lastPage(),]
-        ]);
         
         $page = AddedUserResource::collection($addedUsers);
         
