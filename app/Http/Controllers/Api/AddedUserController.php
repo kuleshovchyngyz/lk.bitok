@@ -9,6 +9,7 @@ use App\Models\AddedUser;
 use App\Models\Attachment;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
+use App\Events\LogActionEvent;
 use App\Traits\AttachPhotosTrait;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
@@ -16,6 +17,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Resources\CountryResource;
 use App\Http\Resources\AddedUserResource;
 use App\Http\Requests\StoreAddedUserRequest;
+use App\Services\ActionLogger;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class AddedUserController extends Controller
@@ -32,16 +34,6 @@ class AddedUserController extends Controller
      *
      * @return AnonymousResourceCollection
      */
-    // public function index(Request $request, Country $country)
-    // {
-    //     if (isset($country['id'])) {
-    //         return AddedUserResource::collection($country->addedUsers);
-    //     }
-    //     if ($request->has('risk')) {
-    //         return AddedUserResource::collection(AddedUser::with(['country'])->where('sanction', $request->get('risk'))->orderBy('created_at', 'desc')->get());
-    //     }
-    //     return AddedUserResource::collection(AddedUser::with(['country'])->orderBy('created_at', 'desc')->get());
-    // }
 
     public function index(Request $request, Country $country)
     {
@@ -63,7 +55,7 @@ class AddedUserController extends Controller
         }
         
         $page = AddedUserResource::collection($addedUsers);
-        
+
         return response()->json([
             $page->items(),
             ['previousPageUrl' => $page->previousPageUrl(),
@@ -91,6 +83,25 @@ class AddedUserController extends Controller
             $this->attachPhotos($request, $user);
             return $user;
         });
+
+        // sending this event to logs in database
+        
+        $description = 'Добавил клиента: №'.$user->id.'; '.
+                        'Имя: '.$user->last_name.' '.$user->first_name.' '.$user->middle_name.'; '.
+                        'Дата рождения: '.$user->birth_date.'; '.
+                        'Страна: '.$user->country.'; '.
+                        'Дата регистрации: '.$user->registration_date.'; '.
+                        'Черный список: '.$user->black_list ? 'да' : 'нет'.'; '.
+                        'ИНН: '.$user->pass_num_inn.'; '.
+                        'Паспорт ID: '.$user->passport_id.'; '.
+                        'Орган выдавший паспорт: '.'sth'.'; '.
+                        'Код подразделения: '.'sth'.'; '.
+                        'Дата выдачи паспорта: '.'sth'.'; '.
+                        'Дата окончания актульности паспорта: '.'sth'.'; '.
+                        'Уровень риска: '.'sth'.'; ';
+        
+        ActionLogger::log($description);
+        // end of sending event
 
         return new AddedUserResource($user);
     }
