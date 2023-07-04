@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use \App\Http\Controllers\V1\CarController;
+use App\Http\Controllers\Api\LogController;
 use App\Http\Controllers\Api\UserController;
 use \App\Http\Controllers\Api\AuthController;
 use \App\Http\Controllers\Api\CountryController;
@@ -81,6 +82,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('auth/logout', [AuthController::class,'logout']);
     Route::resource('added-users', AddedUserController::class);
     Route::resource('users', UserController::class);
+    Route::resource('logs', LogController::class);
     Route::resource('legal-entities', \App\Http\Controllers\Api\LegalEntityController::class);
     Route::resource('user-operations', UserOperationController::class);
     Route::resource('settings', \App\Http\Controllers\Api\SettingController::class);

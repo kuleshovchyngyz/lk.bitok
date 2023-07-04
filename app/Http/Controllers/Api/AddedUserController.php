@@ -9,6 +9,7 @@ use App\Models\AddedUser;
 use App\Models\Attachment;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
+use App\Events\LogActionEvent;
 use App\Traits\AttachPhotosTrait;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
@@ -16,6 +17,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Resources\CountryResource;
 use App\Http\Resources\AddedUserResource;
 use App\Http\Requests\StoreAddedUserRequest;
+use App\Services\ActionLogger;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class AddedUserController extends Controller
@@ -32,16 +34,6 @@ class AddedUserController extends Controller
      *
      * @return AnonymousResourceCollection
      */
-    // public function index(Request $request, Country $country)
-    // {
-    //     if (isset($country['id'])) {
-    //         return AddedUserResource::collection($country->addedUsers);
-    //     }
-    //     if ($request->has('risk')) {
-    //         return AddedUserResource::collection(AddedUser::with(['country'])->where('sanction', $request->get('risk'))->orderBy('created_at', 'desc')->get());
-    //     }
-    //     return AddedUserResource::collection(AddedUser::with(['country'])->orderBy('created_at', 'desc')->get());
-    // }
 
     public function index(Request $request, Country $country)
     {
@@ -60,29 +52,10 @@ class AddedUserController extends Controller
             $addedUsers = AddedUser::with(['country'])
                 ->orderBy('created_at', 'desc')
                 ->paginate($limit);
-            $addedUsers = $country->addedUsers()->paginate($limit);
-        } elseif ($request->has('risk')) {
-            $addedUsers = AddedUser::with(['country'])
-                ->where('sanction', $request->get('risk'))
-                ->orderBy('created_at', 'desc')
-                ->paginate($limit);
-        } else {
-            $addedUsers = AddedUser::with(['country'])
-                ->orderBy('created_at', 'desc')
-                ->paginate($limit);
         }
         
         $page = AddedUserResource::collection($addedUsers);
-        
-        return response()->json([
-            $page->items(),
-            ['previousPageUrl' => $page->previousPageUrl(),
-            'nextPageUrl' => $page->nextPageUrl(),
-            'totalPages' => $page->lastPage(),]
-        ]);
-        
-        $page = AddedUserResource::collection($addedUsers);
-        
+
         return response()->json([
             $page->items(),
             ['previousPageUrl' => $page->previousPageUrl(),
@@ -110,6 +83,12 @@ class AddedUserController extends Controller
             $this->attachPhotos($request, $user);
             return $user;
         });
+
+        // sending this event to logs in database
+        
+        
+        ActionLogger::log($user);
+        // end of sending event
 
         return new AddedUserResource($user);
     }
