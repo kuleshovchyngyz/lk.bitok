@@ -8,20 +8,47 @@ use App\Events\LogActionEvent;
 
 class ActionLogger
 {
-    public static function log($user)
+    public static function log($mainVariable, $controller, $method)
     {
-        $description = 'Добавил клиента: №'.$user->id.'; '.
-                        'Имя: '.$user->last_name.' '.$user->first_name.' '.$user->middle_name.'; '.
-                        'Дата рождения: '.$user->birth_date.'; '.
-                        'Страна: '.$user->country->name.'; '.
-                        'Дата регистрации: '.$user->created_at.'; '.
-                        'ИНН: '.$user->pass_num_inn.'; '.
-                        'Паспорт ID: '.$user->passport_id.'; '.
-                        'Орган выдавший паспорт: '.$user->passport_authority.'; '.
-                        'Код подразделения: '.$user->passport_authority_code.'; '.
-                        'Дата выдачи паспорта: '.$user->passport_issued_at.'; '.
-                        'Дата окончания актульности паспорта: '.$user->passport_expires_at.'; '.
-                        'Уровень риска: '.$user->sanction.';';
+        $methods = array("store"=>"Добавил", "update"=>"Отредактировал", "destroy"=>"Удалил");
+        
+        if ($controller === 'AddedUserController') {
+            $description = $methods[$method].' клиента: №'.$mainVariable->id.'; '.
+                            'Имя: '.$mainVariable->last_name.' '.$mainVariable->first_name.' '.$mainVariable->middle_name.'; '.
+                            'Дата рождения: '.$mainVariable->birth_date->format('d/m/Y').'; '.
+                            'Страна: '.$mainVariable->country->name.'; '.
+                            'Дата регистрации: '.$mainVariable->created_at->format('d/m/Y').'; '.
+                            'ИНН: '.$mainVariable->pass_num_inn.'; '.
+                            'Паспорт ID: '.$mainVariable->passport_id.'; '.
+                            'Орган выдавший паспорт: '.$mainVariable->passport_authority.'; '.
+                            'Код подразделения: '.$mainVariable->passport_authority_code.'; '.
+                            'Дата выдачи паспорта: '.$mainVariable->passport_issued_at.'; '.
+                            'Дата окончания актульности паспорта: '.$mainVariable->passport_expires_at.'; '.
+                            'Уровень риска: '.$mainVariable->sanction.';';
+        }
+        elseif ($controller === 'LegalEntityController') {
+            $description = $methods[$method].' юридическое лицо: №'.$mainVariable->id.'; '.
+                            'Название: '.$mainVariable->director_full_name.'; '.
+                            'Адрес: '.$mainVariable->address.'; '.
+                            'Имя директора: '.$mainVariable->director_full_name.'; '.
+                            'Дата рождения: '.$mainVariable->birth_date->format('d/m/Y').'; '.
+                            'Страна: '.$mainVariable->country->name.'; '.
+                            'Дата регистрации: '.$mainVariable->created_at->format('d/m/Y').'; '.
+                            'Верификация: '.($mainVariable->verification ? $mainVariable->verification : 'не верифицирована').'; '.
+                            'Дата верификации: '.($mainVariable->verification_date ? $mainVariable->verification_date->format('d/m/Y') : 'не верифицирована').'; '.
+                            'Уровень риска: '.$mainVariable->sanction.';';
+        }
+        elseif ($controller === 'UserOperationController') {
+            $description = $methods[$method].' операцию: №'.$mainVariable->id.'; '.
+                            'Пользователь: '.$mainVariable->addedUser->last_name.' '.$mainVariable->addedUser->first_name.' '.$mainVariable->addedUser->middle_name.'; '.
+                            'Направление: '.$mainVariable->operation_direction.'; '.
+                            'Валюта: '.$mainVariable->currency.'; '.
+                            'Дата операции: '.$mainVariable->operation_date->format('d/m/Y').'; '.
+                            'Сумма: '.$mainVariable->operation_sum.'; '.
+                            'Номер кошелька: '.$mainVariable->wallet_id.'; '.
+                            'Уровень риска: '.$mainVariable->sanction.';';
+        }
+        
         $today = Carbon::today();
         $author = Auth::user()->id;
         event(new LogActionEvent($today, $author, $description));
