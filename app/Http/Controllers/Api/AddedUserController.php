@@ -134,7 +134,7 @@ class AddedUserController extends Controller
      */
     public function show(AddedUser $addedUser)
     {
-        $this->authorize('view',AddedUser::class);
+        $this->authorize('view',$addedUser);
 
         return new AddedUserResource($addedUser->loadMissing('userOperations'));
     }
