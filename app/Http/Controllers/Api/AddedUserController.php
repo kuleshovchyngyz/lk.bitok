@@ -86,21 +86,8 @@ class AddedUserController extends Controller
 
         // sending this event to logs in database
         
-        $description = 'Добавил клиента: №'.$user->id.'; '.
-                        'Имя: '.$user->last_name.' '.$user->first_name.' '.$user->middle_name.'; '.
-                        'Дата рождения: '.$user->birth_date.'; '.
-                        'Страна: '.$user->country.'; '.
-                        'Дата регистрации: '.$user->registration_date.'; '.
-                        'Черный список: '.$user->black_list ? 'да' : 'нет'.'; '.
-                        'ИНН: '.$user->pass_num_inn.'; '.
-                        'Паспорт ID: '.$user->passport_id.'; '.
-                        'Орган выдавший паспорт: '.'sth'.'; '.
-                        'Код подразделения: '.'sth'.'; '.
-                        'Дата выдачи паспорта: '.'sth'.'; '.
-                        'Дата окончания актульности паспорта: '.'sth'.'; '.
-                        'Уровень риска: '.'sth'.'; ';
         
-        ActionLogger::log($description);
+        ActionLogger::log($user);
         // end of sending event
 
         return new AddedUserResource($user);
