@@ -10,6 +10,7 @@ use App\Models\Attachment;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use App\Models\UserOperation;
+use App\Services\ActionLogger;
 use App\Exports\CollectionExport;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\URL;
@@ -37,17 +38,7 @@ class UserOperationController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    // public function index(Request $request, $id = null)
-    // {
-    //     $type = $request->input('type');
-
-    //     $strategy = UserOperationStrategyFactory::createStrategy($type, $id);
-
-    //     return $strategy->getUserOperations();
-    // }
-
     
-
     public function index(Request $request, $id = null)
     {
         $this->authorize('viewAny', UserOperation::class);
@@ -111,6 +102,10 @@ class UserOperationController extends Controller
                 $wallet_photo = $request->file('wallet_photo');
                 $this->attach($wallet_photo, $userOperation, 'wallet');
             }
+
+            // sending this event to logs in database
+            ActionLogger::log($userOperation, 'UserOperationController', 'store');
+            // end of sending event
 
             return new UserOperationResource($userOperation);
         });
@@ -227,6 +222,10 @@ class UserOperationController extends Controller
 
         $userOperation->update($request->validated());
 
+        // sending this event to logs in database
+        ActionLogger::log($userOperation, 'UserOperationController', 'update');
+        // end of sending event
+
         return new UserOperationResource($userOperation);
     }
 
@@ -241,6 +240,11 @@ class UserOperationController extends Controller
         $this->authorize('delete', $userOperation);
 
         $userOperation->delete();
+
+        // sending this event to logs in database
+        ActionLogger::log($userOperation, 'UserOperationController', 'destroy');
+        // end of sending event
+
         return response()->noContent();
     }
 

@@ -2,20 +2,21 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
-use App\Http\Requests\StoreLegalEntityRequest;
-use App\Http\Resources\AddedUserResource;
-use App\Http\Resources\LegalResource;
-use App\Models\AddedUser;
-use App\Models\Country;
-use App\Models\LegalEntity;
-use App\Services\Search;
-use App\Traits\AttachPhotosTrait;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
-use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use App\Models\Country;
+use App\Services\Search;
+use App\Models\AddedUser;
+use App\Models\LegalEntity;
 use Illuminate\Support\Arr;
+use Illuminate\Http\Request;
+use App\Services\ActionLogger;
+use App\Traits\AttachPhotosTrait;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
+use App\Http\Resources\LegalResource;
+use App\Http\Resources\AddedUserResource;
+use App\Http\Requests\StoreLegalEntityRequest;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class LegalEntityController extends Controller
 {
@@ -63,6 +64,10 @@ class LegalEntityController extends Controller
             return $legalEntity;
         });
 
+        // sending this event to logs in database
+        ActionLogger::log($legalEntity, 'LegalEntityController', 'store');
+        // end of sending event
+        
         return new LegalResource($legalEntity);
     }
 
@@ -74,6 +79,7 @@ class LegalEntityController extends Controller
 
     public function update(StoreLegalEntityRequest $request, LegalEntity $legalEntity)
     {
+        return $request->all();
         $legalEntity = DB::transaction(function () use ($request, $legalEntity) {
             $legalEntity->update(
                 Arr::except($request->validated(), ['cv_photo', 'cv_photo_bf', 'certificate_photo', 'licence_photo', 'permit_photo', 'passport_photo'])
@@ -81,6 +87,11 @@ class LegalEntityController extends Controller
             $this->attachPhotos($request, $legalEntity);
             return $legalEntity;
         });
+
+        // sending this event to logs in database
+        ActionLogger::log($legalEntity, 'LegalEntityController', 'update');
+        // end of sending event
+
         return new LegalResource($legalEntity);
     }
 
@@ -88,6 +99,11 @@ class LegalEntityController extends Controller
     public function destroy(LegalEntity $legalEntity)
     {
         $legalEntity->delete();
+
+        // sending this event to logs in database
+        ActionLogger::log($legalEntity, 'LegalEntityController', 'destroy');
+        // end of sending event
+
         return response()->noContent();
     }
 

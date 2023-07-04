@@ -85,9 +85,7 @@ class AddedUserController extends Controller
         });
 
         // sending this event to logs in database
-        
-        
-        ActionLogger::log($user);
+        ActionLogger::log($user, 'AddedUserController', 'store');
         // end of sending event
 
         return new AddedUserResource($user);
@@ -157,6 +155,11 @@ class AddedUserController extends Controller
         $addedUser->hash = $hash;
         $addedUser->save();
         $this->attachPhotos($request, $addedUser);
+
+        // sending this event to logs in database
+        ActionLogger::log($addedUser, 'AddedUserController', 'update');
+        // end of sending event
+
         return new AddedUserResource($addedUser);
     }
 
@@ -171,6 +174,11 @@ class AddedUserController extends Controller
         $this->authorize('delete',$addedUser);
 
         $addedUser->delete();
+
+        // sending this event to logs in database
+        ActionLogger::log($addedUser, 'AddedUserController', 'destroy');
+        // end of sending event
+
         return response()->noContent();
     }
 

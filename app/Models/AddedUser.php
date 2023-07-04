@@ -12,6 +12,10 @@ class AddedUser extends Model
 
     protected $guarded = [];
     protected $dates = ['birth_date','verification_date'];
+    protected $casts = [
+        'birth_date' => 'datetime',
+        'created_at' => 'datetime',
+    ];
 
     public static function boot()
     {
