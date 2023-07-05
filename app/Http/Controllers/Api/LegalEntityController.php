@@ -30,7 +30,7 @@ class LegalEntityController extends Controller
     public function index(Request $request, Country $country)
     {
         $limit = 100;
-    
+
         if (isset($country['id'])) {
             $legalEntities = $country->addedUsers()->paginate($limit);
         } elseif ($request->has('risk')) {
@@ -43,9 +43,9 @@ class LegalEntityController extends Controller
                 ->orderBy('created_at', 'desc')
                 ->paginate($limit);
         }
-        
+
         $page = LegalResource::collection($legalEntities);
-        
+
         return response()->json([
             $page->items(),
             ['previousPageUrl' => $page->previousPageUrl(),
@@ -67,7 +67,7 @@ class LegalEntityController extends Controller
         // sending this event to logs in database
         ActionLogger::log($legalEntity, 'LegalEntityController', 'store');
         // end of sending event
-        
+
         return new LegalResource($legalEntity);
     }
 
@@ -79,7 +79,6 @@ class LegalEntityController extends Controller
 
     public function update(StoreLegalEntityRequest $request, LegalEntity $legalEntity)
     {
-        return $request->all();
         $legalEntity = DB::transaction(function () use ($request, $legalEntity) {
             $legalEntity->update(
                 Arr::except($request->validated(), ['cv_photo', 'cv_photo_bf', 'certificate_photo', 'licence_photo', 'permit_photo', 'passport_photo'])
