@@ -2,9 +2,11 @@
 
 namespace App\Services;
 
-use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
+use App\Models\User;
 use App\Events\LogActionEvent;
+use Spatie\Permission\Models\Role;
+use Illuminate\Support\Facades\Auth;
 
 class ActionLogger
 {
@@ -24,7 +26,7 @@ class ActionLogger
                             'Код подразделения: '.$mainVariable->passport_authority_code.'; '.
                             'Дата выдачи паспорта: '.$mainVariable->passport_issued_at.'; '.
                             'Дата окончания актульности паспорта: '.$mainVariable->passport_expires_at.'; '.
-                            'Уровень риска: '.$mainVariable->sanction.';';
+                            'Уровень риска: '.$mainVariable->sanction.'.';
         }
         elseif ($controller === 'LegalEntityController') {
             $description = $methods[$method].' юридическое лицо: №'.$mainVariable->id.'; '.
@@ -36,7 +38,7 @@ class ActionLogger
                             'Дата регистрации: '.$mainVariable->created_at->format('d/m/Y').'; '.
                             'Верификация: '.($mainVariable->verification ? $mainVariable->verification : 'не верифицирована').'; '.
                             'Дата верификации: '.($mainVariable->verification_date ? $mainVariable->verification_date->format('d/m/Y') : 'не верифицирована').'; '.
-                            'Уровень риска: '.$mainVariable->sanction.';';
+                            'Уровень риска: '.$mainVariable->sanction.'.';
         }
         elseif ($controller === 'UserOperationController') {
             $description = $methods[$method].' операцию: №'.$mainVariable->id.'; '.
@@ -46,7 +48,19 @@ class ActionLogger
                             'Дата операции: '.$mainVariable->operation_date->format('d/m/Y').'; '.
                             'Сумма: '.$mainVariable->operation_sum.'; '.
                             'Номер кошелька: '.$mainVariable->wallet_id.'; '.
-                            'Уровень риска: '.$mainVariable->sanction.';';
+                            'Уровень риска: '.$mainVariable->sanction.'.';
+        }
+        elseif ($controller === 'UserController') {
+            if ($method === 'destroy') {        
+                $description = $methods[$method].' пользователя: №'.$mainVariable->id.'; '.
+                                'Имя: '.$mainVariable->name.'; '.
+                                'Email: '.$mainVariable->email.'.';
+            } else {
+                $description = $methods[$method].' пользователя: №'.$mainVariable->id.'; '.
+                                'Имя: '.$mainVariable->name.'; '.
+                                'Email: '.$mainVariable->email.'; '.
+                                'Роль: '.$mainVariable->roles[0]->name.'.';
+            }
         }
         
         $today = Carbon::today();

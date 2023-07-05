@@ -4,10 +4,13 @@ namespace App\Http\Controllers\Api;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use App\Services\ActionLogger;
 use Spatie\Permission\Models\Role;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
@@ -48,19 +51,23 @@ class UserController extends Controller
 
         $this->authorize('create',User::class);
 
-        $form = $request->validate([
-            'name' => 'required',
-            'email' => 'required|email',
-            'password' => 'required'
-        ]);
-        
-        $form['password'] = bcrypt($form['password']);
-        
-        $user = User::create($form);
-        
-        $user->assignRole($request->role);
-        
-        return new UserResource($user);
+        $validator = Validator::make($request->all(),
+            ['name' => 'required|string|max:255',
+                'email' => 'required|email|unique:users|max:255',
+                'password' => 'required|min:10',]);
+        if ($validator->fails()) {
+            $errors = $validator->errors();
+            return response()->json(['error' => $errors], 400);
+        }
+        if ($validator->passes()) {
+            $user = User::create(['name' => $request->name, 'email' => $request->email, 'password' => Hash::make($request->password)]);
+            $user->assignRole($request->role);
+            $token = $user->createToken('auth_token')->plainTextToken;
+            // sending this event to logs in database
+            ActionLogger::log($user, 'UserController', 'store');
+            // end of sending event
+            return response()->json(['access_token' => $token, 'token_type' => 'Bearer',]);
+        }
     }
 
     /**
@@ -106,6 +113,10 @@ class UserController extends Controller
         $user->update($form);
         $user->syncRoles([$request->role]);
 
+        // sending this event to logs in database
+        ActionLogger::log($user, 'UserController', 'update');
+        // end of sending event
+
         return new UserResource($user);
     }
 
@@ -119,6 +130,11 @@ class UserController extends Controller
     {
         $this->authorize('delete', $user);
         $user->delete();
+
+        // sending this event to logs in database
+        ActionLogger::log($user, 'UserController', 'destroy');
+        // end of sending event
+
         return response()->noContent();
     }
 }
