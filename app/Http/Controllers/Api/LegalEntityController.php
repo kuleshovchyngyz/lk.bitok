@@ -65,6 +65,7 @@ class LegalEntityController extends Controller
             $this->attachPhotos($request, $legalEntity);
             return $legalEntity;
         });
+
         return new LegalResource($legalEntity);
     }
 
