@@ -41,6 +41,7 @@ class StoreLegalEntityRequest extends FormRequest
             'address' => (!$this->route('legal_entity')) ? 'required' : '',
             'birth_date' => (!$this->route('legal_entity')) ? 'required|date_format:d/m/Y' : '',
             'verification_date' => 'nullable|date_format:d/m/Y',
+            'verification_date' => 'nullable',
             'country_id' => (!$this->route('legal_entity')) ? 'required' : '',
             'hash' => 'required|sometimes|unique_director_full_name_dob:name,director_full_name,birth_date',
             'cv_photo.*' => 'nullable|sometimes|mimes:doc,docx,xls,xlsx,pdf,csv,jpg,jpeg,png,bmp',
