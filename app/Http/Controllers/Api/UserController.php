@@ -27,7 +27,16 @@ class UserController extends Controller
     {
         $this->authorize('viewAny', User::class);
         
-        return User::all();
+        $users = User::latest('updated_at')->get();
+
+        $users = $users->map(function ($user) {
+            
+            // $user->status = $user->role;
+            $user->status = Auth::user()->role === $user->role ? 'yes' : 'no';
+            return $user;
+        });
+
+        return $users;
     }
 
     /**
@@ -54,13 +63,14 @@ class UserController extends Controller
         $validator = Validator::make($request->all(),
             ['name' => 'required|string|max:255',
                 'email' => 'required|email|unique:users|max:255',
-                'password' => 'required|min:10',]);
+                'password' => 'required|min:10',
+                'role' => 'required']);
         if ($validator->fails()) {
             $errors = $validator->errors();
             return response()->json(['error' => $errors], 400);
         }
         if ($validator->passes()) {
-            $user = User::create(['name' => $request->name, 'email' => $request->email, 'password' => Hash::make($request->password)]);
+            $user = User::create(['name' => $request->name, 'email' => $request->email, 'password' => Hash::make($request->password),'role' => $request->role,]);
             $user->assignRole($request->role);
             $token = $user->createToken('auth_token')->plainTextToken;
             // sending this event to logs in database
@@ -79,6 +89,9 @@ class UserController extends Controller
     public function show(User $user)
     {
         $this->authorize('view',$user);
+
+        $user->status = Auth::user()->role === $user->role ? 'yes' : 'no';
+        
         return $user;
     }
 
