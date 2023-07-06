@@ -63,13 +63,21 @@ class UserController extends Controller
             return response()->json(['error' => $errors], 400);
         }
         if ($validator->passes()) {
-            $user = User::create(['name' => $request->name, 'email' => $request->email, 'password' => Hash::make($request->password),'role' => $request->role,'status' => $request->status,]);
-            $user->assignRole($request->role);
-            $token = $user->createToken('auth_token')->plainTextToken;
-            // sending this event to logs in database
-            ActionLogger::log($user, 'UserController', 'store');
-            // end of sending event
-            return response()->json(['access_token' => $token, 'token_type' => 'Bearer',], 201);
+            if ($request->filled('role') && app(\Spatie\Permission\Models\Role::class)->where('name', $request->role)->exists()) {
+                
+                $user = User::create(['name' => $request->name, 'email' => $request->email, 'password' => Hash::make($request->password),'role' => $request->role,'status' => $request->status,]);
+                
+                $user->assignRole($request->role);
+                
+                $token = $user->createToken('auth_token')->plainTextToken;
+            
+                // sending this event to logs in database
+                ActionLogger::log($user, 'UserController', 'store');
+                // end of sending event
+            
+                return response()->json(['access_token' => $token, 'token_type' => 'Bearer',], 201);
+            }
+            return response()->json(['error' => 'Invalid role specified.'], 400);
         }
     }
 
@@ -113,18 +121,54 @@ class UserController extends Controller
                 'email' => 'email|max:255',
                 'password' => 'min:10',
                 'role' => '']);
+
         if ($validator->fails()) {
             $errors = $validator->errors();
             return response()->json(['error' => $errors], 400);
         }
         if ($validator->passes()) {
-            $user->update(['name' => $request->name, 'email' => $request->email, 'password' => Hash::make($request->password),'role' => $request->role,'status' => $request->status,]);
-            $user->syncRoles([$request->role]);
-            $token = $user->createToken('auth_token')->plainTextToken;
-            // sending this event to logs in database
-            ActionLogger::log($user, 'UserController', 'update');
-            // end of sending event
-            return response()->json(['access_token' => $token, 'token_type' => 'Bearer',]);
+            if ($request->filled('role') && app(\Spatie\Permission\Models\Role::class)->where('name', $request->role)->exists()) {
+                $user->syncRoles([$request->role]);
+
+                $fieldsToUpdate = collect($request->only(['name', 'email', 'password', 'role', 'status',]))
+                ->filter()
+                ->toArray();
+                
+                if (isset($fieldsToUpdate['password'])) {
+                    $fieldsToUpdate['password'] = Hash::make($fieldsToUpdate['password']);
+                }
+
+                $user->update($fieldsToUpdate);
+
+                $token = $user->createToken('auth_token')->plainTextToken;
+                
+                // sending this event to logs in database
+                ActionLogger::log($user, 'UserController', 'update');
+                // end of sending event
+                
+                return response()->json(['access_token' => $token, 'token_type' => 'Bearer',]);
+            }
+            elseif (!$request->filled('role')) {
+                $fieldsToUpdate = collect($request->only(['name', 'email', 'password', 'role', 'status',]))
+                ->filter()
+                ->toArray();
+                
+                if (isset($fieldsToUpdate['password'])) {
+                    $fieldsToUpdate['password'] = Hash::make($fieldsToUpdate['password']);
+                }
+
+                $user->update($fieldsToUpdate);
+
+                $token = $user->createToken('auth_token')->plainTextToken;
+                
+                // sending this event to logs in database
+                ActionLogger::log($user, 'UserController', 'update');
+                // end of sending event
+                
+                return response()->json(['access_token' => $token, 'token_type' => 'Bearer',]);
+            } else {
+                return response()->json(['error' => 'Invalid role specified.'], 400);
+            }
         }
     }
 
