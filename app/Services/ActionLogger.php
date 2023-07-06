@@ -54,7 +54,8 @@ class ActionLogger
             if ($method === 'destroy') {        
                 $description = $methods[$method].' пользователя: №'.$mainVariable->id.'; '.
                                 'Имя: '.$mainVariable->name.'; '.
-                                'Email: '.$mainVariable->email.'.';
+                                'Email: '.$mainVariable->email.';';
+                                'Роль: '.$mainVariable->role.'.';
             } else {
                 $description = $methods[$method].' пользователя: №'.$mainVariable->id.'; '.
                                 'Имя: '.$mainVariable->name.'; '.
