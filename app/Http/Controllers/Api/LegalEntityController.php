@@ -114,14 +114,11 @@ class LegalEntityController extends Controller
     public function search(Request $request)
     {
 
-            return $whiteListUsers = LegalResource::collection($this->search->searchFromClients('LegalEntity', $request)->unique('hash')->all());
+            $whiteListUsers = LegalResource::collection($this->search->searchFromClients('LegalEntity', $request)->unique('hash')->all());
             $whiteListUsers = $this->filterByDates($request, $whiteListUsers);
             if ($request->get('name') == null && $request->get('birth_date') == null) {
                 return $whiteListUsers;
             }
-            return $whiteListUsers;
-
-
             list($blackLists, $results) = $this->getBlackedListUsers($request, $whiteListUsers);
 
             return $this->mergeBothUsers($whiteListUsers, $blackLists, $results);
@@ -151,11 +148,11 @@ class LegalEntityController extends Controller
             return Carbon::createFromFormat('d/m/Y', $date_string)->startOfDay()->format('Y-m-d H:i');
         }
     }
-    public function getBlackedListUsers(Request $request, $addedUsers): array
+    public function getBlackedListUsers(Request $request, $addedUsers)
     {
-        $blackLists = AddedUserResource::collection($this->search->searchFromClients('BlackList', $request))->map(function ($item) {
-            $item['hash'] = md5($item['last_name'] . $item['first_name'] . $item['middle_name'] . ((isset($item['birth_date'])) ? $item['birth_date']->format('d/m/Y') : ''));
-//                \Storage::disk('local')->append('incomess.txt', ($item['last_name'] . $item['first_name'] . $item['middle_name'] . ((isset($item['birth_date'])) ? $item['birth_date']->format('d/m/Y') : '')));
+        $blackLists = LegalResource::collection($this->search->searchFromClients('BlackListsLegalEntity', $request))
+            ->map(function ($item) {
+            $item['hash'] = md5($item['name']);
             return $item;
         });
         $results = $addedUsers->merge($blackLists)->toJson();
@@ -169,8 +166,9 @@ class LegalEntityController extends Controller
      * @param mixed $results
      * @return array
      */
-    public function mergeBothUsers($whiteListUsers, mixed $blackLists, mixed $results): array
+    public function mergeBothUsers($whiteListUsers, mixed $blackLists, mixed $results)
     {
+        return $results;
         $counted = $whiteListUsers->merge($blackLists)
             ->countBy(function ($item) {
                 return $item['hash'];

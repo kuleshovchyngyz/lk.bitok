@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\BlackList;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class LegalResource extends JsonResource
@@ -15,12 +16,14 @@ class LegalResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'id' => $this->id,
+            'id' => class_basename($this->resource) == 'BlackListsLegalEntity' ? '9999999' . $this->id : $this->id,
+            'black_list' => class_basename($this->resource) == 'BlackListsLegalEntity' || BlackList::where('hash', $this->hash)->count() > 0,
             'sanction' => $this->sanction,
             'name' => $this->name,
+            'hash' => $this->hash,
             'director_full_name' => $this->director_full_name,
             'address' => $this->address,
-            'birth_date' => $this->birth_date->format('d/m/Y'),
+            'birth_date' => $this->birth_date?->format('d/m/Y'),
             'verification' => $this->verification,
             'registration_date' => $this->created_at->format('d/m/Y H:i'),
             'verification_date' => $this->when(isset($this->verification_date), function () {
