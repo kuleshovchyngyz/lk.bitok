@@ -10,6 +10,19 @@ class UserPolicy
     use HandlesAuthorization;
 
     /**
+     * Perform a global authorization check before all other authorization methods.
+     *
+     * @param  \App\Models\User  $user
+     * @return \Illuminate\Auth\Access\Response|bool
+     */
+    public function before(User $user)
+    {
+        if ($user->status === 0) {
+            return false; // Deny access for users with status 0
+        }
+    }
+    
+    /**
      * Determine whether the user can view any models.
      *
      * @param  \App\Models\User  $user

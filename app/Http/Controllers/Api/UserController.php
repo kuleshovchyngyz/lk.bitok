@@ -108,22 +108,11 @@ class UserController extends Controller
     {
         $this->authorize('update', $user);
 
-        // $form = $request->validate([
-        //     'name' => 'required',
-        //     'email' => 'email',
-        //     'password' => 'required',
-        //     'role' => 'required',
-        //     'status' => '',
-        // ]);
-        // $form['password'] = Hash::make($request->password);
-        // $user->update($form);
-        // $user->syncRoles([$request->role]);
-
         $validator = Validator::make($request->all(),
-            ['name' => 'required|string|max:255',
-                'email' => 'required|email|max:255',
-                'password' => 'required|min:10',
-                'role' => 'required']);
+            ['name' => 'string|max:255',
+                'email' => 'email|max:255',
+                'password' => 'min:10',
+                'role' => '']);
         if ($validator->fails()) {
             $errors = $validator->errors();
             return response()->json(['error' => $errors], 400);
@@ -133,16 +122,10 @@ class UserController extends Controller
             $user->syncRoles([$request->role]);
             $token = $user->createToken('auth_token')->plainTextToken;
             // sending this event to logs in database
-            ActionLogger::log($user, 'UserController', 'store');
+            ActionLogger::log($user, 'UserController', 'update');
             // end of sending event
             return response()->json(['access_token' => $token, 'token_type' => 'Bearer',]);
         }
-
-        // // sending this event to logs in database
-        // ActionLogger::log($user, 'UserController', 'update');
-        // // end of sending event
-
-        // return new UserResource($user);
     }
 
     /**
