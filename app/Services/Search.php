@@ -32,6 +32,11 @@ class Search
                     ->orWhere('director_full_name', 'like', '%' . $request->name . '%');
             });
         })
+            ->when($request->get('name') != null && $type == 'BlackListsLegalEntity', function ($q) use ($request) {
+            $q->where(function ($query) use ($request) {
+                $query->orWhere('name', 'like', '%' . $request->name . '%');
+            });
+        })
             ->when($request->get('name')!=null && $type == 'BlackList', function ($q) use ($request) {
                 $q->where(function ($q) use ($request) {
                     foreach (explode(' ', $request->name) as $name) {
