@@ -11,11 +11,14 @@ use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use App\Services\ActionLogger;
 use App\Traits\AttachPhotosTrait;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use Illuminate\Pagination\Paginator;
 use App\Http\Resources\LegalResource;
 use App\Http\Resources\AddedUserResource;
 use App\Http\Requests\StoreLegalEntityRequest;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class LegalEntityController extends Controller
@@ -113,15 +116,53 @@ class LegalEntityController extends Controller
     }
     public function search(Request $request)
     {
-
-            $whiteListUsers = LegalResource::collection($this->search->searchFromClients('LegalEntity', $request)->unique('hash')->all());
-            $whiteListUsers = $this->filterByDates($request, $whiteListUsers);
-            if ($request->get('name') == null && $request->get('birth_date') == null) {
-                return $whiteListUsers;
-            }
-            list($blackLists, $results) = $this->getBlackedListUsers($request, $whiteListUsers);
-
-            return $this->mergeBothUsers($whiteListUsers, $blackLists, $results);
+        $whiteListUsers = LegalResource::collection($this->search->searchFromClients('LegalEntity', $request)->unique('hash')->all());
+        $whiteListUsers = $this->filterByDates($request, $whiteListUsers);
+        
+        if ($request->get('name') == null && $request->get('birth_date') == null) {
+            $perPage = 100; // Number of items per page
+            $currentPage = Paginator::resolveCurrentPage('page');
+            $sliced = $whiteListUsers->slice(($currentPage - 1) * $perPage, $perPage);
+            
+            $pagination = new LengthAwarePaginator(
+                $sliced,
+                $whiteListUsers->count(),
+                $perPage,
+                $currentPage,
+                ['path' => Paginator::resolveCurrentPath()]
+            );
+            
+            return response()->json([
+                $pagination->items(),
+                ['previousPageUrl' => $pagination->previousPageUrl(),
+                'nextPageUrl' => $pagination->nextPageUrl(),
+                'totalPages' => $pagination->lastPage(),]
+            ]);
+        }
+        
+        list($blackLists, $results) = $this->getBlackedListUsers($request, $whiteListUsers);
+        
+        $mergedUsers = $this->mergeBothUsers($whiteListUsers, $blackLists, $results);
+        $mergedUsers = new Collection($mergedUsers); // Convert array to collection
+        
+        $perPage = 100; // Number of items per page
+        $currentPage = Paginator::resolveCurrentPage('page');
+        $sliced = $mergedUsers->slice(($currentPage - 1) * $perPage, $perPage);
+        
+        $pagination = new LengthAwarePaginator(
+            $sliced,
+            $mergedUsers->count(),
+            $perPage,
+            $currentPage,
+            ['path' => Paginator::resolveCurrentPath()]
+        );
+        
+        return response()->json([
+            $pagination->items(),
+            ['previousPageUrl' => $pagination->previousPageUrl(),
+            'nextPageUrl' => $pagination->nextPageUrl(),
+            'totalPages' => $pagination->lastPage(),]
+        ]);
 
 //        } catch (\Exception $e) {
 //            return response()->json([
