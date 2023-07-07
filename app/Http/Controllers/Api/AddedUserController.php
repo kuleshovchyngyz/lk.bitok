@@ -189,7 +189,7 @@ class AddedUserController extends Controller
     {
         $this->authorize('viewAny', AddedUser::class);
         
-        if (!$request->all()) {
+        if (!$request->all() || $request->has('page')) {
 
             $country = Country::all();
 
@@ -208,25 +208,13 @@ class AddedUserController extends Controller
                     ->paginate($limit);
             }
             
-            $addedUsers = new Collection($addedUsers);
-
-            $perPage = 100; // Number of items per page
-            $currentPage = Paginator::resolveCurrentPage('page');
-            $sliced = $addedUsers->slice(($currentPage - 1) * $perPage, $perPage);
+            $page = AddedUserResource::collection($addedUsers);
             
-            $pagination = new LengthAwarePaginator(
-                $sliced,
-                $addedUsers->count(),
-                $perPage,
-                $currentPage,
-                ['path' => Paginator::resolveCurrentPath()]
-            );
-
             return response()->json([
-                $pagination->items(),
-                ['previousPageUrl' => $pagination->previousPageUrl(),
-                'nextPageUrl' => $pagination->nextPageUrl(),
-                'totalPages' => $pagination->lastPage(),]
+                $addedUsers->items(),
+                ['previousPageUrl' => $addedUsers->previousPageUrl(),
+                'nextPageUrl' => $addedUsers->nextPageUrl(),
+                'totalPages' => $addedUsers->lastPage(),]
             ]); 
         }
 
