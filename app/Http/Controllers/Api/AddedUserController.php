@@ -189,7 +189,7 @@ class AddedUserController extends Controller
     {
         $this->authorize('viewAny', AddedUser::class);
         
-        if (!$request->all() || $request->has('page')) {
+        if (!$request->all() || ($request->filled('page') && $request->keys() === ['page'])) {
 
             $country = Country::all();
 
