@@ -116,7 +116,7 @@ class LegalEntityController extends Controller
     }
     public function search(Request $request)
     {
-        if(!$request->all()) {
+        if(!$request->all() || ($request->filled('page') && $request->keys() === ['page'])) {
             
             $country = Country::all();
             
@@ -151,7 +151,7 @@ class LegalEntityController extends Controller
         if ($request->get('name') == null && $request->get('birth_date') == null) {
             $perPage = 100; // Number of items per page
             $currentPage = Paginator::resolveCurrentPage('page');
-            $sliced = $whiteListUsers->slice(($currentPage - 1) * $perPage, $perPage);
+            $sliced = $whiteListUsers->slice(($currentPage - 1) * $perPage, $perPage)->values();
             
             $pagination = new LengthAwarePaginator(
                 $sliced,
@@ -176,7 +176,7 @@ class LegalEntityController extends Controller
         
         $perPage = 100; // Number of items per page
         $currentPage = Paginator::resolveCurrentPage('page');
-        $sliced = $mergedUsers->slice(($currentPage - 1) * $perPage, $perPage);
+        $sliced = $mergedUsers->slice(($currentPage - 1) * $perPage, $perPage)->values();
         
         $pagination = new LengthAwarePaginator(
             $sliced,
