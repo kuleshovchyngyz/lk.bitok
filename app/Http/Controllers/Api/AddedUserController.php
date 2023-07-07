@@ -10,7 +10,9 @@ use App\Models\Attachment;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use App\Events\LogActionEvent;
+use App\Services\ActionLogger;
 use App\Traits\AttachPhotosTrait;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Pagination\Paginator;
@@ -206,13 +208,25 @@ class AddedUserController extends Controller
                     ->paginate($limit);
             }
             
-            $page = AddedUserResource::collection($addedUsers);
+            $addedUsers = new Collection($addedUsers);
+
+            $perPage = 100; // Number of items per page
+            $currentPage = Paginator::resolveCurrentPage('page');
+            $sliced = $addedUsers->slice(($currentPage - 1) * $perPage, $perPage);
+            
+            $pagination = new LengthAwarePaginator(
+                $sliced,
+                $addedUsers->count(),
+                $perPage,
+                $currentPage,
+                ['path' => Paginator::resolveCurrentPath()]
+            );
 
             return response()->json([
-                $page->items(),
-                ['previousPageUrl' => $page->previousPageUrl(),
-                'nextPageUrl' => $page->nextPageUrl(),
-                'totalPages' => $page->lastPage(),]
+                $pagination->items(),
+                ['previousPageUrl' => $pagination->previousPageUrl(),
+                'nextPageUrl' => $pagination->nextPageUrl(),
+                'totalPages' => $pagination->lastPage(),]
             ]); 
         }
 
