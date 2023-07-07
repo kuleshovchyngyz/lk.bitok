@@ -15,6 +15,7 @@ use App\Exports\CollectionExport;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\URL;
 use App\Http\Controllers\Controller;
+use Illuminate\Pagination\Paginator;
 use Maatwebsite\Excel\Facades\Excel;
 use Intervention\Image\Facades\Image;
 use Illuminate\Support\Facades\Storage;
@@ -252,7 +253,7 @@ class UserOperationController extends Controller
     {
         $this->authorize('viewAny', UserOperation::class);
 
-        return  $userOperation = UserOperation::with(['addedUser', 'legalEntity'])
+        $userOperation = UserOperation::with(['addedUser', 'legalEntity'])
             ->when($request->get('type') == 'user' || $request->get('type') == null, function ($q) use ($request) {
                 $addedUsers = $this->search->searchFromClients('AddedUser', $request)->pluck('id');
                 $q->whereIn('user_id', $addedUsers);
@@ -277,9 +278,25 @@ class UserOperationController extends Controller
                 }
                 return true;
 
-            })
-            ;
+            });
 
-        return UserOperationResource::collection($userOperation);
+            $perPage = 200; // Number of items per page
+            $currentPage = Paginator::resolveCurrentPage('page');
+            $sliced = $userOperation->slice(($currentPage - 1) * $perPage, $perPage);
+            
+            $pagination = new LengthAwarePaginator(
+                $sliced,
+                $userOperation->count(),
+                $perPage,
+                $currentPage,
+                ['path' => Paginator::resolveCurrentPath()]
+            );
+
+            return response()->json([
+                $pagination->items(),
+                ['previousPageUrl' => $pagination->previousPageUrl(),
+                'nextPageUrl' => $pagination->nextPageUrl(),
+                'totalPages' => $pagination->lastPage(),]
+            ]);
     }
 }
