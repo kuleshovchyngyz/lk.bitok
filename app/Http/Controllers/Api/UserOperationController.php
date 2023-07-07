@@ -50,23 +50,7 @@ class UserOperationController extends Controller
         $data = $strategy->getUserOperations();
 
         // Get the pagination limit from the request, default to 10 if not provided
-        $perPage = 200;
-
-        // Manually create a LengthAwarePaginator instance
-        $currentPage = LengthAwarePaginator::resolveCurrentPage();
-        $slicedData = $data->slice(($currentPage - 1) * $perPage, $perPage);
-        $paginator = new LengthAwarePaginator($slicedData, $data->count(), $perPage, $currentPage);
-
-        // return $paginator;
-        return [
-            $paginator->items(),
-            ['previousPageUrl' => $paginator->previousPageUrl(),
-            'nextPageUrl' => $paginator->nextPageUrl(),
-            'totalPages' => $paginator->lastPage(),]
-        ];
-
-        // Get the pagination limit from the request, default to 10 if not provided
-        $perPage = 200;
+        $perPage = 20;
 
         // Manually create a LengthAwarePaginator instance
         $currentPage = LengthAwarePaginator::resolveCurrentPage();

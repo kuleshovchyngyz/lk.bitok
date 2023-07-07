@@ -116,6 +116,35 @@ class LegalEntityController extends Controller
     }
     public function search(Request $request)
     {
+        if(!$request->all()) {
+            
+            $country = Country::all();
+            
+            $limit = 100;
+
+            if (isset($country['id'])) {
+                $legalEntities = $country->addedUsers()->paginate($limit);
+            } elseif ($request->has('risk')) {
+                $legalEntities = LegalEntity::with(['country'])
+                    ->where('sanction', $request->get('risk'))
+                    ->orderBy('created_at', 'desc')
+                    ->paginate($limit);
+            } else {
+                $legalEntities = LegalEntity::with(['country'])
+                    ->orderBy('created_at', 'desc')
+                    ->paginate($limit);
+            }
+
+            $page = LegalResource::collection($legalEntities);
+
+            return response()->json([
+                $page->items(),
+                ['previousPageUrl' => $page->previousPageUrl(),
+                'nextPageUrl' => $page->nextPageUrl(),
+                'totalPages' => $page->lastPage(),]
+            ]);
+        }
+
         $whiteListUsers = LegalResource::collection($this->search->searchFromClients('LegalEntity', $request)->unique('hash')->all());
         $whiteListUsers = $this->filterByDates($request, $whiteListUsers);
         
