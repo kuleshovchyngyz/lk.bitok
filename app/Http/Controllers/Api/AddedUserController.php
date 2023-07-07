@@ -233,7 +233,7 @@ class AddedUserController extends Controller
             
             $perPage = 100; // Number of items per page
             $currentPage = Paginator::resolveCurrentPage('page');
-            $sliced = $mergedUsers->slice(($currentPage - 1) * $perPage, $perPage);
+            $sliced = $mergedUsers->slice(($currentPage - 1) * $perPage, $perPage)->values();
             
             $pagination = new LengthAwarePaginator(
                 $sliced,
