@@ -93,7 +93,7 @@ class ImportController extends Controller
 
     public function plpdLegal($file)
     {
-        return $this->Legals($file, 'forallLegals', 'Перечень юридических лиц...(ПЛПД)');
+        return $this->Legals($file, 'plpdLegal', 'Перечень юридических лиц...(ПЛПД)');
     }
 
     public function plpd($file)
@@ -322,12 +322,14 @@ class ImportController extends Controller
             } elseif ($xml->getName() === 'ArrayOfLegalization') {
                 foreach ($xml->Legalization as $legalization) {
                     $name = (string) $legalization->Name;
+                    $address = (string) $legalization->City.', '.(string) $legalization->Street;
 
                     if (!empty($name)) {
                         $count++;
                         $hash = md5(trim($name));
                         $blackList = new BlackListsLegalEntity();
                         $blackList->name = $name;
+                        $blackList->address = strlen($address) > 5 ? $address : '';
                         $blackList->type = $type;
                         $blackList->hash = $hash;
                         $blackList->blacklist_log_id = $bl->id;
