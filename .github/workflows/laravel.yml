@@ -28,8 +28,4 @@ jobs:
       run: |
         mkdir -p database
     - name: Execute tests (Unit and Feature tests) via PHPUnit
-      env:
-        DB_DATABASE=john_database
-        DB_USERNAME=john
-        DB_PASSWORD=secretpassword
       run: vendor/bin/phpunit
