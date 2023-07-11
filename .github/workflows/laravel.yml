@@ -44,12 +44,6 @@ jobs:
         php artisan migrate
         php artisan db:seed
       env:
-          APP_ENV: local
-          APP_URL: "http://127.0.0.1:8000"
-          DB_CONNECTION: mysql
-          DB_DATABASE: john_database
-          DB_PORT: ${{ job.services.mysql.ports[3306] }}
-          DB_USER: john
-          DB_PASSWORD: secretpassword
+        DB_DATABASE: testing
     - name: Execute tests (Unit and Feature tests) via PHPUnit
       run: vendor/bin/phpunit
