@@ -11,6 +11,17 @@ jobs:
 
     runs-on: ubuntu-20.04
 
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: false
+          MYSQL_ROOT_PASSWORD: password
+          MYSQL_DATABASE: laravel
+        ports:
+          - 3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
     steps:
     - uses: shivammathur/setup-php@15c43e89cdef867065b0213be354c2841860869e
       with:
@@ -27,5 +38,15 @@ jobs:
     - name: Create Database
       run: |
         mkdir -p database
+      - name: Run Laravel Server
+      run: php artisan serve
     - name: Execute tests (Unit and Feature tests) via PHPUnit
       run: vendor/bin/phpunit
+      env:
+          APP_ENV: local
+          APP_URL: "http://127.0.0.1:8000"
+          DB_CONNECTION: mysql
+          DB_DATABASE: john_database
+          DB_PORT: ${{ job.services.mysql.ports[3306] }}
+          DB_USER: john
+          DB_PASSWORD: secretpassword
