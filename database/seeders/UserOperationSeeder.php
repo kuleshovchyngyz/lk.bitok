@@ -3,8 +3,9 @@
 namespace Database\Seeders;
 
 use App\Models\UserOperation;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Illuminate\Support\Carbon;
 use Illuminate\Database\Seeder;
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 class UserOperationSeeder extends Seeder
 {
@@ -15,6 +16,10 @@ class UserOperationSeeder extends Seeder
      */
     public function run()
     {
-        UserOperation::factory()->times(400)->create();
+        UserOperation::factory()->times(400)->create(
+            [
+                'operation_date' => Carbon::now()->format('Y-m-d H:i:s'), // Adjust the date calculation as needed
+            ]
+        );
     }
 }
