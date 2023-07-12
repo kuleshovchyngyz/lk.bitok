@@ -15,6 +15,6 @@ class UserOperationSeeder extends Seeder
      */
     public function run()
     {
-        UserOperation::factory()->times(10000)->create();
+        UserOperation::factory()->times(400)->create();
     }
 }

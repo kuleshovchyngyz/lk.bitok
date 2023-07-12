@@ -15,6 +15,6 @@ class BlackListSeeder extends Seeder
      */
     public function run()
     {
-        BlackList::factory()->times(50)->create();
+        BlackList::factory()->times(10)->create();
     }
 }
