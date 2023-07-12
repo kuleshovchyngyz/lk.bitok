@@ -3,9 +3,10 @@
 namespace Database\Seeders;
 
 use App\Models\AddedUser;
+use Illuminate\Support\Carbon;
+use Illuminate\Database\Seeder;
 use Database\Factories\AddedUserFactory;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
 
 class AddedUserSeeder extends Seeder
 {
@@ -16,6 +17,10 @@ class AddedUserSeeder extends Seeder
      */
     public function run()
     {
-        // AddedUser::factory()->times(200)->create();
+        AddedUser::factory()->times(200)->create(
+            [
+                'birth_date' => Carbon::now()->subYears(25)->format('Y-m-d'), // Adjust the date calculation as needed
+            ]
+        );
     }
 }
