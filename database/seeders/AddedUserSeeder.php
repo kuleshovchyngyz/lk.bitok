@@ -16,6 +16,6 @@ class AddedUserSeeder extends Seeder
      */
     public function run()
     {
-        AddedUser::factory()->times(200)->create();
+        // AddedUser::factory()->times(200)->create();
     }
 }
