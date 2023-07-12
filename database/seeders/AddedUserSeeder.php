@@ -19,7 +19,7 @@ class AddedUserSeeder extends Seeder
     {
         AddedUser::factory()->times(200)->create(
             [
-                'birth_date' => Carbon::now()->subYears(25)->format('Y-m-d'), // Adjust the date calculation as needed
+                'birth_date' => '1990-05-28 00:00:00', // Adjust the date calculation as needed
             ]
         );
     }
