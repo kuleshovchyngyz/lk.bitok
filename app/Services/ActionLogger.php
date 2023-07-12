@@ -42,7 +42,8 @@ class ActionLogger
         }
         elseif ($controller === 'UserOperationController') {
             $description = $methods[$method].' операцию: №'.$mainVariable->id.'; '.
-                            'Пользователь: '.$mainVariable->addedUser->last_name.' '.$mainVariable->addedUser->first_name.' '.$mainVariable->addedUser->middle_name.'; '.
+                            ($mainVariable->user_id ? ('Пользователь: '.$mainVariable->addedUser->last_name.' '.$mainVariable->addedUser->first_name.' '.$mainVariable->addedUser->middle_name.'; ') : 
+                            'Юридическое лицо: '.$mainVariable->legalEntity->name).'; '.
                             'Направление: '.$mainVariable->operation_direction.'; '.
                             'Валюта: '.$mainVariable->currency.'; '.
                             'Дата операции: '.$mainVariable->operation_date->format('d/m/Y').'; '.
