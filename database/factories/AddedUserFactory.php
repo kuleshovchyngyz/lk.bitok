@@ -24,6 +24,7 @@ class AddedUserFactory extends Factory
             'birth_date'=>$this->faker->dateTimeBetween('1990-01-01', '2022-12-31'),
             'country_id'=>rand(1,10),
             'pass_num_inn'=>$this->faker->unique()->ean13(),
+            'hash' => $this->faker->unique()->sha256,
             //'created_at'=>$this->faker()->unique()->ean13,
 
         ];
