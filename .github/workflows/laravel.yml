@@ -42,6 +42,7 @@ jobs:
       run: |
         php artisan config:cache
         php artisan migrate
+        php artisan migrate --path=/vendor/spatie/laravel-permission/database/migrations
         php artisan db:seed
       env:
         DB_DATABASE: testing
