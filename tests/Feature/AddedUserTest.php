@@ -5,9 +5,12 @@ namespace Tests\Feature;
 use Tests\TestCase;
 use App\Models\User;
 use App\Models\AddedUser;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 class AddedUserTest extends TestCase
 {
+    use DatabaseTransactions;
+    
     /**
      * A basic feature test example.
      *
