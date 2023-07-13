@@ -6,6 +6,7 @@ use Tests\TestCase;
 use App\Models\User;
 use App\Models\AddedUser;
 use Illuminate\Support\Facades\DB;
+use Spatie\Permission\Models\Role;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 class AddedUserTest extends TestCase
@@ -14,11 +15,16 @@ class AddedUserTest extends TestCase
     
     public function testCheckDataInDatabase()
     {
-        $data = DB::table('model_has_roles')->where('model_id', 1)->get();
+        $roleId = Role::where('name', 'Admin')->value('id');
+        $data = DB::table('model_has_roles')
+            ->where('model_type', 'App\Models\User')
+            ->where('model_id', 1)
+            ->where('role_id', $roleId)
+            ->get();
 
         // Perform assertions to check the data
         $this->assertCount(1, $data);
-        // $this->assertEquals('Admin', $data[0]);
+        $this->assertEquals($roleId, $data[0]->role_id);
     }
 
     // /**
