@@ -33,6 +33,9 @@ class AddedUserTest extends TestCase
     // testing index method
     public function testAddedUserIndexPage()
     {
+        $user = User::where('name','Manager')->first();
+        $this->actingAs($user);
+
         $response = $this->get('api/added-users');
 
         $response->assertStatus(200);
@@ -41,6 +44,9 @@ class AddedUserTest extends TestCase
     // testing index pagination
     public function testAddedUserIndexPagination()
     {
+        $user = User::where('name','Manager')->first();
+        $this->actingAs($user);
+
         $response = $this->get('api/added-users');
         
         $response->assertJsonCount(100, '0');
@@ -51,6 +57,9 @@ class AddedUserTest extends TestCase
     // testing show method
     public function testAddedUserShowPage()
     {
+        $user = User::where('name','Manager')->first();
+        $this->actingAs($user);
+        
         $addedUser = AddedUser::latest()->first();
         $response = $this->getJson('api/added-users/'.$addedUser->id);
 
