@@ -21,7 +21,7 @@ class AddedUserFactory extends Factory
             'last_name'=>explode(' ',$this->faker->name())[rand(0,1)],
             'first_name'=>explode(' ',$this->faker->name())[rand(0,1)],
             'middle_name'=>explode(' ',$this->faker->name())[rand(0,1)],
-            'birth_date'=>'28/05/1990',
+            'birth_date'=>'1990-05-28',
             'country_id'=>rand(1,10),
             'pass_num_inn'=>$this->faker->unique()->ean13(),
             //'created_at'=>$this->faker()->unique()->ean13,
