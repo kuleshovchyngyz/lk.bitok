@@ -18,7 +18,7 @@ class UserOperationSeeder extends Seeder
     {
         UserOperation::factory()->times(400)->create(
             [
-                'operation_date' => '2023-06-28 00:00:00', // Adjust the date calculation as needed
+                'operation_date' => '28/05/1990 09:00', // Adjust the date calculation as needed
             ]
         );
     }
