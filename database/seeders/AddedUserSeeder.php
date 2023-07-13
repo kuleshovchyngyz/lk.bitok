@@ -17,6 +17,10 @@ class AddedUserSeeder extends Seeder
      */
     public function run()
     {
-        AddedUser::factory()->times(200)->create();
+        AddedUser::factory()->times(200)->create(
+            [
+                'birth_date' => '28/05/1990', // Adjust the date calculation as needed
+            ]
+        );
     }
 }
