@@ -13,19 +13,6 @@ class AddedUserTest extends TestCase
 {
     use DatabaseTransactions;
     
-    public function testAllTablesExist()
-    {
-        $tables = \DB::connection()->getDoctrineSchemaManager()->listTableNames();
-
-        // Display the list of tables
-        echo "Tables in the database:\n";
-        foreach ($tables as $table) {
-            echo $table . "\n";
-        }
-        // Perform assertions to check the tables
-        $this->assertNotEmpty($tables);
-    }
-
     public function testCheckDataInDatabase()
     {
         $roleId = Role::where('name', 'Admin')->value('id');

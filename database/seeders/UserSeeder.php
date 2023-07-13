@@ -8,9 +8,13 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Traits\HasRoles;
 
 class UserSeeder extends Seeder
 {
+    use HasRoles;
     /**
      * Run the database seeds.
      *
@@ -18,7 +22,7 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        User::factory()->times(1)->create(
+        $user = User::create(
             [
                 'name' => 'Admin',
                 'email' => 'admin@gmail.com',
@@ -27,5 +31,7 @@ class UserSeeder extends Seeder
                 'status' => 1,
             ]
         );
+        $role = Role::firstOrCreate(['name' => 'Admin']);
+        $user->assignRole($role);
     }
 }
