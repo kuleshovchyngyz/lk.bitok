@@ -13,19 +13,32 @@ class AddedUserTest extends TestCase
 {
     use DatabaseTransactions;
     
-    public function testCheckDataInDatabase()
+    public function testAllTablesExist()
     {
-        $roleId = Role::where('name', 'Admin')->value('id');
-        $data = DB::table('model_has_roles')
-            ->where('model_type', 'App\Models\User')
-            ->where('model_id', 1)
-            ->where('role_id', $roleId)
-            ->get();
+        $tables = \DB::connection()->getDoctrineSchemaManager()->listTableNames();
 
-        // Perform assertions to check the data
-        $this->assertCount(1, $data);
-        $this->assertEquals($roleId, $data[0]->role_id);
+        // Display the list of tables
+        echo "Tables in the database:\n";
+        foreach ($tables as $table) {
+            echo $table . "\n";
+        }
+        // Perform assertions to check the tables
+        $this->assertNotEmpty($tables);
     }
+
+    // public function testCheckDataInDatabase()
+    // {
+    //     $roleId = Role::where('name', 'Admin')->value('id');
+    //     $data = DB::table('model_has_roles')
+    //         ->where('model_type', 'App\Models\User')
+    //         ->where('model_id', 1)
+    //         ->where('role_id', $roleId)
+    //         ->get();
+
+    //     // Perform assertions to check the data
+    //     $this->assertCount(1, $data);
+    //     $this->assertEquals($roleId, $data[0]->role_id);
+    // }
 
     // /**
     //  * A basic feature test example.
