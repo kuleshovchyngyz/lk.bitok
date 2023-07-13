@@ -63,9 +63,9 @@ class RolesAndPermissionsSeeder extends Seeder
                                     $createOperationsPermission);
 
 
-        // $role = Role::where('name', 'Admin')->first();
-        // $user = User::where('email', 'admin@gmail.com')->first();
+        $role = Role::where('name', 'Admin')->first();
+        $user = User::where('email', 'admin@gmail.com')->first();
 
-        // $user->assignRole($role);
+        $user->assignRole($role);
     }
 }
