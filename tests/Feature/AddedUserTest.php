@@ -20,7 +20,7 @@ class AddedUserTest extends TestCase
         parent::setUp();
 
         // Authenticate a user
-        $user = User::where('name','Manager')->first();
+        $user = User::where('name','Admin')->first();
         $this->actingAs($user);
     }
 
