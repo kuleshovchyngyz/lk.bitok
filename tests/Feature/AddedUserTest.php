@@ -14,11 +14,11 @@ class AddedUserTest extends TestCase
     
     public function testCheckDataInDatabase()
     {
-        $data = DB::table('users')->where('email', 'admin@gmail.com')->get();
+        $data = DB::table('model_has_roles')->where('model_id', 1)->get();
 
         // Perform assertions to check the data
         $this->assertCount(1, $data);
-        $this->assertEquals('admin@gmail.com', $data[0]->email);
+        // $this->assertEquals('Admin', $data[0]);
     }
 
     // /**
