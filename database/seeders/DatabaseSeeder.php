@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
     {
        $this->call([AddedUserSeeder::class,
                     BlackListSeeder::class,
+                    CountrySeeder::class,
                     UserSeeder::class,
                     RolesAndPermissionsSeeder::class,
                     UserOperationSeeder::class]);
