@@ -82,6 +82,7 @@ class AddedUserTest extends TestCase
             'first_name' => 'John',
             'middle_name' => 'Junior',
             'birth_date' => '20/04/1981',
+            'registration_date' => '25/11/2022 18:14',
             'country_id' => '2',
             'pass_num_inn' => '21409200040935',
             'passport_id' => '100000000',
@@ -89,6 +90,8 @@ class AddedUserTest extends TestCase
             'passport_authority_code' => '21309200000935',
             'passport_issued_at' => '20/04/2005',
             'passport_expires_at' => '20/04/2015',
+            'verification_date' => '20/04/2015',
+            'verification' => '1',
         ];
         
         $response = $this->postJson('api/added-users', $credentials);
