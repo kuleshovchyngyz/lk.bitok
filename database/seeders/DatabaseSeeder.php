@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
                     BlackListSeeder::class,
                     CountrySeeder::class,
                     UserSeeder::class,
+                    LegalEntitySeeder::class,
                     RolesAndPermissionsSeeder::class,
                     UserOperationSeeder::class]);
 
