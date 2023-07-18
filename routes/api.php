@@ -6,6 +6,7 @@ use \App\Http\Controllers\V1\CarController;
 use App\Http\Controllers\Api\LogController;
 use App\Http\Controllers\Api\UserController;
 use \App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\StockController;
 use \App\Http\Controllers\Api\CountryController;
 use \App\Http\Controllers\Api\SanctionController;
 use \App\Http\Controllers\Api\AddedUserController;
@@ -81,6 +82,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('auth/me', [AuthController::class,'me']);
     Route::get('auth/logout', [AuthController::class,'logout']);
     Route::resource('added-users', AddedUserController::class);
+    Route::resource('stocks', StockController::class);
     Route::resource('users', UserController::class);
     Route::resource('logs', LogController::class);
     Route::resource('legal-entities', \App\Http\Controllers\Api\LegalEntityController::class);
@@ -95,6 +97,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('legal-entities/{legal-entity}/user-operations', [UserOperationController::class,'legalUserOperations']);
     Route::post('added-users/search', [AddedUserController::class,'search']);
     Route::post('legal-entities/search', [\App\Http\Controllers\Api\LegalEntityController::class,'search']);
+    Route::post('stocks/search', [StockController::class, 'search']);
     Route::post('added-users/{added_user}/upload', [AddedUserController::class,'upload']);
     Route::delete('attachment/{attachment}/delete', [AddedUserController::class,'delete']);
     Route::post('user-operations/search', [UserOperationController::class,'search']);
