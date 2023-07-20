@@ -29,16 +29,31 @@ class ActionLogger
                             'Уровень риска: '.$mainVariable->sanction.'.';
         }
         elseif ($controller === 'LegalEntityController') {
-            $description = $methods[$method].' юридическое лицо: №'.$mainVariable->id.'; '.
-                            'Название: '.$mainVariable->director_full_name.'; '.
-                            'Адрес: '.$mainVariable->address.'; '.
-                            'Имя директора: '.$mainVariable->director_full_name.'; '.
-                            'Дата рождения: '.$mainVariable->birth_date->format('d/m/Y').'; '.
-                            'Страна: '.$mainVariable->country->name.'; '.
-                            'Дата регистрации: '.$mainVariable->created_at->format('d/m/Y').'; '.
-                            'Верификация: '.($mainVariable->verification ? $mainVariable->verification : 'не верифицирована').'; '.
-                            'Дата верификации: '.($mainVariable->verification_date ? $mainVariable->verification_date->format('d/m/Y') : 'не верифицирована').'; '.
-                            'Уровень риска: '.$mainVariable->sanction.'.';
+            if (!$mainVariable->stock) {
+                $description = $methods[$method].' юридическое лицо: №'.$mainVariable->id.'; '.
+                                'Тип: Юридическое лицо; '.
+                                'Название: '.$mainVariable->name.'; '.
+                                'Адрес: '.$mainVariable->address.'; '.
+                                'Имя директора: '.$mainVariable->director_full_name.'; '.
+                                'Дата рождения: '.$mainVariable->birth_date->format('d/m/Y').'; '.
+                                'Страна: '.$mainVariable->country->name.'; '.
+                                'Дата регистрации: '.$mainVariable->created_at->format('d/m/Y').'; '.
+                                'Верификация: '.($mainVariable->verification ? $mainVariable->verification : 'не верифицирована').'; '.
+                                'Дата верификации: '.($mainVariable->verification_date ? $mainVariable->verification_date->format('d/m/Y') : 'не верифицирована').'; '.
+                                'Уровень риска: '.$mainVariable->sanction.'.';
+            } 
+            else {
+                $description = $methods[$method].' юридическое лицо: №'.$mainVariable->id.'; '.
+                                'Тип: Биржа; '.
+                                'Название: '.$mainVariable->name.'; '.
+                                'Адрес: '.$mainVariable->address.'; '.
+                                'IBAN: '.$mainVariable->iban.'; '.
+                                'Банковский счет: '.$mainVariable->bank_account.'; '.
+                                'Название банка: '.$mainVariable->bank_name.'; '.
+                                'Swift: '.$mainVariable->swift.'; '.
+                                'Код аккаунта: '.$mainVariable->account_code.'; ';
+            }
+            
         }
         elseif ($controller === 'UserOperationController') {
             $description = $methods[$method].' операцию: №'.$mainVariable->id.'; '.

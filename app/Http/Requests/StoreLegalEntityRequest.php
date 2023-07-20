@@ -37,12 +37,12 @@ class StoreLegalEntityRequest extends FormRequest
     {
         return [
             'name' => (!$this->route('legal_entity')) ? 'required' : '',
-            'director_full_name' => (!$this->route('legal_entity')) ? 'required' : '',
+            'director_full_name' => (!$this->route('legal_entity') && !$this->stock) ? 'required' : '',
             'address' => (!$this->route('legal_entity')) ? 'required' : '',
-            'birth_date' => (!$this->route('legal_entity')) ? 'required|date_format:d/m/Y' : '',
+            'birth_date' => (!$this->route('legal_entity') && !$this->stock) ? 'required|date_format:d/m/Y' : '',
             'verification_date' => 'nullable|date_format:d/m/Y',
             'verification' => 'nullable',
-            'country_id' => (!$this->route('legal_entity')) ? 'required' : '',
+            'country_id' => (!$this->route('legal_entity') && !$this->stock) ? 'required' : '',
             'hash' => 'required|sometimes|unique_director_full_name_dob:name,director_full_name,birth_date',
             'cv_photo.*' => 'nullable|sometimes|mimes:doc,docx,xls,xlsx,pdf,csv,jpg,jpeg,png,bmp',
             'cv_photo_bf.*' => 'nullable|sometimes|mimes:doc,docx,xls,xlsx,pdf,csv,jpg,jpeg,png,bmp',
@@ -52,6 +52,13 @@ class StoreLegalEntityRequest extends FormRequest
             'passport_photo.*' => 'nullable|sometimes|mimes:doc,docx,xls,xlsx,pdf,csv,jpg,jpeg,png,bmp',
 
             'sanction'=> 'integer',
+
+            'stock'=> '',
+            'iban'=> '',
+            'bank_account'=> '',
+            'bank_name'=> '',
+            'swift'=> '',
+            'account_code'=> ($this->stock) ? 'required' : '',
 
         ];
     }
