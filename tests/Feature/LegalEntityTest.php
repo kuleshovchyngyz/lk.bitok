@@ -81,7 +81,7 @@ class LegalEntityTest extends TestCase
         $response->assertSessionDoesntHaveErrors(['name', 'address', 'director_full_name', 'birth_date', 'country_id']);    
     }
 
-    public function testStockStore()
+    public function testLegalEntityStockStore()
     {  
         $credentials = [
             'name' => 'New Company',
@@ -101,7 +101,7 @@ class LegalEntityTest extends TestCase
     
     }
 
-    public function testStockRequiredFields()
+    public function testLegalEntityStockRequiredFields()
     {  
         $credentials = [
             'stock' => 1,
@@ -154,9 +154,9 @@ class LegalEntityTest extends TestCase
     
     }
 
-    public function testStockUpdate()
+    public function testLegalEntityStockUpdate()
     {  
-        $legalEntity = LegalEntity::factory()->create(
+        $legalEntity = LegalEntity::create(
             [
                 'name' => 'New Company',
                 'address' => 'John Street 3',
@@ -198,24 +198,24 @@ class LegalEntityTest extends TestCase
     
     }
 
-    // // testing destroy method
-    // public function testAddedUserDestroy()
-    // {  
-    //     $legalEntity = LegalEntity::factory()->create(
-    //         [
-    //             'name' => 'New Company',
-    //             'director_full_name' => 'John Doe',
-    //             'birth_date' => '20/04/1981',
-    //             'country_id' => '2',
-    //             'address' => 'John Street 3',
-    //         ]
-    //     );
+    // testing destroy method
+    public function testLegalEntityDestroy()
+    {  
+        $legalEntity = LegalEntity::factory()->create(
+            [
+                'name' => 'New Company',
+                'director_full_name' => 'John Doe',
+                'birth_date' => '20/04/1981',
+                'country_id' => '2',
+                'address' => 'John Street 3',
+            ]
+        );
         
-    //     $response = $this->delete('api/legal-entities/'.$legalEntity->id);
+        $response = $this->delete('api/legal-entities/'.$legalEntity->id);
 
-    //     $response->assertStatus(204);
+        $response->assertStatus(204);
 
-    //     $this->assertModelMissing($legalEntity); // Assert that the data is stored in the database
+        $this->assertModelMissing($legalEntity); // Assert that the data is stored in the database
     
-    // }
+    }
 }
