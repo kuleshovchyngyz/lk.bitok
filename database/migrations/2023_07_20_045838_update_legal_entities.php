@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('bank_account')->nullable();
             $table->string('bank_name')->nullable();
             $table->string('swift')->nullable();
-            $table->string('account_code');
+            $table->string('account_code')->nullable();
         });
     }
 
