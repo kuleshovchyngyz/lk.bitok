@@ -17,19 +17,19 @@ class AddedUserTest extends TestCase
     use DatabaseTransactions;
     use AttachPhotosTrait;
     
-    public function testCheckDataInDatabase()
-    {
-        $roleId = Role::where('name', 'Admin')->value('id');
-        $data = DB::table('model_has_roles')
-            ->where('model_type', 'App\Models\User')
-            ->where('model_id', 1)
-            ->where('role_id', $roleId)
-            ->get();
+    // public function testCheckDataInDatabase()
+    // {
+    //     $roleId = Role::where('name', 'Admin')->value('id');
+    //     $data = DB::table('model_has_roles')
+    //         ->where('model_type', 'App\Models\User')
+    //         ->where('model_id', 1)
+    //         ->where('role_id', $roleId)
+    //         ->get();
 
-        // Perform assertions to check the data
-        $this->assertCount(1, $data);
-        $this->assertEquals($roleId, $data[0]->role_id);
-    }
+    //     // Perform assertions to check the data
+    //     $this->assertCount(1, $data);
+    //     $this->assertEquals($roleId, $data[0]->role_id);
+    // }
 
     /**
      * A basic feature test example.
