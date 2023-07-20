@@ -82,6 +82,10 @@ class LegalEntityController extends Controller
 
     public function update(StoreLegalEntityRequest $request, LegalEntity $legalEntity)
     {
+        // sending this event to logs in database
+        ActionLogger::log($legalEntity, 'LegalEntityController', 'update');
+        // end of sending event
+
         $legalEntity = DB::transaction(function () use ($request, $legalEntity) {
             $legalEntity->update(
                 Arr::except($request->validated(), ['cv_photo', 'cv_photo_bf', 'certificate_photo', 'licence_photo', 'permit_photo', 'passport_photo'])
@@ -89,10 +93,6 @@ class LegalEntityController extends Controller
             $this->attachPhotos($request, $legalEntity);
             return $legalEntity;
         });
-
-        // sending this event to logs in database
-        ActionLogger::log($legalEntity, 'LegalEntityController', 'update');
-        // end of sending event
 
         return new LegalResource($legalEntity);
     }
