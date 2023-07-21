@@ -353,6 +353,9 @@ class UserOperationTest extends TestCase
         $response = $this->postJson('api/user-operations/search', $credentialsToSearch);
 
         $response->assertStatus(200);
+        $this->assertDatabaseHas('user_operations', [
+            'legal_id' => $legalEntity->id
+        ]);
         
         $response->assertJson([
             [
