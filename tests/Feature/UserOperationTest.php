@@ -324,13 +324,13 @@ class UserOperationTest extends TestCase
     // testing search method with legal
     public function testUserOperationSearchWithLegal()
     {  
-        $legalEntity = LegalEntity::factory()->create(
+        $legalEntity = LegalEntity::create(
             [
                 'name' => 'TestCompany',
-                // 'director_full_name' => 'John Doe',
+                'director_full_name' => 'John Doe',
                 'birth_date' => '20/04/1981',
-                // 'country_id' => '2',
-                // 'address' => 'John Street 3',
+                'country_id' => '2',
+                'address' => 'John Street 3',
             ]
         );
         
