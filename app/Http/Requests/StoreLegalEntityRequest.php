@@ -53,7 +53,7 @@ class StoreLegalEntityRequest extends FormRequest
 
             'sanction'=> 'integer',
 
-            'stock'=> '',
+            'stock'=> (!$this->route('legal_entity')) ? 'required' : '',
             'iban'=> '',
             'bank_account'=> '',
             'bank_name'=> '',
