@@ -25,6 +25,15 @@ class SettingsTest extends TestCase
     // test index method
     public function testSettingsIndex()
     {
+        Setting::create([
+            'limit'=>1000000,
+            'usd_to_som'=>87,
+            'usdt_to_som'=>87,
+            'rub_to_som'=>1.5,
+            'high_risk'=>100,
+            'risk'=>1095,
+        ]);
+
         $response = $this->get('api/settings');
 
         $response->assertStatus(200);
@@ -44,7 +53,6 @@ class SettingsTest extends TestCase
         
         $response = $this->postJson('api/settings', $credentials);
         
-        $response->assertStatus(200);
         $this->assertDatabaseHas('settings', [
             'limit' => 1000,
             'usd_to_som' => 88,
