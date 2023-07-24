@@ -53,13 +53,23 @@ class UserOperationTest extends TestCase
     // testing store method
     public function testUserOperationStoreWithLegalId()
     {  
+        $legalEntity = LegalEntity::create(
+            [
+                'name' => 'New Company',
+                'director_full_name' => 'John Doe',
+                'birth_date' => '20/04/1981',
+                'country_id' => '2',
+                'address' => 'John Street 3',
+            ]
+        );
+
         $credentials = [
             'operation_date' => '30/11/2023 00:37',
             'operation_sum' => '2',
             'operation_direction' => 'Selling',
             'wallet_id' => '100000000',
             'currency' => 'USD',
-            'legal_id' => '1',
+            'legal_id' => $legalEntity->id,
         ];
         
         $response = $this->postJson('api/user-operations', $credentials);
@@ -71,7 +81,7 @@ class UserOperationTest extends TestCase
             'operation_direction' => 'Selling',
             'wallet_id' => '100000000',
             'currency' => 'USD',
-            'legal_id' => '1',
+            'legal_id' => $legalEntity->id,
         ]); // Assert that the data is stored in the database
     
     }
@@ -79,12 +89,13 @@ class UserOperationTest extends TestCase
     // testing store method
     public function testUserOperationStoreWithUserId()
     {  
-        $addedUser = AddedUser::factory()->create(
+        $addedUser = AddedUser::create(
             [
                 'last_name' => 'Doe',
                 'first_name' => 'John',
                 'middle_name' => 'Junior',
                 'birth_date' => '20/04/1981',
+                'hash' => md5('DoeJohnJunior20/04/1981'),
                 'country_id' => '2',
                 'pass_num_inn' => '21409200040835',
                 'passport_id' => '100000000',
@@ -122,12 +133,13 @@ class UserOperationTest extends TestCase
     // testing store method
     public function testUserOperationStoreFailWhenBothLegalIdAndUserId()
     {  
-        $addedUser = AddedUser::factory()->create(
+        $addedUser = AddedUser::create(
             [
                 'last_name' => 'Doe',
                 'first_name' => 'John',
                 'middle_name' => 'Junior',
                 'birth_date' => '20/04/1981',
+                'hash' => md5('DoeJohnJunior20/04/1981'),
                 'country_id' => '2',
                 'pass_num_inn' => '21409200040835',
                 'passport_id' => '100000000',
@@ -139,14 +151,24 @@ class UserOperationTest extends TestCase
                 'verification' => '1',
             ]
         );
-        
+
+        $legalEntity = LegalEntity::create(
+            [
+                'name' => 'New Company',
+                'director_full_name' => 'John Doe',
+                'birth_date' => '20/04/1981',
+                'country_id' => '2',
+                'address' => 'John Street 3',
+            ]
+        );
+
         $credentials = [
             'operation_date' => '30/11/2023 00:37',
             'operation_sum' => '2',
             'operation_direction' => 'Selling',
             'wallet_id' => '100000000',
             'currency' => 'USD',
-            'legal_id' => '1',
+            'legal_id' => $legalEntity->id,
             'user_id' => $addedUser->id,
         ];
         
@@ -154,7 +176,7 @@ class UserOperationTest extends TestCase
 
         $response->assertStatus(422); // Error when both legal_id and user_id are used
         $this->assertDatabaseMissing('user_operations', [
-            'legal_id' => '1',
+            'legal_id' => $legalEntity->id,
             'user_id' => $addedUser->id,
         ]); // Assert that the data is not stored in the database
     }
@@ -162,12 +184,13 @@ class UserOperationTest extends TestCase
     // testing update method
     public function testUserOperationUpdateWithUserId()
     {  
-        $addedUser = AddedUser::factory()->create(
+        $addedUser = AddedUser::create(
             [
                 'last_name' => 'Doe',
                 'first_name' => 'John',
                 'middle_name' => 'Junior',
                 'birth_date' => '20/04/1981',
+                'hash' => md5('DoeJohnJunior20/04/1981'),
                 'country_id' => '2',
                 'pass_num_inn' => '21409200040835',
                 'passport_id' => '100000000',
@@ -197,7 +220,6 @@ class UserOperationTest extends TestCase
             'operation_direction' => 'Buying',
             'wallet_id' => '100000000',
             'currency' => 'KGS',
-            'user_id' => $addedUser->id,
         ];
         
         $response = $this->put('api/user-operations/'.$userOperation->id, $newCredentials);
@@ -209,13 +231,22 @@ class UserOperationTest extends TestCase
             'operation_direction' => 'Buying',
             'wallet_id' => '100000000',
             'currency' => 'KGS',
-            'user_id' => $addedUser->id,
         ]); // Assert that the data is stored in the database
     }
 
     // testing update method
     public function testUserOperationUpdateWithLegalId()
     {  
+        $legalEntity = LegalEntity::create(
+            [
+                'name' => 'New Company',
+                'director_full_name' => 'John Doe',
+                'birth_date' => '20/04/1981',
+                'country_id' => '2',
+                'address' => 'John Street 3',
+            ]
+        );
+
         $userOperation = UserOperation::create(
             [
                 'operation_date' => '30/11/2023 00:37',
@@ -223,7 +254,7 @@ class UserOperationTest extends TestCase
                 'operation_direction' => 'Selling',
                 'wallet_id' => '100000000',
                 'currency' => 'USD',
-                'legal_id' => '1',
+                'legal_id' => $legalEntity->id,
             ]
         );
 
@@ -252,6 +283,16 @@ class UserOperationTest extends TestCase
     // testing destroy method
     public function testUserOperationDestroy()
     {  
+        $legalEntity = LegalEntity::create(
+            [
+                'name' => 'New Company',
+                'director_full_name' => 'John Doe',
+                'birth_date' => '20/04/1981',
+                'country_id' => '2',
+                'address' => 'John Street 3',
+            ]
+        );
+
         $userOperation = UserOperation::create(
             [
                 'operation_date' => '30/11/2023 00:37',
@@ -259,7 +300,7 @@ class UserOperationTest extends TestCase
                 'operation_direction' => 'Selling',
                 'wallet_id' => '100000000',
                 'currency' => 'USD',
-                'legal_id' => '1',
+                'legal_id' => $legalEntity->id,
             ]
         );
         
@@ -273,21 +314,22 @@ class UserOperationTest extends TestCase
     // testing search method with user
     public function testUserOperationSearchWithUser()
     {  
-        $addedUser = AddedUser::factory()->create(
+        $addedUser = AddedUser::create(
             [
                 'last_name' => 'SearchedDoe',
-                // 'first_name' => 'John',
-                // 'middle_name' => 'Junior',
+                'first_name' => 'John',
+                'middle_name' => 'Junior',
                 'birth_date' => '20/04/1981',
-                // 'country_id' => '2',
-                // 'pass_num_inn' => '21409200040935',
-                // 'passport_id' => '100000000',
-                // 'passport_authority' => 'Minstry Affairs',
-                // 'passport_authority_code' => '21309200000935',
+                'hash' => md5('SearchedDoeJohnJunior20/04/1981'),
+                'country_id' => '2',
+                'pass_num_inn' => '21409200040835',
+                'passport_id' => '100000000',
+                'passport_authority' => 'Minstry Affairs',
+                'passport_authority_code' => '21309200000935',
                 'passport_issued_at' => '20/04/2005',
                 'passport_expires_at' => '20/04/2015',
                 'verification_date' => '20/04/2015',
-                // 'verification' => '1',
+                'verification' => '1',
             ]
         );
 
