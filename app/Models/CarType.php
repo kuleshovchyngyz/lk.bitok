@@ -33,7 +33,7 @@ class CarType extends Model
                 ['car_marks.is_active', 1],
                 ['car_marks.car_type_id', $type_id],
                 ['car_generations.year_begin', '>=', 1990],
-                ['car_generations.year_end', '<=', 2022],
+                ['car_generations.year_end', '<=', date('Y')],
             ])
                 ->leftJoin('car_models', 'car_marks.id', '=', 'car_models.car_mark_id')
                 ->leftJoin('car_generations', 'car_models.id', '=', 'car_generations.car_model_id')

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\ImportLogResource;
 use App\Models\BlacklistLogs;
+use Database\Seeders\CarDatabaseSeeder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
@@ -95,5 +96,10 @@ class HomeController extends Controller
         return $fileContents;
     }
 
+    public function cars(){
+        dd(1212);
+        $carSeeder = new CarDatabaseSeeder();
+        $carSeeder->run();
+    }
 
 }

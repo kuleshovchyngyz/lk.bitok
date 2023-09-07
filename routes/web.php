@@ -21,6 +21,8 @@ use GuzzleHttp\Client;
 Route::get('/import2', [\App\Http\Controllers\HomeController::class,'import2']);
 Route::get('/import1', [\App\Http\Controllers\HomeController::class,'import1']);
 Route::get('/import', [\App\Http\Controllers\HomeController::class,'import']);
+//Route::get('/cars', [\App\Http\Controllers\HomeController::class,'cars']);
+
 Route::get('/', function () {
 //dd(1);
 //    $response = Http::withHeaders([

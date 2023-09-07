@@ -39,7 +39,7 @@ class UserOperationController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    
+
     public function index(Request $request, $id = null)
     {
         $this->authorize('viewAny', UserOperation::class);
@@ -75,7 +75,9 @@ class UserOperationController extends Controller
 
     public function store(StoreUserOperationRequest $request)
     {
-        $this->authorize('create', UserOperation::class);
+
+
+//        $this->authorize('create', UserOperation::class);
 
         return DB::transaction(function () use ($request) {
             $userOperation = UserOperation::create(Arr::except($request->validated(), ['wallet_photo']));
@@ -266,7 +268,7 @@ class UserOperationController extends Controller
             $perPage = 200; // Number of items per page
             $currentPage = Paginator::resolveCurrentPage('page');
             $sliced = $userOperation->slice(($currentPage - 1) * $perPage, $perPage)->values();
-            
+
             $pagination = new LengthAwarePaginator(
                 $sliced,
                 $userOperation->count(),
