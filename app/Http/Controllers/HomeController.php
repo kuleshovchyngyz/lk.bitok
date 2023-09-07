@@ -60,40 +60,6 @@ class HomeController extends Controller
     public function import()
     {
 
-//        $loginUrl = 'https://fiu.gov.kg/user/login';
-        $loginUrl = 'https://myparking.info/login';
-        $username = 'maksat607@gmail.com';
-        $password = 'password';
-//    $username = 'bitokkg';
-//    $password = '!@bitok2020';
-        $login = Http::asForm()->post($loginUrl, [
-            "email" => $username,
-            "password" => $password,
-            "_token" => "LgDS8iNhABx55uEvmIqj4muAa3kN26tq8gC6xGNK"
-        ]);
-        dump($login);
-        $sessionCookie = $login
-            ->cookies()
-            ->getCookieByName("myparkinginfo_session")
-            ->toArray();
-        dump($sessionCookie);
-        $sessionCookieName = $sessionCookie["Name"];
-        $sessionCookieValue = $sessionCookie["Value"];
-
-        $fileUrl = 'https://fiu.gov.kg/site/private';
-        $fileUrl = 'https://myparking.info/applications/2';
-//    $fileContents = Http::withCookies($cookieJar->toArray(),false)->get($fileUrl)->body();
-//
-//// Save the file to disk
-
-
-        $fileContents = Http::withHeaders([
-            "Cookie" => "myparkinginfo_session" . "=" . $sessionCookieValue,
-        ])->get($fileUrl)->body();
-
-        $filename = 'private_file.html';
-        file_put_contents($filename, $fileContents);
-        return $fileContents;
     }
 
     public function cars(){

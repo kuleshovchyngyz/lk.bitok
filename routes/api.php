@@ -55,7 +55,6 @@ Route::group(['prefix'=>'v1'],function () {
 
 
 
-    Route::get('marklist/{type}', [CarController::class, 'getCarMarkList']);
     Route::post('app', [CarController::class, 'applicationUpdateData']);
     Route::post('title', [CarController::class, 'carTitleData']);
     Route::post('get-cars', [CarController::class, 'getCars']);
