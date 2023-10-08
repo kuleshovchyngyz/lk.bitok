@@ -16,7 +16,8 @@ use Illuminate\Support\Facades\DB;
 
 class CarController extends Controller
 {
-    public function upload(Request $request){
+    public function upload(Request $request)
+    {
 
 //        return $request->all();
         $mX = intval($_REQUEST['x']);
@@ -25,23 +26,21 @@ class CarController extends Controller
         $mH = intval($_REQUEST['h']);
 
 
-
         header("Content-Type: image/jpg");
         @sleep(1);
-        @error_reporting ( E_ALL ^ E_WARNING ^ E_NOTICE );
-        @ini_set ( 'display_errors', true );
-        @ini_set ( 'html_errors', false );
-        @ini_set ( 'error_reporting', E_ALL ^ E_WARNING ^ E_NOTICE );
+        @error_reporting(E_ALL ^ E_WARNING ^ E_NOTICE);
+        @ini_set('display_errors', true);
+        @ini_set('html_errors', false);
+        @ini_set('error_reporting', E_ALL ^ E_WARNING ^ E_NOTICE);
 
-        define( 'CMSCORE', true );
-        define( 'ROOT_DIR', substr( dirname(  __FILE__ ), 0, -10 ) );
+        define('CMSCORE', true);
+        define('ROOT_DIR', substr(dirname(__FILE__), 0, -10));
 //        define( 'ENGINE_DIR', ROOT_DIR . '/core' );
-        define ( 'UPLOAD_DIR', public_path() . '/uploads/' );
+        define('UPLOAD_DIR', public_path() . '/uploads/');
 
 
-
-
-        function upload_images_resize_preview ($max_width, $max_height, $source_file, $dst_dir, $quality = 90) {
+        function upload_images_resize_preview($max_width, $max_height, $source_file, $dst_dir, $quality = 90)
+        {
             $imgsize = getimagesize($source_file);
             $width = $imgsize[0];
             $height = $imgsize[1];
@@ -104,12 +103,13 @@ class CarController extends Controller
 
 //usage example
 
-        function upload_images_random_name ($length=10) {
+        function upload_images_random_name($length = 10)
+        {
             $string = '';
             $characters = "23456789ABCDEFHJKLMNPRTVWXYZabcdefghijklmnopqrstuvwxyz";
 
             for ($p = 0; $p < $length; $p++) {
-                $string .= $characters[mt_rand(0, strlen($characters)-1)];
+                $string .= $characters[mt_rand(0, strlen($characters) - 1)];
             }
 
             return $string;
@@ -117,18 +117,18 @@ class CarController extends Controller
 
         $response = array();
 
-        $filePath = UPLOAD_DIR.''.$_REQUEST['filename'];
+        $filePath = UPLOAD_DIR . '' . $_REQUEST['filename'];
 
-        $extension = pathinfo( $filePath, PATHINFO_EXTENSION );
-        $new_filename = upload_images_random_name( 20 )  . '.' . $extension;
+        $extension = pathinfo($filePath, PATHINFO_EXTENSION);
+        $new_filename = upload_images_random_name(20) . '.' . $extension;
         $preview_width = 320; //ширина превью
         $preview_height = 240; //высота превью
 
-        $fileNewPath = UPLOAD_DIR.''.$new_filename;
-        $fileNewThumbPath = UPLOAD_DIR.'thumb_'.$new_filename;
+        $fileNewPath = UPLOAD_DIR . '' . $new_filename;
+        $fileNewThumbPath = UPLOAD_DIR . 'thumb_' . $new_filename;
 
 
-        $fileUrlThumb = $config['site_url'].'uploads/thumb_'.$new_filename;
+        $fileUrlThumb = $config['site_url'] . 'uploads/thumb_' . $new_filename;
 
         $mX = intval($_REQUEST['x']);
         $mY = intval($_REQUEST['y']);
@@ -162,9 +162,6 @@ class CarController extends Controller
         }
 
 
-
-
-
         $img1 = $image_create($filePath);
 
         $x = 200;
@@ -172,15 +169,15 @@ class CarController extends Controller
 
         $gd = $img1;
 
-        $corners[0] = array(50,   25);
-        $corners[1] = array(  25,  75);
-        $corners[2] = array( 100,  10);
-        $corners[3] = array( 150,  100);
+        $corners[0] = array(50, 25);
+        $corners[1] = array(25, 75);
+        $corners[2] = array(100, 10);
+        $corners[3] = array(150, 100);
 
         $values = array(
-            25,  75, // Point 2 (x, y)
-            50,  25,  // Point 1 (x, y)
-            100,  10,  // Point 3 (x, y)
+            25, 75, // Point 2 (x, y)
+            50, 25,  // Point 1 (x, y)
+            100, 10,  // Point 3 (x, y)
             150, 100,  // Point 4 (x, y)
         );
 
@@ -199,7 +196,6 @@ class CarController extends Controller
         $image_save($gd, $fileNewPath, $quality);
 
 
-
         $img2 = imagecreatetruecolor($mW, $mH); // create img2 for selection
 
         imagecopy($img2, $img1, 0, 0, $mX, $mY, $mW, $mH); // copy selection to img2
@@ -209,15 +205,13 @@ class CarController extends Controller
             array(2.0, 4.0, 2.0),
             array(1.0, 2.0, 1.0)
         );
-        for($i=0; $i<=100;$i++) {
-            if ($i%5==0) {//each 10th time apply 'IMG_FILTER_SMOOTH' with 'level of smoothness' set to -7
+        for ($i = 0; $i <= 100; $i++) {
+            if ($i % 5 == 0) {//each 10th time apply 'IMG_FILTER_SMOOTH' with 'level of smoothness' set to -7
                 imagefilter($img2, IMG_FILTER_SMOOTH, -7);
             }
             imagefilter($img2, IMG_FILTER_GAUSSIAN_BLUR);
             //imageconvolution($img2, $gaussian, 16, 0); // apply convolution to img2
         }
-
-
 
 
         imagecopymerge($img1, $img2, $mX, $mY, 0, 0, $mW, $mH, 100); // merge img2 in img1
@@ -236,6 +230,7 @@ class CarController extends Controller
         die();
 
     }
+
     public function carId(Request $request)
     {
         $type = CarType::where('name', $request->name)->firstOrFail();
@@ -366,7 +361,7 @@ class CarController extends Controller
         if ($application->car_generation_id) {
             $carSeriess = $carModel->getCarSeriesList($application->car_generation_id);
 //            $carSeriess = $this->getCarSeriesList(CarGeneration::find($application->car_generation_id));
-        } elseif($carModel) {
+        } elseif ($carModel) {
             $carSeriess = CarResource::collection($carModel->carSeries);
         }
         if ($application->car_series_id) {

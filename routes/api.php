@@ -25,10 +25,17 @@ use \App\Http\Controllers\Api\UserOperationController;
 Route::post('auth/register', [AuthController::class,'register']);
 Route::post('auth/login', [AuthController::class,'login']);
 
+Route::group(['middleware' => 'auth:sanctum', 'prefix' => 'v1'], function ($router) {
+    Route::post('/', function (){
+        dd(23);
+    });
+
+});
+
 
 Route::post('upload',[CarController::class,'upload']);
 
-Route::group(['prefix'=>'v1'],function () {
+Route::group(['middleware' => 'auth:sanctum', 'prefix' => 'v1'],function () {
 
     Route::get('cars',[CarController::class,'carId']);
 
