@@ -72,6 +72,10 @@ class RequestPayloadValueResolver implements ValueResolverInterface, EventSubscr
             return [];
         }
 
+        if ($argument->isVariadic()) {
+            throw new \LogicException(sprintf('Mapping variadic argument "$%s" is not supported.', $argument->getName()));
+        }
+
         $attribute->metadata = $argument;
 
         return [$attribute];
@@ -84,10 +88,10 @@ class RequestPayloadValueResolver implements ValueResolverInterface, EventSubscr
         foreach ($arguments as $i => $argument) {
             if ($argument instanceof MapQueryString) {
                 $payloadMapper = 'mapQueryString';
-                $validationFailedCode = Response::HTTP_NOT_FOUND;
+                $validationFailedCode = $argument->validationFailedStatusCode;
             } elseif ($argument instanceof MapRequestPayload) {
                 $payloadMapper = 'mapRequestPayload';
-                $validationFailedCode = Response::HTTP_UNPROCESSABLE_ENTITY;
+                $validationFailedCode = $argument->validationFailedStatusCode;
             } else {
                 continue;
             }
@@ -104,18 +108,22 @@ class RequestPayloadValueResolver implements ValueResolverInterface, EventSubscr
                 } catch (PartialDenormalizationException $e) {
                     $trans = $this->translator ? $this->translator->trans(...) : fn ($m, $p) => strtr($m, $p);
                     foreach ($e->getErrors() as $error) {
-                        $parameters = ['{{ type }}' => implode('|', $error->getExpectedTypes())];
+                        $parameters = [];
+                        $template = 'This value was of an unexpected type.';
+                        if ($expectedTypes = $error->getExpectedTypes()) {
+                            $template = 'This value should be of type {{ type }}.';
+                            $parameters['{{ type }}'] = implode('|', $expectedTypes);
+                        }
                         if ($error->canUseMessageForUser()) {
                             $parameters['hint'] = $error->getMessage();
                         }
-                        $template = 'This value should be of type {{ type }}.';
                         $message = $trans($template, $parameters, 'validators');
                         $violations->add(new ConstraintViolation($message, $template, $parameters, null, $error->getPath(), null));
                     }
                     $payload = $e->getData();
                 }
 
-                if (null !== $payload) {
+                if (null !== $payload && !\count($violations)) {
                     $violations->addAll($this->validator->validate($payload, null, $argument->validationGroups ?? null));
                 }
 
@@ -130,8 +138,12 @@ class RequestPayloadValueResolver implements ValueResolverInterface, EventSubscr
                 }
             }
 
-            if (null === $payload && !$argument->metadata->isNullable()) {
-                throw new HttpException($validationFailedCode);
+            if (null === $payload) {
+                $payload = match (true) {
+                    $argument->metadata->hasDefaultValue() => $argument->metadata->getDefaultValue(),
+                    $argument->metadata->isNullable() => null,
+                    default => throw new HttpException($validationFailedCode)
+                };
             }
 
             $arguments[$i] = $payload;
@@ -153,7 +165,7 @@ class RequestPayloadValueResolver implements ValueResolverInterface, EventSubscr
             return null;
         }
 
-        return $this->serializer->denormalize($data, $type, null, self::CONTEXT_DENORMALIZE + $attribute->serializationContext);
+        return $this->serializer->denormalize($data, $type, null, $attribute->serializationContext + self::CONTEXT_DENORMALIZE);
     }
 
     private function mapRequestPayload(Request $request, string $type, MapRequestPayload $attribute): ?object
@@ -167,7 +179,7 @@ class RequestPayloadValueResolver implements ValueResolverInterface, EventSubscr
         }
 
         if ($data = $request->request->all()) {
-            return $this->serializer->denormalize($data, $type, null, self::CONTEXT_DENORMALIZE + $attribute->serializationContext);
+            return $this->serializer->denormalize($data, $type, null, $attribute->serializationContext + self::CONTEXT_DENORMALIZE);
         }
 
         if ('' === $data = $request->getContent()) {

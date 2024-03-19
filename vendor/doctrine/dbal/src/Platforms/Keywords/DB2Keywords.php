@@ -1,8 +1,8 @@
 <?php
 
-namespace Doctrine\DBAL\Platforms\Keywords;
+declare(strict_types=1);
 
-use Doctrine\Deprecations\Deprecation;
+namespace Doctrine\DBAL\Platforms\Keywords;
 
 /**
  * DB2 Keywords.
@@ -10,25 +10,9 @@ use Doctrine\Deprecations\Deprecation;
 class DB2Keywords extends KeywordList
 {
     /**
-     * {@inheritdoc}
-     *
-     * @deprecated
+     * {@inheritDoc}
      */
-    public function getName()
-    {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/5433',
-            'DB2Keywords::getName() is deprecated.',
-        );
-
-        return 'DB2';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function getKeywords()
+    protected function getKeywords(): array
     {
         return [
             'ACTIVATE',

@@ -1,10 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Types;
 
 use DateTime;
-use DateTimeInterface;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Types\Exception\InvalidFormat;
+use Doctrine\DBAL\Types\Exception\InvalidType;
 
 /**
  * DateTime type saving additional timezone information.
@@ -25,59 +28,59 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 class DateTimeTzType extends Type implements PhpDateTimeMappingType
 {
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
-    public function getName()
-    {
-        return Types::DATETIMETZ_MUTABLE;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getSQLDeclaration(array $column, AbstractPlatform $platform)
+    public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
     {
         return $platform->getDateTimeTzTypeDeclarationSQL($column);
     }
 
     /**
-     * {@inheritdoc}
+     * @param T $value
+     *
+     * @return (T is null ? null : string)
+     *
+     * @template T
      */
-    public function convertToDatabaseValue($value, AbstractPlatform $platform)
+    public function convertToDatabaseValue(mixed $value, AbstractPlatform $platform): ?string
     {
         if ($value === null) {
             return $value;
         }
 
-        if ($value instanceof DateTimeInterface) {
+        if ($value instanceof DateTime) {
             return $value->format($platform->getDateTimeTzFormatString());
         }
 
-        throw ConversionException::conversionFailedInvalidType(
+        throw InvalidType::new(
             $value,
-            $this->getName(),
-            ['null', 'DateTime'],
+            static::class,
+            ['null', DateTime::class],
         );
     }
 
     /**
-     * {@inheritdoc}
+     * @param T $value
+     *
+     * @return (T is null ? null : DateTime)
+     *
+     * @template T
      */
-    public function convertToPHPValue($value, AbstractPlatform $platform)
+    public function convertToPHPValue(mixed $value, AbstractPlatform $platform): ?DateTime
     {
-        if ($value === null || $value instanceof DateTimeInterface) {
+        if ($value === null || $value instanceof DateTime) {
             return $value;
         }
 
-        $val = DateTime::createFromFormat($platform->getDateTimeTzFormatString(), $value);
-        if ($val === false) {
-            throw ConversionException::conversionFailedFormat(
-                $value,
-                $this->getName(),
-                $platform->getDateTimeTzFormatString(),
-            );
+        $dateTime = DateTime::createFromFormat($platform->getDateTimeTzFormatString(), $value);
+        if ($dateTime !== false) {
+            return $dateTime;
         }
 
-        return $val;
+        throw InvalidFormat::new(
+            $value,
+            static::class,
+            $platform->getDateTimeTzFormatString(),
+        );
     }
 }

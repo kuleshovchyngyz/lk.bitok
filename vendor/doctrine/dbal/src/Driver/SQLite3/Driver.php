@@ -1,24 +1,28 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Driver\SQLite3;
 
 use Doctrine\DBAL\Driver\AbstractSQLiteDriver;
-use Doctrine\DBAL\Driver\API\SQLite\UserDefinedFunctions;
+use SensitiveParameter;
 use SQLite3;
 
 final class Driver extends AbstractSQLiteDriver
 {
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
-    public function connect(array $params): Connection
-    {
-        $isMemory = (bool) ($params['memory'] ?? false);
+    public function connect(
+        #[SensitiveParameter]
+        array $params,
+    ): Connection {
+        $isMemory = $params['memory'] ?? false;
 
         if (isset($params['path'])) {
             if ($isMemory) {
                 throw new Exception(
-                    'Invalid connection settings: specifying both parameters "path" and "memory" ambiguous.',
+                    'Invalid connection settings: specifying both parameters "path" and "memory" is ambiguous.',
                 );
             }
 
@@ -38,8 +42,6 @@ final class Driver extends AbstractSQLiteDriver
         }
 
         $connection->enableExceptions(true);
-
-        UserDefinedFunctions::register([$connection, 'createFunction']);
 
         return new Connection($connection);
     }

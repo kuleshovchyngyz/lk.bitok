@@ -16,7 +16,7 @@ use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\Cache;
-use Symfony\Component\HttpKernel\Event\ControllerEvent;
+use Symfony\Component\HttpKernel\Event\ControllerArgumentsEvent;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
@@ -46,8 +46,10 @@ class CacheAttributeListener implements EventSubscriberInterface
 
     /**
      * Handles HTTP validation headers.
+     *
+     * @return void
      */
-    public function onKernelController(ControllerEvent $event)
+    public function onKernelControllerArguments(ControllerArgumentsEvent $event)
     {
         $request = $event->getRequest();
 
@@ -63,12 +65,12 @@ class CacheAttributeListener implements EventSubscriberInterface
         /** @var Cache[] $attributes */
         foreach ($attributes as $cache) {
             if (null !== $cache->lastModified) {
-                $lastModified = $this->getExpressionLanguage()->evaluate($cache->lastModified, $request->attributes->all());
+                $lastModified = $this->getExpressionLanguage()->evaluate($cache->lastModified, array_merge($request->attributes->all(), $event->getNamedArguments()));
                 ($response ??= new Response())->setLastModified($lastModified);
             }
 
             if (null !== $cache->etag) {
-                $etag = hash('sha256', $this->getExpressionLanguage()->evaluate($cache->etag, $request->attributes->all()));
+                $etag = hash('sha256', $this->getExpressionLanguage()->evaluate($cache->etag, array_merge($request->attributes->all(), $event->getNamedArguments())));
                 ($response ??= new Response())->setEtag($etag);
             }
         }
@@ -90,6 +92,8 @@ class CacheAttributeListener implements EventSubscriberInterface
 
     /**
      * Modifies the response to apply HTTP cache headers when needed.
+     *
+     * @return void
      */
     public function onKernelResponse(ResponseEvent $event)
     {
@@ -169,7 +173,7 @@ class CacheAttributeListener implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            KernelEvents::CONTROLLER => ['onKernelController', 10],
+            KernelEvents::CONTROLLER_ARGUMENTS => ['onKernelControllerArguments', 10],
             KernelEvents::RESPONSE => ['onKernelResponse', -10],
         ];
     }
