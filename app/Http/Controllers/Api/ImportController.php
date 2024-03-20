@@ -112,12 +112,12 @@ class ImportController extends Controller
                 ]);
                 $data = [];
                 foreach ($phpArray['PersonServedSentence'] as $key => $item) {
-                    $data[$key]['first_name'] = $item['Name'];
-                    $data[$key]['last_name'] = $item['Surname'];
-                    $data[$key]['middle_name'] = $item['Patronomic'];
-                    $data[$key]['PlaceBirth'] = $item['PlaceBirth'];
+                    $data[$key]['first_name'] = $item['Name'] ?: '';
+                    $data[$key]['last_name'] = $item['Surname'] ?: '';
+                    $data[$key]['middle_name'] = $item['Patronomic'] ?: '';
+                    $data[$key]['PlaceBirth'] = $item['PlaceBirth'] ?: '';
                     $data[$key]['birth_date'] = \Carbon\Carbon::parse($item['DataBirth']);
-                    $data[$key]['BasicInclusion'] = $item['BasicInclusion'];
+                    $data[$key]['BasicInclusion'] = $item['BasicInclusion'] ?: '';
                     $data[$key]['type'] = 'pft';
                     $data[$key]['country_id'] = 1;
                     $data[$key]['created_at'] = now();
@@ -127,7 +127,7 @@ class ImportController extends Controller
                 $size = count($data);
                 $inserted = \App\Models\BlackList::insert($data);
 
-                $bl->status = "Успешно обработан {$size} записей";
+                $bl->status = "Успешно обработано {$size} записей";
                 $bl->save();
                 \App\Models\BlackList::where('type', 'pft')->where('blacklist_log_id', '!=', $bl->id)->delete();
                 $addedUsers = BlackList::all();
@@ -164,7 +164,7 @@ class ImportController extends Controller
             DB::transaction(function () use ($phpArray, &$bl, $file) {
                 $bl = BlacklistLogs::create([
                     'file_name' => basename($file),
-                    'bl_name_code' => 'pldp',
+                    'bl_name_code' => 'plpd',
                     'bl_name' => 'Перечень лиц, групп, организаций...(ПЛПД)',
                     'status' => 'Ошибка в обработке',
                 ]);
@@ -172,11 +172,11 @@ class ImportController extends Controller
 
                 $data = [];
                 foreach ($phpArray['LegalizationPhysic'] as $key => $item) {
-                    $data[$key]['first_name'] = $item['Name'];
-                    $data[$key]['last_name'] = $item['Surname'];
-                    $data[$key]['middle_name'] = $item['Patronomic'];
+                    $data[$key]['first_name'] = $item['Name'] ?: '';
+                    $data[$key]['last_name'] = $item['Surname'] ?: '';
+                    $data[$key]['middle_name'] = $item['Patronomic'] ?: '';
                     $data[$key]['birth_date'] = \Carbon\Carbon::parse($item['DataBirth']);
-                    $data[$key]['BasicInclusion'] = $item['BasicInclusion'];
+                    $data[$key]['BasicInclusion'] = $item['BasicInclusion'] ?: '';
                     $data[$key]['type'] = 'plpd';
                     $data[$key]['country_id'] = 1;
                     $data[$key]['created_at'] = now();
@@ -187,9 +187,9 @@ class ImportController extends Controller
                 $size = count($data);
                 $inserted = \App\Models\BlackList::insert($data);
 
-                $bl->status = "Успешно обработан {$size} записей";
+                $bl->status = "Успешно обработано {$size} записей";
                 $bl->save();
-                \App\Models\BlackList::where('type', 'pldp')->where('blacklist_log_id', '!=', $bl->id)->delete();
+                \App\Models\BlackList::where('type', 'plpd')->where('blacklist_log_id', '!=', $bl->id)->delete();
                 $addedUsers = BlackList::all();
                 foreach ($addedUsers as $addedUser) {
                     $addedUser->hash = md5(trim($addedUser['last_name'] ?? null) . trim($addedUser['first_name'] ?? null) . trim($addedUser['middle_name'] ?? null) . trim($addedUser->birth_date->format('d/m/Y') ?? null));
@@ -240,7 +240,7 @@ class ImportController extends Controller
                 $size = count($data);
                 $inserted = \App\Models\BlackList::insert($data);
 
-                $bl->status = "Успешно обработан {$size} записей";
+                $bl->status = "Успешно обработано {$size} записей";
                 $bl->save();
                 \App\Models\BlackList::where('type', 'forall')->where('blacklist_log_id', '!=', $bl->id)->delete();
                 $addedUsers = BlackList::all();
@@ -310,7 +310,7 @@ class ImportController extends Controller
 
                 $inserted = \App\Models\BlackList::insert($data);
 
-                $bl->status = "Успешно обработан {$size} записей";
+                $bl->status = "Успешно обработано {$size} записей";
                 $bl->save();
                 \App\Models\BlackList::where('type', 'un')->where('blacklist_log_id', '!=', $bl->id)->delete();
                 $addedUsers = BlackList::all();
