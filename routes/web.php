@@ -71,8 +71,8 @@ Route::get('/', function () {
 //    $filename = 'private_file.html';
 //    file_put_contents($filename, $fileContents);
 
-    phpinfo();
-    return view('welcome');
+    // phpinfo();
+    return '';
 });
 
 Route::get('/pft', [\App\Http\Controllers\Api\ImportController::class,'pft']);
