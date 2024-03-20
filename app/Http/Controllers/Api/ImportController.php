@@ -77,7 +77,7 @@ class ImportController extends Controller
      *      )
      * )
      */
-
+    
     public function import()
     {
         $logs = ImportLogResource::collection(BlacklistLogs::orderBy('created_at', 'desc')->get());
@@ -91,59 +91,10 @@ class ImportController extends Controller
         return compact('logs', 'values');
     }
 
-//     public function pft($file)
-//     {
-// //        $file = public_path('blacklist') . '/63c7b7007b0e1.xml';
-
-//         $xmlString = file_get_contents($file);
-//         $xmlObject = simplexml_load_string($xmlString);
-
-//         $json = json_encode($xmlObject);
-
-//         $phpArray = json_decode($json, true);
-//         try {
-//             $bl = null;
-//             DB::transaction(function () use ($phpArray, &$bl, $file,) {
-//                 $bl = BlacklistLogs::create([
-//                     'file_name' => basename($file),
-//                     'bl_name_code' => 'pft',
-//                     'bl_name' => 'Перечень физических лиц...(ПФТ)',
-//                     'status' => 'Ошибка в обработке',
-//                 ]);
-//                 $data = [];
-//                 foreach ($phpArray['PersonServedSentence'] as $key => $item) {
-//                     $data[$key]['first_name'] = $item['Name'];
-//                     $data[$key]['last_name'] = $item['Surname'];
-//                     $data[$key]['middle_name'] = $item['Patronomic'];
-//                     $data[$key]['PlaceBirth'] = $item['PlaceBirth'];
-//                     $data[$key]['birth_date'] = \Carbon\Carbon::parse($item['DataBirth']);
-//                     $data[$key]['BasicInclusion'] = $item['BasicInclusion'];
-//                     $data[$key]['type'] = 'pft';
-//                     $data[$key]['country_id'] = 1;
-//                     $data[$key]['created_at'] = now();
-//                     $data[$key]['updated_at'] = now();
-//                     $data[$key]['blacklist_log_id'] = $bl->id;
-//                 }
-//                 $size = count($data);
-//                 $inserted = \App\Models\BlackList::insert($data);
-
-//                 $bl->status = "Успешно обработан {$size} записей";
-//                 $bl->save();
-//                 \App\Models\BlackList::where('type', 'pft')->where('blacklist_log_id', '!=', $bl->id)->delete();
-//                 $addedUsers = BlackList::all();
-//                 foreach ($addedUsers as $addedUser) {
-//                     $addedUser->hash = md5(trim($addedUser['last_name'] ?? null) . trim($addedUser['first_name'] ?? null) . trim($addedUser['middle_name'] ?? null) . trim($addedUser->birth_date->format('d/m/Y') ?? null));
-//                     $addedUser->save();
-//                 }
-//             });
-//             return new ImportLogResource($bl);
-//         } catch (\Exception $e) {
-//             return 'Error: ' . $e->getMessage();
-//         }
-
-//     }
     public function pft($file)
     {
+//        $file = public_path('blacklist') . '/63c7b7007b0e1.xml';
+
         $xmlString = file_get_contents($file);
         $xmlObject = simplexml_load_string($xmlString);
 
@@ -160,14 +111,12 @@ class ImportController extends Controller
                     'status' => 'Ошибка в обработке',
                 ]);
                 $data = [];
-                foreach ($phpArray['physicPersons']['KyrgyzPhysicPerson'] as $key => $item) {
-                    $birthDate = explode(',', $item['DataBirth'])[0];
-
+                foreach ($phpArray['PersonServedSentence'] as $key => $item) {
                     $data[$key]['first_name'] = $item['Name'];
                     $data[$key]['last_name'] = $item['Surname'];
                     $data[$key]['middle_name'] = $item['Patronomic'];
                     $data[$key]['PlaceBirth'] = $item['PlaceBirth'];
-                    $data[$key]['birth_date'] = \Carbon\Carbon::parse($birthDate);
+                    $data[$key]['birth_date'] = \Carbon\Carbon::parse($item['DataBirth']);
                     $data[$key]['BasicInclusion'] = $item['BasicInclusion'];
                     $data[$key]['type'] = 'pft';
                     $data[$key]['country_id'] = 1;
@@ -176,8 +125,7 @@ class ImportController extends Controller
                     $data[$key]['blacklist_log_id'] = $bl->id;
                 }
                 $size = count($data);
-                // $inserted = \App\Models\BlackList::insert($data);
-                $inserted = DB::table('black_lists')->insert($data);
+                $inserted = \App\Models\BlackList::insert($data);
 
                 $bl->status = "Успешно обработан {$size} записей";
                 $bl->save();
@@ -364,7 +312,7 @@ class ImportController extends Controller
 
                 $bl->status = "Успешно обработан {$size} записей";
                 $bl->save();
-                \App\Models\BlackList::where('type', 'forall')->where('blacklist_log_id', '!=', $bl->id)->delete();
+                \App\Models\BlackList::where('type', 'un')->where('blacklist_log_id', '!=', $bl->id)->delete();
                 $addedUsers = BlackList::all();
                 foreach ($addedUsers as $addedUser) {
                     $addedUser->hash = md5(trim($addedUser['last_name'] ?? null) . trim($addedUser['first_name'] ?? null) . trim($addedUser['middle_name'] ?? null) . trim($addedUser->birth_date->format('d/m/Y') ?? null));
