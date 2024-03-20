@@ -11,8 +11,46 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use SimpleXMLElement;
 
+/**
+ * @OA\Tag(
+ *     name="Import",
+ *     description="Импорт"
+ * )
+ */
 class ImportController extends Controller
 {
+    /** 
+     * @OA\Post(
+     *      path="/api/import",
+     *      operationId="import",
+     *      tags={"Import"},
+     *      summary="Импорт",
+     *      description="Импорт",
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\MediaType(
+     *              mediaType="multipart/form-data",
+     *              @OA\Schema(
+     *                  type="object",
+     *                  @OA\Property(
+     *                      property="file",
+     *                      type="file",
+     *                      description="Файл",
+     *                  ),
+     *                  @OA\Property(
+     *                      property="type",
+     *                      type="string",
+     *                      description="Тип",
+     *                  ),
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="OK",
+     *      )
+     * )
+    */
     public function upload(Request $request)
     {
         if ($request->hasFile('file')) {
@@ -26,6 +64,20 @@ class ImportController extends Controller
         return 'no file found';
     }
 
+    /**
+     * @OA\Get(
+     *      path="/api/import",
+     *      operationId="importLogs",
+     *      tags={"Import"},
+     *      summary="Логи импорта",
+     *      description="Логи импорта",
+     *      @OA\Response(
+     *          response=200,
+     *          description="OK",
+     *      )
+     * )
+     */
+    
     public function import()
     {
         $logs = ImportLogResource::collection(BlacklistLogs::orderBy('created_at', 'desc')->get());
@@ -260,7 +312,7 @@ class ImportController extends Controller
 
                 $bl->status = "Успешно обработан {$size} записей";
                 $bl->save();
-                \App\Models\BlackList::where('type', 'forall')->where('blacklist_log_id', '!=', $bl->id)->delete();
+                \App\Models\BlackList::where('type', 'un')->where('blacklist_log_id', '!=', $bl->id)->delete();
                 $addedUsers = BlackList::all();
                 foreach ($addedUsers as $addedUser) {
                     $addedUser->hash = md5(trim($addedUser['last_name'] ?? null) . trim($addedUser['first_name'] ?? null) . trim($addedUser['middle_name'] ?? null) . trim($addedUser->birth_date->format('d/m/Y') ?? null));

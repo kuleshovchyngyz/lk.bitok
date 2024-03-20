@@ -167,6 +167,41 @@ class ExportPostmanTest extends TestCase
         $this->assertCount(1, $fields->where('key', 'field_6')->where('description', 'in:"1","2","3"'));
     }
 
+    public function test_rules_printing_get_export_works()
+    {
+        config([
+            'api-postman.enable_formdata' => true,
+            'api-postman.print_rules' => true,
+            'api-postman.rules_to_human_readable' => false,
+        ]);
+
+        $this->artisan('export:postman')->assertExitCode(0);
+
+        $this->assertTrue(true);
+
+        $collection = collect(json_decode(Storage::get('postman/'.config('api-postman.filename')), true)['item']);
+
+        $targetRequest = $collection
+            ->where('name', 'example/getWithFormRequest')
+            ->first();
+
+        $fields = collect($targetRequest['request']['url']['query']);
+        $this->assertCount(1, $fields->where('key', 'field_1')->where('description', 'required'));
+        $this->assertCount(1, $fields->where('key', 'field_2')->where('description', 'required, integer'));
+        $this->assertCount(1, $fields->where('key', 'field_5')->where('description', 'required, integer, max:30, min:1'));
+        $this->assertCount(1, $fields->where('key', 'field_6')->where('description', 'in:"1","2","3"'));
+
+        // Check for the required structure of the get request query
+        foreach ($fields as $field) {
+            $this->assertEqualsCanonicalizing([
+                'key' => $field['key'],
+                'value' => null,
+                'disabled' => false,
+                'description' => $field['description']
+            ], $field);
+        }
+    }
+
     public function test_rules_printing_export_to_human_readable_works()
     {
         config([
@@ -187,11 +222,11 @@ class ExportPostmanTest extends TestCase
 
         $fields = collect($targetRequest['request']['body']['urlencoded']);
         $this->assertCount(1, $fields->where('key', 'field_1')->where('description', 'The field 1 field is required.'));
-        $this->assertCount(1, $fields->where('key', 'field_2')->where('description', 'The field 2 field is required., The field 2 must be an integer.'));
-        $this->assertCount(1, $fields->where('key', 'field_3')->where('description', '(Optional), The field 3 must be an integer.'));
-        $this->assertCount(1, $fields->where('key', 'field_4')->where('description', '(Nullable), The field 4 must be an integer.'));
+        $this->assertCount(1, $fields->where('key', 'field_2')->where('description', 'The field 2 field is required., The field 2 field must be an integer.'));
+        $this->assertCount(1, $fields->where('key', 'field_3')->where('description', '(Optional), The field 3 field must be an integer.'));
+        $this->assertCount(1, $fields->where('key', 'field_4')->where('description', '(Nullable), The field 4 field must be an integer.'));
         // the below fails locally, but passes on GitHub actions?
-        $this->assertCount(1, $fields->where('key', 'field_5')->where('description', 'The field 5 field is required., The field 5 must be an integer., The field 5 must not be greater than 30., The field 5 must be at least 1.'));
+        $this->assertCount(1, $fields->where('key', 'field_5')->where('description', 'The field 5 field is required., The field 5 field must be an integer., The field 5 field must not be greater than 30., The field 5 field must be at least 1.'));
 
         /** This looks bad, but this is the default message in lang/en/validation.php, you can update to:.
          *
@@ -200,7 +235,7 @@ class ExportPostmanTest extends TestCase
         $this->assertCount(1, $fields->where('key', 'field_6')->where('description', 'The selected field 6 is invalid.'));
         $this->assertCount(1, $fields->where('key', 'field_7')->where('description', 'The field 7 field is required.'));
         $this->assertCount(1, $fields->where('key', 'field_8')->where('description', 'validation.'));
-        $this->assertCount(1, $fields->where('key', 'field_9')->where('description', 'The field 9 field is required., The field 9 must be a string.'));
+        $this->assertCount(1, $fields->where('key', 'field_9')->where('description', 'The field 9 field is required., The field 9 field must be a string.'));
     }
 
     public function test_event_export_works()
@@ -231,7 +266,26 @@ class ExportPostmanTest extends TestCase
         }
     }
 
-    public function providerFormDataEnabled(): array
+    public function test_php_doc_comment_export()
+    {
+        config([
+            'api-postman.include_doc_comments' => true,
+        ]);
+
+        $this->artisan('export:postman')->assertExitCode(0);
+
+        $this->assertTrue(true);
+
+        $collection = collect(json_decode(Storage::get('postman/'.config('api-postman.filename')), true)['item']);
+
+        $targetRequest = $collection
+            ->where('name', 'example/phpDocRoute')
+            ->first();
+
+        $this->assertEquals($targetRequest['request']['description'], 'This is the php doc route. Which is also multi-line. and has a blank line.');
+    }
+
+    public static function providerFormDataEnabled(): array
     {
         return [
             [

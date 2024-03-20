@@ -1,44 +1,34 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Driver\Middleware;
 
 use Doctrine\DBAL\Driver\Result;
 
 abstract class AbstractResultMiddleware implements Result
 {
-    private Result $wrappedResult;
-
-    public function __construct(Result $result)
+    public function __construct(private readonly Result $wrappedResult)
     {
-        $this->wrappedResult = $result;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function fetchNumeric()
+    public function fetchNumeric(): array|false
     {
         return $this->wrappedResult->fetchNumeric();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function fetchAssociative()
+    public function fetchAssociative(): array|false
     {
         return $this->wrappedResult->fetchAssociative();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function fetchOne()
+    public function fetchOne(): mixed
     {
         return $this->wrappedResult->fetchOne();
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function fetchAllNumeric(): array
     {
@@ -46,7 +36,7 @@ abstract class AbstractResultMiddleware implements Result
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function fetchAllAssociative(): array
     {
@@ -54,14 +44,14 @@ abstract class AbstractResultMiddleware implements Result
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function fetchFirstColumn(): array
     {
         return $this->wrappedResult->fetchFirstColumn();
     }
 
-    public function rowCount(): int
+    public function rowCount(): int|string
     {
         return $this->wrappedResult->rowCount();
     }

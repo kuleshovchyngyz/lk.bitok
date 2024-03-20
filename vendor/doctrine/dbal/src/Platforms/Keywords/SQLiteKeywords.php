@@ -1,8 +1,8 @@
 <?php
 
-namespace Doctrine\DBAL\Platforms\Keywords;
+declare(strict_types=1);
 
-use Doctrine\Deprecations\Deprecation;
+namespace Doctrine\DBAL\Platforms\Keywords;
 
 /**
  * SQLite Keywordlist.
@@ -10,25 +10,9 @@ use Doctrine\Deprecations\Deprecation;
 class SQLiteKeywords extends KeywordList
 {
     /**
-     * {@inheritdoc}
-     *
-     * @deprecated
+     * {@inheritDoc}
      */
-    public function getName()
-    {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/5433',
-            'SQLiteKeywords::getName() is deprecated.',
-        );
-
-        return 'SQLite';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function getKeywords()
+    protected function getKeywords(): array
     {
         return [
             'ABORT',

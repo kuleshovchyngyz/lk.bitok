@@ -1,10 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Platforms\SQLServer;
 
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Schema\Comparator as BaseComparator;
 use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Schema\TableDiff;
 
 /**
  * Compares schemas in the context of SQL Server platform.
@@ -13,32 +16,24 @@ use Doctrine\DBAL\Schema\Table;
  */
 class Comparator extends BaseComparator
 {
-    private string $databaseCollation;
-
     /** @internal The comparator can be only instantiated by a schema manager. */
-    public function __construct(SQLServerPlatform $platform, string $databaseCollation)
+    public function __construct(SQLServerPlatform $platform, private readonly string $databaseCollation)
     {
         parent::__construct($platform);
-
-        $this->databaseCollation = $databaseCollation;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function diffTable(Table $fromTable, Table $toTable)
+    public function compareTables(Table $oldTable, Table $newTable): TableDiff
     {
-        $fromTable = clone $fromTable;
-        $toTable   = clone $toTable;
-
-        $this->normalizeColumns($fromTable);
-        $this->normalizeColumns($toTable);
-
-        return parent::diffTable($fromTable, $toTable);
+        return parent::compareTables(
+            $this->normalizeColumns($oldTable),
+            $this->normalizeColumns($newTable),
+        );
     }
 
-    private function normalizeColumns(Table $table): void
+    private function normalizeColumns(Table $table): Table
     {
+        $table = clone $table;
+
         foreach ($table->getColumns() as $column) {
             $options = $column->getPlatformOptions();
 
@@ -49,5 +44,7 @@ class Comparator extends BaseComparator
             unset($options['collation']);
             $column->setPlatformOptions($options);
         }
+
+        return $table;
     }
 }

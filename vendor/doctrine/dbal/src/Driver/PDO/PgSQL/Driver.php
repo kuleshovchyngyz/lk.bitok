@@ -1,32 +1,37 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Driver\PDO\PgSQL;
 
 use Doctrine\DBAL\Driver\AbstractPostgreSQLDriver;
 use Doctrine\DBAL\Driver\PDO\Connection;
 use Doctrine\DBAL\Driver\PDO\Exception;
-use Doctrine\Deprecations\Deprecation;
 use PDO;
 use PDOException;
+use SensitiveParameter;
 
 final class Driver extends AbstractPostgreSQLDriver
 {
     /**
-     * {@inheritdoc}
-     *
-     * @return Connection
+     * {@inheritDoc}
      */
-    public function connect(array $params)
-    {
+    public function connect(
+        #[SensitiveParameter]
+        array $params,
+    ): Connection {
         $driverOptions = $params['driverOptions'] ?? [];
 
         if (! empty($params['persistent'])) {
             $driverOptions[PDO::ATTR_PERSISTENT] = true;
         }
 
+        $safeParams = $params;
+        unset($safeParams['password']);
+
         try {
             $pdo = new PDO(
-                $this->constructPdoDsn($params),
+                $this->constructPdoDsn($safeParams),
                 $params['user'] ?? '',
                 $params['password'] ?? '',
                 $driverOptions,
@@ -57,7 +62,7 @@ final class Driver extends AbstractPostgreSQLDriver
     /**
      * Constructs the Postgres PDO DSN.
      *
-     * @param mixed[] $params
+     * @param array<string, mixed> $params
      */
     private function constructPdoDsn(array $params): string
     {
@@ -73,27 +78,6 @@ final class Driver extends AbstractPostgreSQLDriver
 
         if (isset($params['dbname'])) {
             $dsn .= 'dbname=' . $params['dbname'] . ';';
-        } elseif (isset($params['default_dbname'])) {
-            Deprecation::trigger(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/pull/5705',
-                'The "default_dbname" connection parameter is deprecated. Use "dbname" instead.',
-            );
-
-            $dsn .= 'dbname=' . $params['default_dbname'] . ';';
-        } else {
-            if (isset($params['user']) && $params['user'] !== 'postgres') {
-                Deprecation::trigger(
-                    'doctrine/dbal',
-                    'https://github.com/doctrine/dbal/pull/5705',
-                    'Relying on the DBAL connecting to the "postgres" database by default is deprecated.'
-                        . ' Unless you want to have the server determine the default database for the connection,'
-                        . ' specify the database name explicitly.',
-                );
-            }
-
-            // Used for temporary connections to allow operations like dropping the database currently connected to.
-            $dsn .= 'dbname=postgres;';
         }
 
         if (isset($params['sslmode'])) {
@@ -118,6 +102,10 @@ final class Driver extends AbstractPostgreSQLDriver
 
         if (isset($params['application_name'])) {
             $dsn .= 'application_name=' . $params['application_name'] . ';';
+        }
+
+        if (isset($params['gssencmode'])) {
+            $dsn .= 'gssencmode=' . $params['gssencmode'] . ';';
         }
 
         return $dsn;

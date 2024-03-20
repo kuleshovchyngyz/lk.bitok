@@ -1,0 +1,67 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Bitok KG APIs",
+        "description": "Апишки для lk.bitok.kg",
+        "contact": {
+            "email": "azamailnet@gmail.com"
+        },
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/api/import": {
+            "get": {
+                "tags": [
+                    "Import"
+                ],
+                "summary": "Логи импорта",
+                "description": "Логи импорта",
+                "operationId": "importLogs",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Import"
+                ],
+                "summary": "Импорт",
+                "description": "Импорт",
+                "operationId": "import",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "file": {
+                                        "description": "Файл",
+                                        "type": "file"
+                                    },
+                                    "type": {
+                                        "description": "Тип",
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Import",
+            "description": "Импорт"
+        }
+    ]
+}
