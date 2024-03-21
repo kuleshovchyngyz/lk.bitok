@@ -10,6 +10,13 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
+/**
+ * @OA\Tag(
+ *     name="Auth",
+ *     description="Авторизация"
+ * )
+ */
+
 class AuthController extends Controller
 {
     public function register(Request $request)
@@ -30,6 +37,37 @@ class AuthController extends Controller
             return response()->json(['access_token' => $token, 'token_type' => 'Bearer','role' => $role->roles[0]->name]);
         }
     }
+
+    /**
+     * @OA\Post(
+     *      path="/api/auth/login",
+     *      operationId="login",
+     *      tags={"Auth"},
+     *      summary="Логин",
+     *      description="Логин",
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  type="object",
+     *                  @OA\Property(
+     *                      property="email",
+     *                      type="string"
+     *                  ),
+     *                  @OA\Property(
+     *                      property="password",
+     *                      type="string"
+     *                  ),
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="OK"
+     *      )
+     * )
+     */
 
     public function login(Request $request)
     {

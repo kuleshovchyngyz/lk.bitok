@@ -23,6 +23,12 @@ use App\Http\Requests\StoreAddedUserRequest;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
+/**
+ * @OA\Tag(
+ *     name="AddedUsers",
+ *     description="Клиенты"
+ * )
+ */
 class AddedUserController extends Controller
 {
     use AttachPhotosTrait;
@@ -36,6 +42,31 @@ class AddedUserController extends Controller
      * Display a listing of the resource.
      *
      * @return AnonymousResourceCollection
+     */
+
+    /**
+     * @OA\Get(
+     *     path="/api/added-users",
+     *     operationId="addedUsers",
+     *     tags={"AddedUsers"},
+     *     summary="Получить список клиентов",
+     *     security={{"bearerAuth": {}}},
+     *     @OA\Parameter(
+     *         name="risk",
+     *         in="query",
+     *         required=false,
+     *         description="Фильтр по риску",
+     *         @OA\Schema(
+     *             type="string",
+     *             enum={"low", "medium", "high"}
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="OK",
+     *         @OA\JsonContent()
+     *     )
+     * )
      */
 
     public function index(Request $request, Country $country)
