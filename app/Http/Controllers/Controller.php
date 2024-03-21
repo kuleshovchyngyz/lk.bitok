@@ -16,6 +16,12 @@ use Illuminate\Routing\Controller as BaseController;
  *          email="azamailnet@gmail.com"
  *      )
  * )
+ * 
+ * @OA\SecurityScheme(
+ *      securityScheme="bearerAuth",
+ *      type="http",
+ *      scheme="bearer"
+ * )
  */
 class Controller extends BaseController
 {

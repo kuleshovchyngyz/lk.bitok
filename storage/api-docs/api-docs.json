@@ -9,6 +9,79 @@
         "version": "1.0.0"
     },
     "paths": {
+        "/api/added-users": {
+            "get": {
+                "tags": [
+                    "AddedUsers"
+                ],
+                "summary": "Получить список клиентов",
+                "operationId": "addedUsers",
+                "parameters": [
+                    {
+                        "name": "risk",
+                        "in": "query",
+                        "description": "Фильтр по риску",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "low",
+                                "medium",
+                                "high"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/auth/login": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Логин",
+                "description": "Логин",
+                "operationId": "login",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "email": {
+                                        "type": "string"
+                                    },
+                                    "password": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
         "/api/import": {
             "get": {
                 "tags": [
@@ -58,7 +131,23 @@
             }
         }
     },
+    "components": {
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "scheme": "bearer"
+            }
+        }
+    },
     "tags": [
+        {
+            "name": "AddedUsers",
+            "description": "Клиенты"
+        },
+        {
+            "name": "Auth",
+            "description": "Авторизация"
+        },
         {
             "name": "Import",
             "description": "Импорт"
