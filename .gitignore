@@ -1,5 +1,4 @@
 /vendor
-/node_modules
 /public/blacklist
 /public/build
 /public/hot
