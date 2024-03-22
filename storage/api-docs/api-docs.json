@@ -49,6 +49,56 @@
                 ]
             }
         },
+        "/api/added-users/search": {
+            "post": {
+                "tags": [
+                    "AddedUsers"
+                ],
+                "summary": "Поиск клиентов",
+                "description": "Поиск клиентов",
+                "operationId": "searchAddedUsers",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "page": {
+                                        "description": "Страница",
+                                        "type": "integer",
+                                        "default": 1
+                                    },
+                                    "name": {
+                                        "description": "Имя",
+                                        "type": "string",
+                                        "example": "Иван"
+                                    },
+                                    "date1": {
+                                        "type": "string",
+                                        "example": "01/01/2022"
+                                    },
+                                    "date2": {
+                                        "type": "string",
+                                        "example": "01/01/2023"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/auth/login": {
             "post": {
                 "tags": [
@@ -80,6 +130,46 @@
                         "description": "OK"
                     }
                 }
+            }
+        },
+        "/api/auth/me": {
+            "get": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Мои данные",
+                "description": "Мои данные",
+                "operationId": "me",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/auth/logout": {
+            "get": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Выход",
+                "description": "Выход",
+                "operationId": "logout",
+                "responses": {
+                    "204": {
+                        "description": "OK"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             }
         },
         "/api/import": {

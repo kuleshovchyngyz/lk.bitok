@@ -81,10 +81,39 @@ class AuthController extends Controller
         return response()->json(['access_token' => $token, 'token_type' => 'Bearer',]);
     }
 
+    /**
+     * @OA\Get(
+     *      path="/api/auth/me",
+     *      operationId="me",
+     *      tags={"Auth"},
+     *      summary="Мои данные",
+     *      description="Мои данные",
+     *      security={{"bearerAuth": {}}},
+     *      @OA\Response(
+     *          response=200,
+     *          description="OK"
+     *      )
+     * )
+     */
     public function me(Request $request)
     {
         return new UserResource($request->user());
     }
+
+    /**
+     * @OA\Get(
+     *      path="/api/auth/logout",
+     *      operationId="logout",
+     *      tags={"Auth"},
+     *      summary="Выход",
+     *      description="Выход",
+     *      security={{"bearerAuth": {}}},
+     *      @OA\Response(
+     *          response=204,
+     *          description="OK"
+     *      )
+     * )
+     */
     public function logout(Request $request)
     {
         \auth()->user()->currentAccessToken()->delete();
