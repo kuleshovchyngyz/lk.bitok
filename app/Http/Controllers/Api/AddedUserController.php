@@ -216,38 +216,84 @@ class AddedUserController extends Controller
         return response()->noContent();
     }
 
+    /**
+     * @OA\Post(
+     *      path="/api/added-users/search",
+     *      operationId="searchAddedUsers",
+     *      tags={"AddedUsers"},
+     *      summary="Поиск клиентов",
+     *      description="Поиск клиентов",
+     *      security={{"bearerAuth":{}}},
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  type="object",
+     *                  @OA\Property(
+     *                      property="page",
+     *                      type="integer",
+     *                      description="Страница",
+     *                      default=1,
+     *                  ),
+     *                  @OA\Property(
+     *                      property="name",
+     *                      type="string",
+     *                      description="Имя",
+     *                      example="Иван",
+     *                  ),
+     *                  @OA\Property(
+     *                      property="date1",
+     *                      type="string",
+     *                      example="01/01/2022",
+     *                  ),
+     *                  @OA\Property(
+     *                      property="date1",
+     *                      type="string",
+     *                      example="01/01/2023",
+     *                  ),
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="OK"
+     *      )
+     * )
+     */
+
     public function search(Request $request)
     {
         $this->authorize('viewAny', AddedUser::class);
         
-        if (!$request->all() || ($request->filled('page') && $request->keys() === ['page'])) {
+        // if (!$request->all() || ($request->filled('page') && $request->keys() === ['page'])) {
 
-            $country = Country::all();
+        //     $country = Country::all();
 
-            $limit = 100;
+        //     $limit = 100;
     
-            if (isset($country['id'])) {
-                $addedUsers = $country->addedUsers()->paginate($limit);
-            } elseif ($request->has('risk')) {
-                $addedUsers = AddedUser::with(['country'])
-                    ->where('sanction', $request->get('risk'))
-                    ->orderBy('created_at', 'desc')
-                    ->paginate($limit);
-            } else {
-                $addedUsers = AddedUser::with(['country'])
-                    ->orderBy('created_at', 'desc')
-                    ->paginate($limit);
-            }
+        //     if (isset($country['id'])) {
+        //         $addedUsers = $country->addedUsers()->paginate($limit);
+        //     } elseif ($request->has('risk')) {
+        //         $addedUsers = AddedUser::with(['country'])
+        //             ->where('sanction', $request->get('risk'))
+        //             ->orderBy('created_at', 'desc')
+        //             ->paginate($limit);
+        //     } else {
+        //         $addedUsers = AddedUser::with(['country'])
+        //             ->orderBy('created_at', 'desc')
+        //             ->paginate($limit);
+        //     }
             
-            $page = AddedUserResource::collection($addedUsers);
+        //     $page = AddedUserResource::collection($addedUsers);
             
-            return response()->json([
-                $addedUsers->items(),
-                ['previousPageUrl' => $addedUsers->previousPageUrl(),
-                'nextPageUrl' => $addedUsers->nextPageUrl(),
-                'totalPages' => $addedUsers->lastPage(),]
-            ]); 
-        }
+        //     return response()->json([
+        //         $addedUsers->items(),
+        //         ['previousPageUrl' => $addedUsers->previousPageUrl(),
+        //         'nextPageUrl' => $addedUsers->nextPageUrl(),
+        //         'totalPages' => $addedUsers->lastPage(),]
+        //     ]); 
+        // }
 
         try {
             $whiteListUsers = AddedUserResource::collection($this->search->searchFromClients('AddedUser', $request)->unique('hash')->all());
@@ -276,9 +322,11 @@ class AddedUserController extends Controller
 
             return response()->json([
                 $pagination->items(),
-                ['previousPageUrl' => $pagination->previousPageUrl(),
-                'nextPageUrl' => $pagination->nextPageUrl(),
-                'totalPages' => $pagination->lastPage(),]
+                [
+                    'previousPageUrl' => $pagination->previousPageUrl(),
+                    'nextPageUrl' => $pagination->nextPageUrl(),
+                    'totalPages' => $pagination->lastPage(),
+                ]
             ]);
     
         } catch (\Exception $e) {
