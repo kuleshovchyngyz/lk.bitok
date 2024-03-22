@@ -73,13 +73,17 @@
                                         "type": "string",
                                         "example": "Иван"
                                     },
-                                    "date1": {
+                                    "from": {
                                         "type": "string",
                                         "example": "01/01/2022"
                                     },
-                                    "date2": {
+                                    "to": {
                                         "type": "string",
                                         "example": "01/01/2023"
+                                    },
+                                    "type": {
+                                        "type": "string",
+                                        "example": "user"
                                     }
                                 },
                                 "type": "object"

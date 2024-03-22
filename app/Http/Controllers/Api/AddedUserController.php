@@ -243,14 +243,19 @@ class AddedUserController extends Controller
      *                      example="Иван",
      *                  ),
      *                  @OA\Property(
-     *                      property="date1",
+     *                      property="from",
      *                      type="string",
      *                      example="01/01/2022",
      *                  ),
      *                  @OA\Property(
-     *                      property="date1",
+     *                      property="to",
      *                      type="string",
      *                      example="01/01/2023",
+     *                  ),
+     *                  @OA\Property(
+     *                      property="type",
+     *                      type="string",
+     *                      example="user",
      *                  ),
      *              )
      *          )
@@ -265,6 +270,66 @@ class AddedUserController extends Controller
     public function search(Request $request)
     {
         $this->authorize('viewAny', AddedUser::class);
+
+        if ($request->filled('name')) {
+            $addedUsers = AddedUserResource::collection(AddedUser::where(function ($q) use ($request) {
+                foreach (explode(' ', $request->name) as $name) {
+                    $q->where(function ($query) use ($name) {
+                        $query->orWhere('last_name', 'like', '%' . $name . '%')
+                            ->orWhere('first_name', 'like', '%' . $name . '%')
+                            ->orWhere('middle_name', 'like', '%' . $name . '%');
+                    });
+                }
+            })->get());
+        } else {
+            $addedUsers = AddedUserResource::collection(AddedUser::all());
+        }
+
+        if ($request->has('from') && $request->has('to')) {
+            $startDate = $this->parseDateString($request->from);
+            $endDate = $this->parseDateString($request->to);
+            $addedUsers = $addedUsers->filter(function ($item) use ($startDate, $endDate) {
+                $createdAt = \Carbon\Carbon::parse($item['created_at']);
+                $startDate = \Carbon\Carbon::parse($startDate)->startOfDay();
+                $endDate = \Carbon\Carbon::parse($endDate)->endOfDay();
+
+                return $createdAt->between($startDate, $endDate);
+            });
+        }
+        elseif ($request->has('from')) {
+            $startDate = $this->parseDateString($request->from);
+            $addedUsers = $addedUsers->filter(function ($item) use ($startDate) {
+                $startDate = \Carbon\Carbon::parse($startDate)->startOfDay();
+                return $item['created_at'] >= $startDate;
+            });
+        }
+        elseif ($request->has('to')) {
+            $endDate = $this->parseDateString($request->to);
+            $addedUsers = $addedUsers->filter(function ($item) use ($endDate) {
+                $endDate = \Carbon\Carbon::parse($endDate)->endOfDay();
+                return $item['created_at'] <= $endDate;
+            });
+        }
+
+        $currentPage = $request->has('page') ? $request->get('page') : 1;
+        $perPage = 100;
+
+        $pagination = new LengthAwarePaginator(
+            $addedUsers->forPage($currentPage, $perPage),
+            $addedUsers->count(),
+            $perPage,
+            $currentPage,
+            ['path' => Paginator::resolveCurrentPath()]
+        );
+    
+                return response()->json([
+                    $pagination->values(),
+                    [
+                        'previousPageUrl' => $pagination->previousPageUrl() ? $request->url() . '?page=' . ($pagination->currentPage() - 1) . '&' . http_build_query($request->except('page')) : null,
+                        'nextPageUrl' => $pagination->nextPageUrl() ? $request->url() . '?page=' . ($pagination->currentPage() + 1) . '&' . http_build_query($request->except('page')) : null,
+                        'totalPages' => $pagination->lastPage(),
+                    ]
+                ]);
         
         // if (!$request->all() || ($request->filled('page') && $request->keys() === ['page'])) {
 
@@ -295,45 +360,45 @@ class AddedUserController extends Controller
         //     ]); 
         // }
 
-        try {
-            $whiteListUsers = AddedUserResource::collection($this->search->searchFromClients('AddedUser', $request)->unique('hash')->all());
+        // try {
+        //     $whiteListUsers = AddedUserResource::collection($this->search->searchFromClients('AddedUser', $request)->unique('hash')->all());
             
-            if ($request->get('name') == null && $request->get('birth_date') == null) {
-                return $whiteListUsers->paginate(100);
-            }
+        //     if ($request->get('name') == null && $request->get('birth_date') == null) {
+        //         return $whiteListUsers->paginate(100);
+        //     }
             
-            $whiteListUsers = $this->filterByDates($request, $whiteListUsers);
-            list($blackLists, $results) = $this->getBlackedListUsers($request, $whiteListUsers);
+        //     $whiteListUsers = $this->filterByDates($request, $whiteListUsers);
+        //     list($blackLists, $results) = $this->getBlackedListUsers($request, $whiteListUsers);
             
-            $mergedUsers = $this->mergeBothUsers($whiteListUsers, $blackLists, $results);
-            $mergedUsers = new Collection($mergedUsers); // Convert array to collection
+        //     $mergedUsers = $this->mergeBothUsers($whiteListUsers, $blackLists, $results);
+        //     $mergedUsers = new Collection($mergedUsers); // Convert array to collection
             
-            $perPage = 100; // Number of items per page
-            $currentPage = Paginator::resolveCurrentPage('page');
-            $sliced = $mergedUsers->slice(($currentPage - 1) * $perPage, $perPage)->values();
+        //     $perPage = 100; // Number of items per page
+        //     $currentPage = Paginator::resolveCurrentPage('page');
+        //     $sliced = $mergedUsers->slice(($currentPage - 1) * $perPage, $perPage)->values();
             
-            $pagination = new LengthAwarePaginator(
-                $sliced,
-                $mergedUsers->count(),
-                $perPage,
-                $currentPage,
-                ['path' => Paginator::resolveCurrentPath()]
-            );
+        //     $pagination = new LengthAwarePaginator(
+        //         $sliced,
+        //         $mergedUsers->count(),
+        //         $perPage,
+        //         $currentPage,
+        //         ['path' => Paginator::resolveCurrentPath()]
+        //     );
 
-            return response()->json([
-                $pagination->items(),
-                [
-                    'previousPageUrl' => $pagination->previousPageUrl() ? $pagination->previousPageUrl() . '?' . http_build_query($request->except(['page'])) : null,
-                    'nextPageUrl' => $pagination->nextPageUrl() . '?' . http_build_query($request->except(['page'])),
-                    'totalPages' => $pagination->lastPage(),
-                ]
-            ]);
+        //     return response()->json([
+        //         $pagination->items(),
+        //         [
+        //             'previousPageUrl' => $pagination->previousPageUrl(),
+        //             'nextPageUrl' => $pagination->nextPageUrl(),
+        //             'totalPages' => $pagination->lastPage(),
+        //         ]
+        //     ]);
     
-        } catch (\Exception $e) {
-            return response()->json([
-                'error' => $e->getMessage()
-            ], 500); // HTTP status code 500 for Internal Server Error
-        }
+        // } catch (\Exception $e) {
+        //     return response()->json([
+        //         'error' => $e->getMessage()
+        //     ], 500); // HTTP status code 500 for Internal Server Error
+        // }
     }
 
     public function parseDateString($date_string)
