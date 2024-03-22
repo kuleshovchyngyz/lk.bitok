@@ -322,14 +322,32 @@ class AddedUserController extends Controller
             ['path' => Paginator::resolveCurrentPath()]
         );
     
-                return response()->json([
-                    $pagination->values(),
-                    [
-                        'previousPageUrl' => $pagination->previousPageUrl() ? $request->url() . '?page=' . ($pagination->currentPage() - 1) . '&' . http_build_query($request->except('page')) : null,
-                        'nextPageUrl' => $pagination->nextPageUrl() ? $request->url() . '?page=' . ($pagination->currentPage() + 1) . '&' . http_build_query($request->except('page')) : null,
-                        'totalPages' => $pagination->lastPage(),
-                    ]
-                ]);
+        return response()->json([
+            $pagination->values(),
+            [
+                // 'previousPageUrl' => $pagination->previousPageUrl() ? $request->url() . '?page=' . ($pagination->currentPage() - 1) . '&' . http_build_query($request->except('page')) : null,
+                // 'nextPageUrl' => $pagination->nextPageUrl() ? $request->url() . '?page=' . ($pagination->currentPage() + 1) . '&' . http_build_query($request->except('page')) : null,
+                'currentPage' => $pagination->currentPage(),
+                'url' => $request->url(),
+                'previousPageRequest' => $pagination->previousPageUrl() ?
+                [
+                    'page' => $pagination->currentPage() - 1,
+                    'name' => $request->get('name') ?? '',
+                    'from' => $request->get('from') ?? '',
+                    'to' => $request->get('to') ?? '',
+                    'type' => $request->get('type') ?? '',
+                ] : null,
+                'nextPageRequest' => $pagination->nextPageUrl() ? 
+                [
+                    'page' => $pagination->currentPage() + 1,
+                    'name' => $request->get('name') ?? '',
+                    'from' => $request->get('from') ?? '',
+                    'to' => $request->get('to') ?? '',
+                    'type' => $request->get('type') ?? '',
+                ] : null,
+                'totalPages' => $pagination->lastPage(),
+            ]
+        ]);
         
         // if (!$request->all() || ($request->filled('page') && $request->keys() === ['page'])) {
 
