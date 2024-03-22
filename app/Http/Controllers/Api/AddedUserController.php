@@ -323,8 +323,8 @@ class AddedUserController extends Controller
             return response()->json([
                 $pagination->items(),
                 [
-                    'previousPageUrl' => $pagination->previousPageUrl(),
-                    'nextPageUrl' => $pagination->nextPageUrl(),
+                    'previousPageUrl' => $pagination->previousPageUrl() ? $pagination->previousPageUrl() . '?' . http_build_query($request->except(['page'])) : null,
+                    'nextPageUrl' => $pagination->nextPageUrl() . '?' . http_build_query($request->except(['page'])),
                     'totalPages' => $pagination->lastPage(),
                 ]
             ]);
