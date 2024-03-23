@@ -218,8 +218,8 @@ class AddedUserController extends Controller
 
     /**
      * @OA\Post(
-     *      path="/api/added-users/search",
-     *      operationId="searchAddedUsers",
+     *      path="/api/clients/search",
+     *      operationId="searchClients",
      *      tags={"AddedUsers"},
      *      summary="Поиск клиентов",
      *      description="Поиск клиентов",
@@ -377,6 +377,57 @@ class AddedUserController extends Controller
         // }
 
     }
+
+    /**
+     * @OA\Post(
+     *      path="/api/added-users/search",
+     *      operationId="searchAddedUsers",
+     *      tags={"AddedUsers"},
+     *      summary="Поиск клиентов",
+     *      description="Поиск клиентов",
+     *      security={{"bearerAuth":{}}},
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  type="object",
+     *                  @OA\Property(
+     *                      property="page",
+     *                      type="integer",
+     *                      description="Страница",
+     *                      default=1,
+     *                  ),
+     *                  @OA\Property(
+     *                      property="name",
+     *                      type="string",
+     *                      description="Имя",
+     *                      example="Иван",
+     *                  ),
+     *                  @OA\Property(
+     *                      property="from",
+     *                      type="string",
+     *                      example="01/01/2022",
+     *                  ),
+     *                  @OA\Property(
+     *                      property="to",
+     *                      type="string",
+     *                      example="01/01/2023",
+     *                  ),
+     *                  @OA\Property(
+     *                      property="type",
+     *                      type="string",
+     *                      example="user",
+     *                  ),
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="OK"
+     *      )
+     * )
+     */
 
     public function search(Request $request)
     {

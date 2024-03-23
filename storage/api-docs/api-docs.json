@@ -49,6 +49,60 @@
                 ]
             }
         },
+        "/api/clients/search": {
+            "post": {
+                "tags": [
+                    "AddedUsers"
+                ],
+                "summary": "Поиск клиентов",
+                "description": "Поиск клиентов",
+                "operationId": "searchClients",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "page": {
+                                        "description": "Страница",
+                                        "type": "integer",
+                                        "default": 1
+                                    },
+                                    "name": {
+                                        "description": "Имя",
+                                        "type": "string",
+                                        "example": "Иван"
+                                    },
+                                    "from": {
+                                        "type": "string",
+                                        "example": "01/01/2022"
+                                    },
+                                    "to": {
+                                        "type": "string",
+                                        "example": "01/01/2023"
+                                    },
+                                    "type": {
+                                        "type": "string",
+                                        "example": "user"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/added-users/search": {
             "post": {
                 "tags": [
