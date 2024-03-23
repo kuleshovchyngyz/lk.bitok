@@ -267,7 +267,7 @@ class AddedUserController extends Controller
      * )
      */
 
-    public function search(Request $request)
+    public function clientSearch(Request $request)
     {
         $this->authorize('viewAny', AddedUser::class);
 
@@ -325,8 +325,6 @@ class AddedUserController extends Controller
         return response()->json([
             $pagination->values(),
             [
-                // 'previousPageUrl' => $pagination->previousPageUrl() ? $request->url() . '?page=' . ($pagination->currentPage() - 1) . '&' . http_build_query($request->except('page')) : null,
-                // 'nextPageUrl' => $pagination->nextPageUrl() ? $request->url() . '?page=' . ($pagination->currentPage() + 1) . '&' . http_build_query($request->except('page')) : null,
                 'currentPage' => $pagination->currentPage(),
                 'url' => $request->url(),
                 'previousPageRequest' => $pagination->previousPageUrl() ?
@@ -378,45 +376,51 @@ class AddedUserController extends Controller
         //     ]); 
         // }
 
-        // try {
-        //     $whiteListUsers = AddedUserResource::collection($this->search->searchFromClients('AddedUser', $request)->unique('hash')->all());
-            
-        //     if ($request->get('name') == null && $request->get('birth_date') == null) {
-        //         return $whiteListUsers->paginate(100);
-        //     }
-            
-        //     $whiteListUsers = $this->filterByDates($request, $whiteListUsers);
-        //     list($blackLists, $results) = $this->getBlackedListUsers($request, $whiteListUsers);
-            
-        //     $mergedUsers = $this->mergeBothUsers($whiteListUsers, $blackLists, $results);
-        //     $mergedUsers = new Collection($mergedUsers); // Convert array to collection
-            
-        //     $perPage = 100; // Number of items per page
-        //     $currentPage = Paginator::resolveCurrentPage('page');
-        //     $sliced = $mergedUsers->slice(($currentPage - 1) * $perPage, $perPage)->values();
-            
-        //     $pagination = new LengthAwarePaginator(
-        //         $sliced,
-        //         $mergedUsers->count(),
-        //         $perPage,
-        //         $currentPage,
-        //         ['path' => Paginator::resolveCurrentPath()]
-        //     );
+    }
 
-        //     return response()->json([
-        //         $pagination->items(),
-        //         [
-        //             'previousPageUrl' => $pagination->previousPageUrl(),
-        //             'nextPageUrl' => $pagination->nextPageUrl(),
-        //             'totalPages' => $pagination->lastPage(),
-        //         ]
-        //     ]);
+    public function search(Request $request)
+    {
+        $this->authorize('viewAny', AddedUser::class);
+
+        try {
+            $whiteListUsers = AddedUserResource::collection($this->search->searchFromClients('AddedUser', $request)->unique('hash')->all());
+            
+            if ($request->get('name') == null && $request->get('birth_date') == null) {
+                return $whiteListUsers->paginate(100);
+            }
+            
+            $whiteListUsers = $this->filterByDates($request, $whiteListUsers);
+            list($blackLists, $results) = $this->getBlackedListUsers($request, $whiteListUsers);
+            
+            $mergedUsers = $this->mergeBothUsers($whiteListUsers, $blackLists, $results);
+            $mergedUsers = new Collection($mergedUsers); // Convert array to collection
+            
+            $perPage = 100; // Number of items per page
+            $currentPage = Paginator::resolveCurrentPage('page');
+            $sliced = $mergedUsers->slice(($currentPage - 1) * $perPage, $perPage)->values();
+            
+            $pagination = new LengthAwarePaginator(
+                $sliced,
+                $mergedUsers->count(),
+                $perPage,
+                $currentPage,
+                ['path' => Paginator::resolveCurrentPath()]
+            );
+
+            return response()->json([
+                $pagination->items(),
+                [
+                    'previousPageUrl' => $pagination->previousPageUrl(),
+                    'nextPageUrl' => $pagination->nextPageUrl(),
+                    'totalPages' => $pagination->lastPage(),
+                ]
+            ]);
     
-        // } catch (\Exception $e) {
-        //     return response()->json([
-        //         'error' => $e->getMessage()
-        //     ], 500); // HTTP status code 500 for Internal Server Error
-        // }
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => $e->getMessage()
+            ], 500); // HTTP status code 500 for Internal Server Error
+        }
     }
 
     public function parseDateString($date_string)
