@@ -20,6 +20,8 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Resources\CountryResource;
 use App\Http\Resources\AddedUserResource;
 use App\Http\Requests\StoreAddedUserRequest;
+use App\Http\Resources\LegalResource;
+use App\Models\LegalEntity;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
@@ -222,7 +224,7 @@ class AddedUserController extends Controller
      *      operationId="searchClients",
      *      tags={"AddedUsers"},
      *      summary="Поиск клиентов",
-     *      description="Поиск клиентов в табе <code>Клиенты</code>",
+     *      description="Поиск клиентов в табе <code>Клиенты</code><br><br>Тип для физических лиц - <code>user</code><br>Тип для юридических лиц - <code>legal</code>",
      *      security={{"bearerAuth":{}}},
      *      @OA\RequestBody(
      *          required=true,
@@ -230,12 +232,6 @@ class AddedUserController extends Controller
      *              mediaType="application/json",
      *              @OA\Schema(
      *                  type="object",
-     *                  @OA\Property(
-     *                      property="page",
-     *                      type="integer",
-     *                      description="Страница",
-     *                      default=1,
-     *                  ),
      *                  @OA\Property(
      *                      property="name",
      *                      type="string",
@@ -271,81 +267,179 @@ class AddedUserController extends Controller
     {
         $this->authorize('viewAny', AddedUser::class);
 
-        if ($request->filled('name')) {
-            $addedUsers = AddedUserResource::collection(AddedUser::where(function ($q) use ($request) {
-                foreach (explode(' ', $request->name) as $name) {
-                    $q->where(function ($query) use ($name) {
-                        $query->orWhere('last_name', 'like', '%' . $name . '%')
-                            ->orWhere('first_name', 'like', '%' . $name . '%')
-                            ->orWhere('middle_name', 'like', '%' . $name . '%');
+        if ($request->type === 'user') {
+            if ($request->filled('name')) {
+                $addedUsers = AddedUserResource::collection(AddedUser::where(function ($q) use ($request) {
+                    foreach (explode(' ', $request->name) as $name) {
+                        $q->where(function ($query) use ($name) {
+                            $query->orWhere('last_name', 'like', '%' . $name . '%')
+                                ->orWhere('first_name', 'like', '%' . $name . '%')
+                                ->orWhere('middle_name', 'like', '%' . $name . '%');
+                        });
+                    }
+                })->get());
+    
+                if ($request->has('from') && $request->has('to')) {
+                    $startDate = $this->parseDateString($request->from);
+                    $endDate = $this->parseDateString($request->to);
+                    $addedUsers = $addedUsers->filter(function ($item) use ($startDate, $endDate) {
+                        $createdAt = \Carbon\Carbon::parse($item['created_at']);
+                        $startDate = \Carbon\Carbon::parse($startDate)->startOfDay();
+                        $endDate = \Carbon\Carbon::parse($endDate)->endOfDay();
+        
+                        return $createdAt->between($startDate, $endDate);
                     });
                 }
-            })->get());
-        } else {
-            $addedUsers = AddedUserResource::collection(AddedUser::all());
-        }
-
-        if ($request->has('from') && $request->has('to')) {
-            $startDate = $this->parseDateString($request->from);
-            $endDate = $this->parseDateString($request->to);
-            $addedUsers = $addedUsers->filter(function ($item) use ($startDate, $endDate) {
-                $createdAt = \Carbon\Carbon::parse($item['created_at']);
-                $startDate = \Carbon\Carbon::parse($startDate)->startOfDay();
-                $endDate = \Carbon\Carbon::parse($endDate)->endOfDay();
-
-                return $createdAt->between($startDate, $endDate);
-            });
-        }
-        elseif ($request->has('from')) {
-            $startDate = $this->parseDateString($request->from);
-            $addedUsers = $addedUsers->filter(function ($item) use ($startDate) {
-                $startDate = \Carbon\Carbon::parse($startDate)->startOfDay();
-                return $item['created_at'] >= $startDate;
-            });
-        }
-        elseif ($request->has('to')) {
-            $endDate = $this->parseDateString($request->to);
-            $addedUsers = $addedUsers->filter(function ($item) use ($endDate) {
-                $endDate = \Carbon\Carbon::parse($endDate)->endOfDay();
-                return $item['created_at'] <= $endDate;
-            });
-        }
-
-        $currentPage = $request->has('page') ? $request->get('page') : 1;
-        $perPage = 100;
-
-        $pagination = new LengthAwarePaginator(
-            $addedUsers->forPage($currentPage, $perPage),
-            $addedUsers->count(),
-            $perPage,
-            $currentPage,
-            ['path' => Paginator::resolveCurrentPath()]
-        );
+                elseif ($request->has('from')) {
+                    $startDate = $this->parseDateString($request->from);
+                    $addedUsers = $addedUsers->filter(function ($item) use ($startDate) {
+                        $startDate = \Carbon\Carbon::parse($startDate)->startOfDay();
+                        return $item['created_at'] >= $startDate;
+                    });
+                }
+                elseif ($request->has('to')) {
+                    $endDate = $this->parseDateString($request->to);
+                    $addedUsers = $addedUsers->filter(function ($item) use ($endDate) {
+                        $endDate = \Carbon\Carbon::parse($endDate)->endOfDay();
+                        return $item['created_at'] <= $endDate;
+                    });
+                }
+            } 
+            else {
+                $addedUsers = AddedUserResource::collection(AddedUser::all());
+                if ($request->has('from') && $request->has('to')) {
+                    $startDate = $this->parseDateString($request->from);
+                    $endDate = $this->parseDateString($request->to);
+                    $addedUsers = $addedUsers->filter(function ($item) use ($startDate, $endDate) {
+                        $createdAt = \Carbon\Carbon::parse($item['created_at']);
+                        $startDate = \Carbon\Carbon::parse($startDate)->startOfDay();
+                        $endDate = \Carbon\Carbon::parse($endDate)->endOfDay();
+        
+                        return $createdAt->between($startDate, $endDate);
+                    });
+                }
+                elseif ($request->has('from')) {
+                    $startDate = $this->parseDateString($request->from);
+                    $addedUsers = $addedUsers->filter(function ($item) use ($startDate) {
+                        $startDate = \Carbon\Carbon::parse($startDate)->startOfDay();
+                        return $item['created_at'] >= $startDate;
+                    });
+                }
+                elseif ($request->has('to')) {
+                    $endDate = $this->parseDateString($request->to);
+                    $addedUsers = $addedUsers->filter(function ($item) use ($endDate) {
+                        $endDate = \Carbon\Carbon::parse($endDate)->endOfDay();
+                        return $item['created_at'] <= $endDate;
+                    });
+                }
+            }
     
-        return response()->json([
-            $pagination->values(),
-            [
-                'currentPage' => $pagination->currentPage(),
-                'url' => $request->url(),
-                'previousPageRequest' => $pagination->previousPageUrl() ?
-                [
-                    'page' => $pagination->currentPage() - 1,
-                    'name' => $request->get('name') ?? '',
-                    'from' => $request->get('from') ?? '',
-                    'to' => $request->get('to') ?? '',
-                    'type' => $request->get('type') ?? '',
-                ] : null,
-                'nextPageRequest' => $pagination->nextPageUrl() ? 
-                [
-                    'page' => $pagination->currentPage() + 1,
-                    'name' => $request->get('name') ?? '',
-                    'from' => $request->get('from') ?? '',
-                    'to' => $request->get('to') ?? '',
-                    'type' => $request->get('type') ?? '',
-                ] : null,
-                'totalPages' => $pagination->lastPage(),
-            ]
-        ]);
+            return response()->json($addedUsers);
+        }
+        elseif ($request->type === 'legal') {
+            if ($request->filled('name')) {
+                $legals = LegalResource::collection(LegalEntity::where(function ($q) use ($request) {
+                    foreach (explode(' ', $request->name) as $name) {
+                        $q->where(function ($query) use ($name) {
+                            $query->orWhere('name', 'like', '%' . $name . '%')
+                                ->orWhere('address', 'like', '%' . $name . '%')
+                                ->orWhere('director_full_name', 'like', '%' . $name . '%');
+                        });
+                    }
+                })->get());
+    
+                if ($request->has('from') && $request->has('to')) {
+                    $startDate = $this->parseDateString($request->from);
+                    $endDate = $this->parseDateString($request->to);
+                    $legals = $legals->filter(function ($item) use ($startDate, $endDate) {
+                        $createdAt = \Carbon\Carbon::parse($item['created_at']);
+                        $startDate = \Carbon\Carbon::parse($startDate)->startOfDay();
+                        $endDate = \Carbon\Carbon::parse($endDate)->endOfDay();
+        
+                        return $createdAt->between($startDate, $endDate);
+                    });
+                }
+                elseif ($request->has('from')) {
+                    $startDate = $this->parseDateString($request->from);
+                    $legals = $legals->filter(function ($item) use ($startDate) {
+                        $startDate = \Carbon\Carbon::parse($startDate)->startOfDay();
+                        return $item['created_at'] >= $startDate;
+                    });
+                }
+                elseif ($request->has('to')) {
+                    $endDate = $this->parseDateString($request->to);
+                    $legals = $legals->filter(function ($item) use ($endDate) {
+                        $endDate = \Carbon\Carbon::parse($endDate)->endOfDay();
+                        return $item['created_at'] <= $endDate;
+                    });
+                }
+            } 
+            else {
+                $legals = LegalResource::collection(LegalEntity::all());
+                if ($request->has('from') && $request->has('to')) {
+                    $startDate = $this->parseDateString($request->from);
+                    $endDate = $this->parseDateString($request->to);
+                    $legals = $legals->filter(function ($item) use ($startDate, $endDate) {
+                        $createdAt = \Carbon\Carbon::parse($item['created_at']);
+                        $startDate = \Carbon\Carbon::parse($startDate)->startOfDay();
+                        $endDate = \Carbon\Carbon::parse($endDate)->endOfDay();
+        
+                        return $createdAt->between($startDate, $endDate);
+                    });
+                }
+                elseif ($request->has('from')) {
+                    $startDate = $this->parseDateString($request->from);
+                    $legals = $legals->filter(function ($item) use ($startDate) {
+                        $startDate = \Carbon\Carbon::parse($startDate)->startOfDay();
+                        return $item['created_at'] >= $startDate;
+                    });
+                }
+                elseif ($request->has('to')) {
+                    $endDate = $this->parseDateString($request->to);
+                    $legals = $legals->filter(function ($item) use ($endDate) {
+                        $endDate = \Carbon\Carbon::parse($endDate)->endOfDay();
+                        return $item['created_at'] <= $endDate;
+                    });
+                }
+            }
+            return response()->json($legals);
+        }
+
+        // $currentPage = $request->has('page') ? $request->get('page') : 1;
+        // $perPage = 100;
+
+        // $pagination = new LengthAwarePaginator(
+        //     $addedUsers->forPage($currentPage, $perPage),
+        //     $addedUsers->count(),
+        //     $perPage,
+        //     $currentPage,
+        //     ['path' => Paginator::resolveCurrentPath()]
+        // );
+    
+        // return response()->json([
+        //     $pagination->values(),
+        //     [
+        //         'currentPage' => $pagination->currentPage(),
+        //         'url' => $request->url(),
+        //         'previousPageRequest' => $pagination->previousPageUrl() ?
+        //         [
+        //             'page' => $pagination->currentPage() - 1,
+        //             'name' => $request->get('name') ?? '',
+        //             'from' => $request->get('from') ?? '',
+        //             'to' => $request->get('to') ?? '',
+        //             'type' => $request->get('type') ?? '',
+        //         ] : null,
+        //         'nextPageRequest' => $pagination->nextPageUrl() ? 
+        //         [
+        //             'page' => $pagination->currentPage() + 1,
+        //             'name' => $request->get('name') ?? '',
+        //             'from' => $request->get('from') ?? '',
+        //             'to' => $request->get('to') ?? '',
+        //             'type' => $request->get('type') ?? '',
+        //         ] : null,
+        //         'totalPages' => $pagination->lastPage(),
+        //     ]
+        // ]);
         
         // if (!$request->all() || ($request->filled('page') && $request->keys() === ['page'])) {
 

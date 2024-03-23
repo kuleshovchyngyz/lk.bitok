@@ -55,7 +55,7 @@
                     "AddedUsers"
                 ],
                 "summary": "Поиск клиентов",
-                "description": "Поиск клиентов в табе <code>Клиенты</code>",
+                "description": "Поиск клиентов в табе <code>Клиенты</code><br><br>Тип для физических лиц - <code>user</code><br>Тип для юридических лиц - <code>legal</code>",
                 "operationId": "searchClients",
                 "requestBody": {
                     "required": true,
@@ -63,11 +63,6 @@
                         "application/json": {
                             "schema": {
                                 "properties": {
-                                    "page": {
-                                        "description": "Страница",
-                                        "type": "integer",
-                                        "default": 1
-                                    },
                                     "name": {
                                         "description": "Имя",
                                         "type": "string",
