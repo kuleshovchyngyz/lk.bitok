@@ -306,35 +306,26 @@ class AddedUserController extends Controller
                 }
             } 
             else {
-                $addedUsers = AddedUserResource::collection(AddedUser::all());
                 if ($request->has('from') && $request->has('to')) {
-                    $startDate = $this->parseDateString($request->from);
-                    $endDate = $this->parseDateString($request->to);
-                    $addedUsers = $addedUsers->filter(function ($item) use ($startDate, $endDate) {
-                        $createdAt = \Carbon\Carbon::parse($item['created_at']);
-                        $startDate = \Carbon\Carbon::parse($startDate)->startOfDay();
-                        $endDate = \Carbon\Carbon::parse($endDate)->endOfDay();
-        
-                        return $createdAt->between($startDate, $endDate);
-                    });
+
+                    $startDate = \Carbon\Carbon::parse($this->parseDateString($request->from))->startOfDay();
+                    $endDate = \Carbon\Carbon::parse($this->parseDateString($request->to))->endOfDay();
+
+                    $addedUsers = AddedUserResource::collection(AddedUser::whereBetween('created_at', [$startDate, $endDate])->get());
                 }
                 elseif ($request->has('from')) {
                     $startDate = $this->parseDateString($request->from);
-                    $addedUsers = $addedUsers->filter(function ($item) use ($startDate) {
-                        $startDate = \Carbon\Carbon::parse($startDate)->startOfDay();
-                        return $item['created_at'] >= $startDate;
-                    });
+                    $startDate = \Carbon\Carbon::parse($startDate)->startOfDay();
+                    $addedUsers = AddedUserResource::collection(AddedUser::where('created_at', '>=', $startDate)->get());
                 }
                 elseif ($request->has('to')) {
                     $endDate = $this->parseDateString($request->to);
-                    $addedUsers = $addedUsers->filter(function ($item) use ($endDate) {
-                        $endDate = \Carbon\Carbon::parse($endDate)->endOfDay();
-                        return $item['created_at'] <= $endDate;
-                    });
+                    $endDate = \Carbon\Carbon::parse($endDate)->endOfDay();
+                    $addedUsers = AddedUserResource::collection(AddedUser::where('created_at', '<=', $endDate)->get());
                 }
             }
     
-            return response()->json($addedUsers);
+            return response()->json($addedUsers->values());
         }
         elseif ($request->type === 'legal') {
             if ($request->filled('name')) {
@@ -402,7 +393,7 @@ class AddedUserController extends Controller
                     });
                 }
             }
-            return response()->json($legals);
+            return response()->json($legals->values());
         }
 
         // $currentPage = $request->has('page') ? $request->get('page') : 1;
