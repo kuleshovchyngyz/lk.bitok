@@ -93,6 +93,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('legal-entities/{legal-entity}/user-operations', [UserOperationController::class,'legalUserOperations']);
     Route::post('added-users/search', [AddedUserController::class,'search']);
+    Route::post('clients/search', [AddedUserController::class,'clientSearch']);
     Route::post('legal-entities/search', [\App\Http\Controllers\Api\LegalEntityController::class,'search']);
     Route::post('added-users/{added_user}/upload', [AddedUserController::class,'upload']);
     Route::delete('attachment/{attachment}/delete', [AddedUserController::class,'delete']);
