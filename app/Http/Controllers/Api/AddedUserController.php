@@ -222,7 +222,7 @@ class AddedUserController extends Controller
      *      operationId="searchClients",
      *      tags={"AddedUsers"},
      *      summary="Поиск клиентов",
-     *      description="Поиск клиентов",
+     *      description="Поиск клиентов в табе <code>Клиенты</code>",
      *      security={{"bearerAuth":{}}},
      *      @OA\RequestBody(
      *          required=true,
@@ -384,7 +384,7 @@ class AddedUserController extends Controller
      *      operationId="searchAddedUsers",
      *      tags={"AddedUsers"},
      *      summary="Поиск клиентов",
-     *      description="Поиск клиентов",
+     *      description="Поиск клиентов в табе <code>Добавить операцию</code><br><br>Здесь поиск делается и в списке клиентов, и в черном списке",
      *      security={{"bearerAuth":{}}},
      *      @OA\RequestBody(
      *          required=true,
@@ -403,21 +403,6 @@ class AddedUserController extends Controller
      *                      type="string",
      *                      description="Имя",
      *                      example="Иван",
-     *                  ),
-     *                  @OA\Property(
-     *                      property="from",
-     *                      type="string",
-     *                      example="01/01/2022",
-     *                  ),
-     *                  @OA\Property(
-     *                      property="to",
-     *                      type="string",
-     *                      example="01/01/2023",
-     *                  ),
-     *                  @OA\Property(
-     *                      property="type",
-     *                      type="string",
-     *                      example="user",
      *                  ),
      *              )
      *          )
@@ -458,11 +443,30 @@ class AddedUserController extends Controller
                 ['path' => Paginator::resolveCurrentPath()]
             );
 
+            // return response()->json([
+            //     $pagination->items(),
+            //     [
+            //         'previousPageUrl' => $pagination->previousPageUrl(),
+            //         'nextPageUrl' => $pagination->nextPageUrl(),
+            //         'totalPages' => $pagination->lastPage(),
+            //     ]
+            // ]);
+
             return response()->json([
                 $pagination->items(),
                 [
-                    'previousPageUrl' => $pagination->previousPageUrl(),
-                    'nextPageUrl' => $pagination->nextPageUrl(),
+                    'currentPage' => $pagination->currentPage(),
+                    'url' => $request->url(),
+                    'previousPageRequest' => $pagination->previousPageUrl() ?
+                    [
+                        'page' => $pagination->currentPage() - 1,
+                        'name' => $request->get('name') ?? '',
+                    ] : null,
+                    'nextPageRequest' => $pagination->nextPageUrl() ? 
+                    [
+                        'page' => $pagination->currentPage() + 1,
+                        'name' => $request->get('name') ?? '',
+                    ] : null,
                     'totalPages' => $pagination->lastPage(),
                 ]
             ]);
