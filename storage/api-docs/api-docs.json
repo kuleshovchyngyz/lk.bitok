@@ -55,7 +55,7 @@
                     "AddedUsers"
                 ],
                 "summary": "Поиск клиентов",
-                "description": "Поиск клиентов",
+                "description": "Поиск клиентов в табе <code>Клиенты</code>",
                 "operationId": "searchClients",
                 "requestBody": {
                     "required": true,
@@ -109,7 +109,7 @@
                     "AddedUsers"
                 ],
                 "summary": "Поиск клиентов",
-                "description": "Поиск клиентов",
+                "description": "Поиск клиентов в табе <code>Добавить операцию</code><br><br>Здесь поиск делается и в списке клиентов, и в черном списке",
                 "operationId": "searchAddedUsers",
                 "requestBody": {
                     "required": true,
@@ -126,18 +126,6 @@
                                         "description": "Имя",
                                         "type": "string",
                                         "example": "Иван"
-                                    },
-                                    "from": {
-                                        "type": "string",
-                                        "example": "01/01/2022"
-                                    },
-                                    "to": {
-                                        "type": "string",
-                                        "example": "01/01/2023"
-                                    },
-                                    "type": {
-                                        "type": "string",
-                                        "example": "user"
                                     }
                                 },
                                 "type": "object"
